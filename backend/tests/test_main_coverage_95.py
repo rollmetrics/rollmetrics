@@ -498,9 +498,12 @@ def test_ibjjf_sources_model_bench_and_desktop_extra_branches(
     assert client.head("/api/matches/mc9_semifinal/video").status_code == 200
     assert client.post("/api/evals/scoreboard/run", json={"split": "calibration", "live_video": False, "max_matches": 2}).status_code == 200
 
-    # Cloud signed PUT URL branch in /api/uploads/init
+    # Cloud signed PUT URL branch in /api/uploads/init (mock GCS bearer token for ADC-free Linux CI)
     monkeypatch.setattr(main_mod, "_try_mint_gcs_signed_put_url", lambda *_a: "https://storage.googleapis.com/signed")
     import rollmetrics.auth as auth_mod
+    import rollmetrics.storage as storage_mod
+
+    monkeypatch.setattr(storage_mod, "_get_gcs_bearer_token", lambda: None)
 
     monkeypatch.setattr(
         auth_mod.google_id_token,
