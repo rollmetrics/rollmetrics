@@ -148,6 +148,7 @@ def _cmd_analyze(args: argparse.Namespace) -> int:
     settings = get_settings()
     locked = AthleteId(args.locked_athlete) if args.locked_athlete in ("A", "B") else None
     division = MatchDivisionConfig(
+        ruleset=getattr(args, "ruleset", "ibjjf") or "ibjjf",
         uniform=UniformType(args.uniform),
         belt=BeltRank(args.belt),
         age_division=AgeDivision(args.age),
@@ -418,6 +419,7 @@ def build_parser() -> argparse.ArgumentParser:
     p_analyze = sub.add_parser("analyze", help="Analyze a local video file, event JSON, or YouTube URL.")
     p_analyze.add_argument("video_or_url", help="Path to MP4/MOV/JSON or YouTube URL.")
     p_analyze.add_argument("--profile", choices=["cloud", "local"], default=None)
+    p_analyze.add_argument("--ruleset", choices=["ibjjf", "adcc", "sparring"], default="ibjjf")
     p_analyze.add_argument("--uniform", choices=["gi", "nogi"], default="gi")
     p_analyze.add_argument("--belt", choices=["white", "blue", "purple", "brown", "black"], default="white")
     p_analyze.add_argument("--age", choices=["juvenile", "adult", "master"], default="master")

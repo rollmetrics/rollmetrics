@@ -8,6 +8,7 @@ from typing import Any
 from rollmetrics.config import Settings, get_settings
 from rollmetrics.providers.base import FrameObservation, VisionProvider
 from rollmetrics.providers.factory import get_vision_provider
+from rollmetrics.rules.base import get_ruleset_engine
 from rollmetrics.rules.schema import (
     AdjudicatedEvent,
     AthleteId,
@@ -18,7 +19,6 @@ from rollmetrics.rules.schema import (
 from rollmetrics.rules.state_machine import (
     MIN_STABILIZATION_SEC,
     POINT_VALUES,
-    IBJJFRefereeEngine,
 )
 from rollmetrics.video.analyzer import (
     load_optional_retriever,
@@ -56,7 +56,8 @@ class LiveRefereeSession:
         self._provider = provider
         self.min_vision_interval_sec = max(0.0, float(min_vision_interval_sec))
 
-        self.engine = IBJJFRefereeEngine(
+        self.engine = get_ruleset_engine(
+            self.division.ruleset,
             division=self.division,
             index_version=self.settings.active_index_version,
         )
@@ -394,8 +395,15 @@ class LiveRefereeSession:
     def lock_athlete(self, athlete: AthleteId | str | None) -> dict[str, Any]:
         return self.set_locked_athlete(athlete)
 
+    def enter_overtime(self, overtime_sec: float = 300.0) -> dict[str, Any]:
+        """Enters overtime when the active ruleset supports it (e.g. ADCC)."""
+        if hasattr(self.engine, "enter_overtime") and callable(self.engine.enter_overtime):
+            self.engine.enter_overtime(overtime_sec=overtime_sec)
+        self._active_stab = None
+        return self.current_hud_state()
+
     def finalize(self) -> dict[str, Any]:
-        """Ends regulation time and resolves winner per IBJJF Art. 2.2 tie-breakers."""
+        """Ends regulation time and resolves winner per active ruleset."""
         self.engine.finalize_regulation()
         self._active_stab = None
         return self.current_hud_state()
@@ -468,8 +476,16 @@ class LiveRefereeSession:
             if ev.needs_review
         ]
         locked = self.division.locked_athlete.value if self.division.locked_athlete else None
+        points_period_active = (
+            bool(self.engine.is_points_period(self.engine.elapsed_sec))
+            if hasattr(self.engine, "is_points_period") and callable(self.engine.is_points_period)
+            else True
+        )
         return {
             **dumped,
+            "ruleset": self.engine.ruleset_id,
+            "points_period_active": points_period_active,
+            "overtime": bool(getattr(self.engine, "overtime", False)),
             "scoreboard": dumped,
             "profile": self.profile,
             "model_used": self._latest_model_used,

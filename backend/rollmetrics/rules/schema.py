@@ -48,6 +48,7 @@ class EventKind(str, Enum):
 
 
 class MatchDivisionConfig(BaseModel):
+    ruleset: Literal["ibjjf", "ibjjf_v6", "ibjjf_v6_1", "adcc", "sparring"] = "ibjjf"
     uniform: UniformType = UniformType.GI
     belt: BeltRank = BeltRank.WHITE
     age_division: AgeDivision = AgeDivision.MASTER
@@ -62,6 +63,8 @@ class MatchDivisionConfig(BaseModel):
     def resolved_duration_sec(self) -> int:
         if self.duration_sec is not None:
             return self.duration_sec
+        if self.ruleset == "adcc":
+            return 600 if self.age_division == AgeDivision.ADULT else 360
         if self.age_division == AgeDivision.MASTER:
             return 300
         if self.age_division == AgeDivision.JUVENILE:

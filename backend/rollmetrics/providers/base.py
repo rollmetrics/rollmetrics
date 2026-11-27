@@ -331,8 +331,16 @@ def coerce_frame_observation(
 def build_division_context_prompt(division: MatchDivisionConfig) -> str:
     locked = division.locked_athlete.value if division.locked_athlete else "A"
     locked_name = division.athlete_a_name if locked == "A" else division.athlete_b_name
+    ruleset_key = (division.ruleset or "ibjjf").strip().lower()
+    if ruleset_key == "adcc":
+        ruleset_label = "ADCC Submission Fighting (No-Points first half, -1 guard pull/stalling in points period, 2/3/4-pt scoring, zero advantages)"
+    elif ruleset_key == "sparring":
+        ruleset_label = "Sparring Round (Open Mat positional control and submission threats, zero penalties)"
+    else:
+        ruleset_label = "IBJJF v6.1"
     return (
-        f"IBJJF Division: {division.age_division.value.title()} {division.belt.value.title()} Belt "
+        f"Ruleset: {ruleset_label}.\n"
+        f"Division: {division.age_division.value.title()} {division.belt.value.title()} Belt "
         f"({division.uniform.value.upper()}), Weight {division.weight_class}, "
         f"Regulation {division.resolved_duration_sec()}s.\n"
         f"Athlete A: {division.athlete_a_name} ({division.athlete_a_appearance}).\n"

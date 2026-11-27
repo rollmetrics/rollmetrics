@@ -2296,11 +2296,20 @@ def _load_admin_overview_payload(app_cfg: Settings, active_user_email: str) -> d
         {
             "id": "adcc",
             "name": "ADCC Submission Fighting",
-            "status": "planned",
+            "status": "active",
+            "legality_cases": 18,
+            "rule_docs": 1,
+            "official_videos": 0,
+            "notes": "No-points first half, -1 guard pull/stalling penalties, 2/3/4-pt scoring, zero advantages, overtime",
+        },
+        {
+            "id": "sparring",
+            "name": "Sparring Round (Open Mat)",
+            "status": "active",
             "legality_cases": 0,
             "rule_docs": 0,
             "official_videos": 0,
-            "notes": "Tracked in Issue #1: no-points first half, -1 guard pull, 2/4-pt takedowns & sweeps, overtime",
+            "notes": "Positional control, submission threats, and tapouts without referee penalties",
         },
     ]
 
@@ -3978,6 +3987,13 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             feedback_logged = True
         return {"match": updated_match, "feedback_logged": feedback_logged}
 
+    @application.get("/api/rulesets")
+    async def list_rulesets(user: UserDep) -> dict[str, Any]:
+        del user
+        from rollmetrics.rules.base import RULESET_CATALOG
+
+        return {"rulesets": RULESET_CATALOG}
+
     @application.get("/api/me/export.zip")
     async def export_user_data_zip(
         app_cfg: SettingsDep,
@@ -5294,6 +5310,15 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                         )
                     )
                     await websocket.send_json(hud_out)
+                    continue
+
+                if mtype == "overtime":
+                    ot_sec = float(msg.get("overtime_sec") or 300.0)
+                    if hasattr(session, "enter_overtime") and callable(session.enter_overtime):
+                        state = session.enter_overtime(overtime_sec=ot_sec)
+                    else:
+                        state = session.current_hud_state()
+                    await websocket.send_json(_normalize_hud_payload(state, current_division))
                     continue
 
                 if mtype == "finalize":
