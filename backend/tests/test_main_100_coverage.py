@@ -522,3 +522,47 @@ def test_main_100_endpoints_errors_and_websocket(tmp_path: Path, monkeypatch: py
     assert c_fe.get("/").status_code == 200
     assert c_fe.get("/missing-spa-route").status_code == 404
     monkeypatch.undo()
+
+    # 8. Durable RuntimeStateStore matches + private_to_owner isolation (#311)
+    from rollmetrics.storage import RuntimeStateStore
+
+    s_priv = Settings(environment="test", allow_local_dev_bypass=True, runtime_dir=tmp_path / "rt_priv")
+    store_priv = RuntimeStateStore(s_priv)
+    # Local runtime_dir/matches private match skipped for non-owner
+    local_priv_dir = s_priv.runtime_dir / "matches"
+    local_priv_dir.mkdir(parents=True, exist_ok=True)
+    (local_priv_dir / "locPriv0001.json").write_text(
+        json.dumps({"id": "locPriv0001", "title": "Local Private", "owner_email": "owner@example.com", "private_to_owner": True}),
+        encoding="utf-8",
+    )
+    # Durable state/matches private match + invalid record
+    store_priv.put_record(
+        "matches",
+        "gcsPriv0001",
+        {
+            "id": "gcsPriv0001",
+            "title": "Private Film Study",
+            "bucket": "film_study",
+            "owner_email": "owner@example.com",
+            "private_to_owner": True,
+            "events": [],
+        },
+    )
+    store_priv.put_record("matches", "badNoId", {"title": "Missing ID"})
+    owner_ids = {m["id"] for m in main_mod._resolve_matches_for_user(s_priv, "owner@example.com")}
+    other_ids = {m["id"] for m in main_mod._resolve_matches_for_user(s_priv, "other@example.com")}
+    assert "gcsPriv0001" in owner_ids and "locPriv0001" in owner_ids
+    assert "gcsPriv0001" not in other_ids and "locPriv0001" not in other_ids
+
+    # Private video streaming blocked (403) for non-owner, allowed for owner, and durable delete works
+    c_priv = TestClient(create_app(s_priv))
+    assert c_priv.get("/api/matches/gcsPriv0001/video").status_code == 403
+    assert c_priv.delete("/api/matches/locPriv0001").status_code == 404
+    store_priv.put_record(
+        "matches",
+        "delStore001",
+        {"id": "delStore001", "title": "Deletable", "owner_email": "coach@local.rollmetrics.ai"},
+    )
+    (local_priv_dir / "delStore001.json").write_text(json.dumps({"id": "delStore001"}), encoding="utf-8")
+    assert c_priv.delete("/api/matches/delStore001").status_code == 200
+    assert store_priv.get_record("matches", "delStore001") is None

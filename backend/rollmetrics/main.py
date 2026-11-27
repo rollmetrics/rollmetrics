@@ -2085,17 +2085,31 @@ def _resolve_matches_for_user(app_cfg: Settings, user_email: str) -> list[dict[s
         allow = sorted(app_cfg.parsed_allowlist())
         owner_cfg = allow[0] if allow else (email if app_cfg.environment in ("local", "test") else "")
     matches = _showcase_matches_catalog(owner_email=owner_cfg)
+    known_ids = {m["id"] for m in matches}
     extra_dir = app_cfg.runtime_dir / "matches"
     if extra_dir.is_dir():
-        known_ids = {m["id"] for m in matches}
         for jf in sorted(extra_dir.glob("*.json")):
             with contextlib.suppress(OSError, json.JSONDecodeError):
                 entry = json.loads(jf.read_text(encoding="utf-8"))
                 if isinstance(entry, dict) and entry.get("id") and entry["id"] not in known_ids:
+                    if entry.get("private_to_owner") and str(entry.get("owner_email") or "").strip().lower() != email:
+                        continue
                     entry.setdefault("bucket", "film_study")
                     entry.setdefault("owner_email", "")
                     matches.append(entry)
                     known_ids.add(str(entry["id"]))
+    from rollmetrics.storage import RuntimeStateStore
+
+    for stored in RuntimeStateStore(app_cfg).list_records("matches"):
+        if not isinstance(stored, dict) or not stored.get("id") or stored["id"] in known_ids:
+            continue
+        if stored.get("private_to_owner") and str(stored.get("owner_email") or "").strip().lower() != email:
+            continue
+        entry = dict(stored)
+        entry.setdefault("bucket", "film_study")
+        entry.setdefault("owner_email", "")
+        matches.append(entry)
+        known_ids.add(str(entry["id"]))
     overrides = _load_user_bucket_overrides(app_cfg).get(email, {})
     is_demo_seb = email == DEMO_SEBASTIAN_EMAIL
     for m in matches:
@@ -2898,6 +2912,9 @@ def _persist_analyzed_match(
     matches_dir = app_cfg.runtime_dir / "matches"
     matches_dir.mkdir(parents=True, exist_ok=True)
     (matches_dir / f"{match_id}.json").write_text(json.dumps(match_entry, indent=2), encoding="utf-8")
+    from rollmetrics.storage import RuntimeStateStore
+
+    RuntimeStateStore(app_cfg).put_record("matches", match_id, match_entry)
     return match_entry
 
 
@@ -3806,6 +3823,13 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     ) -> Response:
         if not SAFE_FILENAME_RE.match(match_id) or ".." in match_id:
             raise HTTPException(status_code=400, detail="Invalid match identifier.")
+        from rollmetrics.storage import RuntimeStateStore
+
+        stored_meta = RuntimeStateStore(app_cfg).get_record("matches", match_id)
+        if stored_meta and stored_meta.get("private_to_owner"):
+            req_email = str(_user.get("email") or "").strip().lower()
+            if req_email != str(stored_meta.get("owner_email") or "").strip().lower():
+                raise HTTPException(status_code=403, detail="Private match video is restricted to its owner.")
         head_only = request.method.upper() == "HEAD"
         local_file = _find_local_showcase_video(match_id, app_cfg)
         if local_file is not None:
@@ -4158,7 +4182,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 raw = json.loads(custom_path.read_text(encoding="utf-8"))
                 if isinstance(raw, list):
                     existing = [m for m in raw if isinstance(m, dict)]
+        from rollmetrics.storage import RuntimeStateStore
+
+        store = RuntimeStateStore(app_cfg)
         target = next((m for m in existing if str(m.get("id") or "") == match_id), None)
+        if target is None:
+            target = store.get_record("matches", match_id)
         if target is None:
             raise HTTPException(status_code=404, detail="Custom match not found.")
         if str(target.get("owner_email") or "").lower() != email and not is_admin_user(user, app_cfg):
@@ -4166,9 +4195,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         remaining = [m for m in existing if str(m.get("id") or "") != match_id]
         custom_path.parent.mkdir(parents=True, exist_ok=True)
         custom_path.write_text(json.dumps(remaining, indent=2), encoding="utf-8")
-        from rollmetrics.storage import RuntimeStateStore
-
-        RuntimeStateStore(app_cfg).delete_record("matches", match_id)
+        local_match_json = app_cfg.runtime_dir / "matches" / f"{match_id}.json"
+        if local_match_json.is_file():
+            local_match_json.unlink()
+        store.delete_record("matches", match_id)
         return {"ok": True, "match_id": match_id}
 
     @application.put("/api/matches/{match_id}/moments")
