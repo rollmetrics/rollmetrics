@@ -7,7 +7,6 @@ import type {
   AcademyProfile,
   AcademyReference,
   AdminOverviewResponse,
-  AthleteAnchorPoint,
   AuthConfig,
   AuthUser,
   BeltRank,
@@ -408,9 +407,6 @@ export function App() {
   const [uploadTitle, setUploadTitle] = useState<string>("");
   const [uploadRuleset, setUploadRuleset] = useState<RulesetId>("ibjjf_v6");
   const [liveRuleset, setLiveRuleset] = useState<RulesetId>("ibjjf_v6");
-  const [pinModeActive, setPinModeActive] = useState<boolean>(false);
-  const [playerAnchorA, setPlayerAnchorA] = useState<AthleteAnchorPoint | null>(null);
-  const [playerAnchorB, setPlayerAnchorB] = useState<AthleteAnchorPoint | null>(null);
   const [driveUrlInput, setDriveUrlInput] = useState<string>("");
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [uploadError, setUploadError] = useState<string>("");
@@ -2592,6 +2588,74 @@ export function App() {
           style={{ ["--rail-width" as string]: `${railWidth}px` }}
         >
         <section className="video-column" aria-label="Match Video and Scoreboard">
+          {/* Swiss IBJJF Broadcast Scoreboard Strip above video (#291) */}
+          <div className="scoreboard-strip" aria-label="IBJJF Scoreboard">
+            <div className="scoreboard-head">
+              <div className="clock-group">
+                <span className="swiss-clock" data-testid="match-clock">
+                  {displayScore.clock}
+                </span>
+                <div className="belt-chip" data-testid="scoreboard-division">
+                  <BeltSwatch belt={activeMatch.belt} />
+                  <span className="division-full">{activeMatch.belt_label}</span>
+                  <span className="division-short">{compactDivisionLabel(activeMatch.belt_label)}</span>
+                </div>
+                {displayScore.stabilizingNow && (
+                  <span className="control-pill">{displayScore.stabLabel}</span>
+                )}
+              </div>
+              <span className="col-label">PTS</span>
+              <span className="col-label">ADV</span>
+              <span className="col-label">PEN</span>
+            </div>
+
+            <div className="competitor-row" data-testid="row-athlete-a">
+              <div className="competitor-id">
+                <span
+                  className={`gi-dot ${activeMatch.athlete_a.gi}`}
+                  title={`${activeMatch.athlete_a.gi} gi`}
+                />
+                <BeltSwatch belt={activeMatch.athlete_a.belt} />
+                <span className="competitor-name">{activeMatch.athlete_a.name}</span>
+                {displayScore.finished && activeMatch.winner === "A" && (
+                  <span className="win-pill">{compactWinBadge(activeMatch.win_label)}</span>
+                )}
+              </div>
+              <span className="num-cell pts" data-testid="pts-a">
+                {displayScore.ptsA}
+              </span>
+              <span className="num-cell adv" data-testid="adv-a">
+                {displayScore.advA}
+              </span>
+              <span className="num-cell pen" data-testid="pen-a">
+                {displayScore.penA}
+              </span>
+            </div>
+
+            <div className="competitor-row" data-testid="row-athlete-b">
+              <div className="competitor-id">
+                <span
+                  className={`gi-dot ${activeMatch.athlete_b.gi}`}
+                  title={`${activeMatch.athlete_b.gi} gi`}
+                />
+                <BeltSwatch belt={activeMatch.athlete_b.belt} />
+                <span className="competitor-name">{activeMatch.athlete_b.name}</span>
+                {displayScore.finished && activeMatch.winner === "B" && (
+                  <span className="win-pill">{compactWinBadge(activeMatch.win_label)}</span>
+                )}
+              </div>
+              <span className="num-cell pts" data-testid="pts-b">
+                {displayScore.ptsB}
+              </span>
+              <span className="num-cell adv" data-testid="adv-b">
+                {displayScore.advB}
+              </span>
+              <span className="num-cell pen" data-testid="pen-b">
+                {displayScore.penB}
+              </span>
+            </div>
+          </div>
+
           <div className="video-frame" ref={videoFrameRef}>
             <video
               ref={videoRef}
@@ -2630,68 +2694,6 @@ export function App() {
               }}
               onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
             />
-            {pinModeActive && !shareToken && (
-              <div
-                role="button"
-                tabIndex={0}
-                aria-label="Tap video to pin Athlete A then Athlete B"
-                data-testid="tap-to-identify-canvas"
-                className="video-pin-overlay"
-                onClick={(e) => {
-                  const rect = e.currentTarget.getBoundingClientRect();
-                  const x = rect.width > 0 ? Number(((e.clientX - rect.left) / rect.width).toFixed(3)) : 0.35;
-                  const y = rect.height > 0 ? Number(((e.clientY - rect.top) / rect.height).toFixed(3)) : 0.5;
-                  if (!playerAnchorA) {
-                    setPlayerAnchorA({ x, y });
-                  } else if (!playerAnchorB) {
-                    setPlayerAnchorB({ x, y });
-                  } else {
-                    setPlayerAnchorA({ x, y });
-                    setPlayerAnchorB(null);
-                  }
-                }}
-              >
-                <div className="video-pin-banner" onClick={(e) => e.stopPropagation()}>
-                  <span>
-                    {!playerAnchorA
-                      ? "Tap Athlete A on video"
-                      : !playerAnchorB
-                        ? "Tap Athlete B on video"
-                        : "Athletes A & B pinned"}
-                  </span>
-                  {(playerAnchorA || playerAnchorB) && (
-                    <button
-                      type="button"
-                      className="mini-btn"
-                      onClick={() => {
-                        setPlayerAnchorA(null);
-                        setPlayerAnchorB(null);
-                      }}
-                    >
-                      Reset Pins
-                    </button>
-                  )}
-                </div>
-                {playerAnchorA && (
-                  <span
-                    className="tap-pin tap-pin-a"
-                    data-testid="tap-pin-a"
-                    style={{ left: `${playerAnchorA.x * 100}%`, top: `${playerAnchorA.y * 100}%` }}
-                  >
-                    A
-                  </span>
-                )}
-                {playerAnchorB && (
-                  <span
-                    className="tap-pin tap-pin-b"
-                    data-testid="tap-pin-b"
-                    style={{ left: `${playerAnchorB.x * 100}%`, top: `${playerAnchorB.y * 100}%` }}
-                  >
-                    B
-                  </span>
-                )}
-              </div>
-            )}
             {videoBuffering && !videoError && (
               <div className="video-buffering-spinner" aria-label="Buffering video" />
             )}
@@ -2900,74 +2902,6 @@ export function App() {
                 <span>{liveTelemetry.position}</span>
               </div>
             )}
-
-            {/* Swiss IBJJF Broadcast Scoreboard Strip */}
-            <div className="scoreboard-strip" aria-label="IBJJF Scoreboard">
-              <div className="scoreboard-head">
-                <div className="clock-group">
-                  <span className="swiss-clock" data-testid="match-clock">
-                    {displayScore.clock}
-                  </span>
-                  <div className="belt-chip" data-testid="scoreboard-division">
-                    <BeltSwatch belt={activeMatch.belt} />
-                    <span className="division-full">{activeMatch.belt_label}</span>
-                    <span className="division-short">{compactDivisionLabel(activeMatch.belt_label)}</span>
-                  </div>
-                  {displayScore.stabilizingNow && (
-                    <span className="control-pill">{displayScore.stabLabel}</span>
-                  )}
-                </div>
-                <span className="col-label">PTS</span>
-                <span className="col-label">ADV</span>
-                <span className="col-label">PEN</span>
-              </div>
-
-              <div className="competitor-row" data-testid="row-athlete-a">
-                <div className="competitor-id">
-                  <span
-                    className={`gi-dot ${activeMatch.athlete_a.gi}`}
-                    title={`${activeMatch.athlete_a.gi} gi`}
-                  />
-                  <BeltSwatch belt={activeMatch.athlete_a.belt} />
-                  <span className="competitor-name">{activeMatch.athlete_a.name}</span>
-                  {displayScore.finished && activeMatch.winner === "A" && (
-                    <span className="win-pill">{compactWinBadge(activeMatch.win_label)}</span>
-                  )}
-                </div>
-                <span className="num-cell pts" data-testid="pts-a">
-                  {displayScore.ptsA}
-                </span>
-                <span className="num-cell adv" data-testid="adv-a">
-                  {displayScore.advA}
-                </span>
-                <span className="num-cell pen" data-testid="pen-a">
-                  {displayScore.penA}
-                </span>
-              </div>
-
-              <div className="competitor-row" data-testid="row-athlete-b">
-                <div className="competitor-id">
-                  <span
-                    className={`gi-dot ${activeMatch.athlete_b.gi}`}
-                    title={`${activeMatch.athlete_b.gi} gi`}
-                  />
-                  <BeltSwatch belt={activeMatch.athlete_b.belt} />
-                  <span className="competitor-name">{activeMatch.athlete_b.name}</span>
-                  {displayScore.finished && activeMatch.winner === "B" && (
-                    <span className="win-pill">{compactWinBadge(activeMatch.win_label)}</span>
-                  )}
-                </div>
-                <span className="num-cell pts" data-testid="pts-b">
-                  {displayScore.ptsB}
-                </span>
-                <span className="num-cell adv" data-testid="adv-b">
-                  {displayScore.advB}
-                </span>
-                <span className="num-cell pen" data-testid="pen-b">
-                  {displayScore.penB}
-                </span>
-              </div>
-            </div>
           </div>
         </section>
 
@@ -3011,14 +2945,6 @@ export function App() {
             </div>
             {!shareToken && (
               <div style={{ display: "flex", gap: "0.35rem", alignItems: "center" }}>
-                <button
-                  type="button"
-                  className="mini-btn"
-                  data-testid="tap-to-identify-toggle"
-                  onClick={() => setPinModeActive((prev) => !prev)}
-                >
-                  {pinModeActive ? "Done Pinning" : "Pin A/B"}
-                </button>
                 <button
                   type="button"
                   className="mini-btn"

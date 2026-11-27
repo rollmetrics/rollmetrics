@@ -22,78 +22,68 @@ interface LandingMoment {
   clock: string;
   scoreA: [number, number, number];
   scoreB: [number, number, number];
-  curriculumTitle: string;
-  curriculumTime: string;
 }
 
 const GITHUB_URL = "https://github.com/rollmetrics/rollmetrics";
-const CLIP_DURATION_SEC = 10.5;
-const CLIP_START_CLOCK_SEC = 127; // 02:07
+const CLIP_DURATION_SEC = 11.0;
+const CLIP_START_CLOCK_SEC = 154; // 02:34
 
 const LANDING_MOMENTS: LandingMoment[] = [
   {
-    id: "m1",
+    id: "sweep-top",
     videoSec: 0.5,
-    leftPct: 12,
+    leftPct: 10,
     tone: "adv",
-    label: "Sit-up guard elevation (02:07)",
-    tag: "OPEN GUARD · 02:07",
-    tagClass: "adv",
-    title: "Sit-up guard elevation",
-    detail: "Bruno Malfacine attacks off-balance from bottom",
-    clock: "02:07",
-    scoreA: [4, 2, 2],
-    scoreB: [2, 2, 2],
-    curriculumTitle: "Sit-up guard single-leg sweep",
-    curriculumTime: "04:15",
-  },
-  {
-    id: "m2",
-    videoSec: 2.0,
-    leftPct: 35,
-    tone: "adv",
-    label: "Sweep reversal to top (02:05)",
-    tag: "SWEEP · 02:05",
+    label: "Sweep reversal to top (02:34)",
+    tag: "SWEEP · 02:34",
     tagClass: "adv",
     title: "Sweep reversal to top",
-    detail: "IBJJF Art. 4.6 (3s stabilization starts)",
-    clock: "02:05",
-    scoreA: [4, 2, 2],
+    detail: "Caio Terra comes up on top from open guard",
+    clock: "02:34",
+    scoreA: [2, 2, 2],
     scoreB: [2, 2, 2],
-    curriculumTitle: "Open-guard sweep finish & base control",
-    curriculumTime: "08:20",
   },
   {
-    id: "m3",
-    videoSec: 5.0,
-    leftPct: 62,
-    tone: "win",
-    label: "Top passing stabilization (02:02)",
-    tag: "3s HOLD · 02:02",
-    tagClass: "win",
-    title: "Top passing stabilization",
-    detail: "IBJJF Art. 4.1 (control verified over frames)",
-    clock: "02:02",
-    scoreA: [4, 2, 2],
+    id: "stab-hold",
+    videoSec: 3.5,
+    leftPct: 36,
+    tone: "adv",
+    label: "Top base stabilization (02:31)",
+    tag: "3s HOLD · 02:31",
+    tagClass: "adv",
+    title: "Top base stabilization",
+    detail: "IBJJF Art. 4.1 (3.0s top control verified)",
+    clock: "02:31",
+    scoreA: [2, 2, 2],
     scoreB: [2, 2, 2],
-    curriculumTitle: "Knee-cut & pant-grip stabilization",
-    curriculumTime: "12:40",
   },
   {
-    id: "m4",
-    videoSec: 7.5,
-    leftPct: 86,
+    id: "lead-4-2",
+    videoSec: 6.5,
+    leftPct: 64,
     tone: "win",
-    label: "Sweep awarded 4-4 tie (01:59)",
-    tag: "+2 PTS · 01:59",
+    label: "Caio Terra takes 4-2 lead (02:28)",
+    tag: "+2 PTS · 02:28",
     tagClass: "win",
-    title: "Sweep awarded (4-4 tie)",
+    title: "Caio Terra takes 4-2 lead",
     detail: "IBJJF Art. 4.6 (2 pts confirmed on board)",
-    clock: "01:59",
+    clock: "02:28",
     scoreA: [4, 2, 2],
-    scoreB: [4, 2, 2],
-    curriculumTitle: "Roosterweight top-game pressure passing",
-    curriculumTime: "16:10",
+    scoreB: [2, 2, 2],
+  },
+  {
+    id: "top-pass",
+    videoSec: 9.5,
+    leftPct: 88,
+    tone: "win",
+    label: "Collar-and-pant pass pressure (02:25)",
+    tag: "TOP PASS · 02:25",
+    tagClass: "win",
+    title: "Collar-and-pant pass pressure",
+    detail: "Caio Terra controls hips ahead 4-2",
+    clock: "02:25",
+    scoreA: [4, 2, 2],
+    scoreB: [2, 2, 2],
   },
 ];
 
@@ -113,9 +103,9 @@ export function LandingPage({
   demoLoginBusy,
 }: LandingPageProps) {
   const previewVideoRef = useRef<HTMLVideoElement | null>(null);
-  const [activeIdx, setActiveIdx] = useState(3);
-  const [progressPct, setProgressPct] = useState(LANDING_MOMENTS[3].leftPct);
-  const [liveClock, setLiveClock] = useState(LANDING_MOMENTS[3].clock);
+  const [activeIdx, setActiveIdx] = useState(2);
+  const [progressPct, setProgressPct] = useState(LANDING_MOMENTS[2].leftPct);
+  const [liveClock, setLiveClock] = useState(LANDING_MOMENTS[2].clock);
 
   const activeMoment = LANDING_MOMENTS[activeIdx];
 
@@ -291,26 +281,24 @@ export function LandingPage({
               </div>
             </div>
 
-            <div className="landing-output-list">
-              <button
-                type="button"
-                className="landing-output-item interactive"
-                data-testid="landing-active-moment-card"
-                onClick={() => selectMoment((activeIdx + 1) % LANDING_MOMENTS.length)}
-              >
-                <span className={`landing-output-tag ${activeMoment.tagClass}`}>
-                  {activeMoment.tag}
-                </span>
-                <div className="landing-output-text">
-                  <strong>{activeMoment.title}</strong> · {activeMoment.detail}
-                </div>
-              </button>
-              <div className="landing-output-item">
-                <span className="landing-output-tag blue">CURRICULUM</span>
-                <div className="landing-output-text">
-                  <strong>{activeMoment.curriculumTitle}</strong> · {activeMoment.curriculumTime}
-                </div>
-              </div>
+            <div className="landing-output-list" data-testid="landing-moments-list">
+              {LANDING_MOMENTS.map((m, idx) => (
+                <button
+                  key={m.id}
+                  type="button"
+                  className={`landing-output-item interactive${idx === activeIdx ? " active" : ""}`}
+                  data-testid={`landing-moment-${idx}`}
+                  aria-pressed={idx === activeIdx}
+                  onClick={() => selectMoment(idx)}
+                >
+                  <span className={`landing-output-tag ${m.tagClass}`}>
+                    {m.tag}
+                  </span>
+                  <div className="landing-output-text">
+                    <strong>{m.title}</strong> · {m.detail}
+                  </div>
+                </button>
+              ))}
             </div>
           </div>
         </section>

@@ -214,18 +214,41 @@ describe("Wave 3 100% Frontend Coverage", () => {
     await waitFor(() => {
       expect(screen.getByTestId("demo-sebastian-btn")).toBeInTheDocument();
     });
-    // Interactive landing page video preview (#264/#265/#266): 4 diamond pins, video timeupdate clock sync, active moment card cycle
+    // Interactive landing page video preview (#288): static list of all 4 moments + two-way sync with timeline diamonds
     expect(screen.queryByTestId("landing-slowmo-toggle")).not.toBeInTheDocument();
+    expect(screen.getByTestId("landing-moment-0")).toBeInTheDocument();
+    expect(screen.getByTestId("landing-moment-1")).toBeInTheDocument();
+    expect(screen.getByTestId("landing-moment-2")).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByTestId("landing-moment-3")).toBeInTheDocument();
+    expect(screen.getByTestId("landing-score-a")).toHaveTextContent("422");
+    expect(screen.getByTestId("landing-score-b")).toHaveTextContent("222");
+
     fireEvent.click(screen.getByTestId("landing-pin-0"));
-    expect(screen.getByTestId("landing-score-clock")).toHaveTextContent("02:07");
+    expect(screen.getByTestId("landing-score-clock")).toHaveTextContent("02:34");
+    expect(screen.getByTestId("landing-moment-0")).toHaveAttribute("aria-pressed", "true");
+
+    fireEvent.click(screen.getByTestId("landing-pin-1"));
+    expect(screen.getByTestId("landing-score-clock")).toHaveTextContent("02:31");
+    expect(screen.getByTestId("landing-moment-1")).toHaveAttribute("aria-pressed", "true");
+
+    fireEvent.click(screen.getByTestId("landing-pin-2"));
+    expect(screen.getByTestId("landing-score-clock")).toHaveTextContent("02:28");
+    expect(screen.getByTestId("landing-moment-2")).toHaveAttribute("aria-pressed", "true");
+
     fireEvent.click(screen.getByTestId("landing-pin-3"));
-    expect(screen.getByTestId("landing-score-clock")).toHaveTextContent("01:59");
-    fireEvent.click(screen.getByTestId("landing-active-moment-card"));
-    expect(screen.getByTestId("landing-score-clock")).toHaveTextContent("02:07");
+    expect(screen.getByTestId("landing-score-clock")).toHaveTextContent("02:25");
+    expect(screen.getByTestId("landing-moment-3")).toHaveAttribute("aria-pressed", "true");
+
+    // Clicking a moment row in the static list syncs video + diamond
+    fireEvent.click(screen.getByTestId("landing-moment-0"));
+    expect(screen.getByTestId("landing-pin-0")).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByTestId("landing-score-clock")).toHaveTextContent("02:34");
+
     const landingVid = cloudContainer.querySelector("video") as HTMLVideoElement;
-    Object.defineProperty(landingVid, "currentTime", { value: 5.5, writable: true, configurable: true });
+    Object.defineProperty(landingVid, "currentTime", { value: 6.5, writable: true, configurable: true });
     fireEvent.timeUpdate(landingVid);
-    expect(screen.getByTestId("landing-score-clock")).toHaveTextContent("02:02");
+    expect(screen.getByTestId("landing-score-clock")).toHaveTextContent("02:28");
+    expect(screen.getByTestId("landing-moment-2")).toHaveAttribute("aria-pressed", "true");
     // Trigger GIS polling interval tick
     await new Promise((r) => setTimeout(r, 260));
     // Demo login error path -> shows generic sign-in error

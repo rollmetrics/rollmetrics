@@ -1758,23 +1758,13 @@ describe("RollMetrics Single-Screen Video Telemetry MVP", () => {
     expect(liveRulesetSelect.value).toBe("adcc");
     fireEvent.click(screen.getByRole("button", { name: "Close" }));
 
-    // Resizable right-hand Moments panel handle on desktop (#233) + read-only ruleset pill (#267) + Tap-to-Identify on main video (#271)
+    // Resizable right-hand Moments panel handle on desktop (#233) + read-only ruleset pill (#267) + no Pin A/B (#291)
     fireEvent.click(screen.getByTestId("home-match-mc9_semifinal"));
     await waitFor(() => {
       expect(screen.getByTestId("rail-resize-handle")).toBeInTheDocument();
       expect(screen.getByTestId("match-ruleset-pill")).toHaveTextContent("IBJJF");
     });
-    fireEvent.click(screen.getByTestId("tap-to-identify-toggle"));
-    const tapCanvas = screen.getByTestId("tap-to-identify-canvas");
-    fireEvent.click(tapCanvas, { clientX: 40, clientY: 30 });
-    expect(screen.getByTestId("tap-pin-a")).toBeInTheDocument();
-    fireEvent.click(tapCanvas, { clientX: 80, clientY: 30 });
-    expect(screen.getByTestId("tap-pin-b")).toBeInTheDocument();
-    fireEvent.click(tapCanvas, { clientX: 50, clientY: 40 });
-    expect(screen.queryByTestId("tap-pin-b")).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Reset Pins" }));
-    expect(screen.queryByTestId("tap-pin-a")).not.toBeInTheDocument();
-    fireEvent.click(screen.getByTestId("tap-to-identify-toggle"));
+    expect(screen.queryByTestId("tap-to-identify-toggle")).not.toBeInTheDocument();
     const resizeHandle = screen.getByTestId("rail-resize-handle");
     fireEvent.pointerDown(resizeHandle, { clientX: 800 });
     fireEvent(window, new MouseEvent("pointermove", { clientX: 740 }));
