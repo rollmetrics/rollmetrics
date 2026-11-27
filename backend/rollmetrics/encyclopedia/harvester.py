@@ -205,7 +205,7 @@ def infer_footage_and_preset(source_label: str, channel: str) -> tuple[FootageTy
     if "flograppling" in ch:
         return "broadcast_scoreboard", "flograppling_lower_bar"
     if "ibjjf" in ch:
-        return "broadcast_scoreboard", "ibjjf_top_left_bug"
+        return "matside_raw", ""
     return "matside_raw", ""
 
 

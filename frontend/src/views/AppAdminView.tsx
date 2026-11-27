@@ -4,22 +4,24 @@ interface AppAdminViewProps {
   adminOverview: AdminOverviewResponse | null;
   adminLoading: boolean;
   authConfig: AuthConfig | null;
-  onSwitchToMlAdmin: () => void;
+  onOpenCurricula: () => void;
   onBackToApp: () => void;
 }
+
+const BENCHMARKS_GITHUB_URL =
+  "https://github.com/rollmetrics/rollmetrics/tree/main/benchmarks";
 
 export function AppAdminView({
   adminOverview,
   adminLoading,
   authConfig,
-  onSwitchToMlAdmin,
+  onOpenCurricula,
   onBackToApp,
 }: AppAdminViewProps) {
   const athletes = adminOverview?.athletes || adminOverview?.users_and_usage || [];
   const teams = adminOverview?.teams || [];
   const curricula = adminOverview?.curricula || [];
-  const rulesets = adminOverview?.rulesets || [];
-  const jobs = adminOverview?.upload_jobs || [];
+  const rulesets = (adminOverview?.rulesets || []).filter((r) => r.id !== "sparring");
 
   return (
     <main className="admin-dashboard" data-testid="admin-dashboard">
@@ -27,24 +29,20 @@ export function AppAdminView({
         <div>
           <h1 className="admin-title">App Admin</h1>
           <p className="admin-subtitle">
-            Athletes, teams, curricula, rulesets, and upload/analysis jobs.
+            Athletes, teams, curricula, and active rulesets.
           </p>
         </div>
         <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", alignItems: "center" }}>
-          {typeof adminOverview?.max_daily_cloud_usd === "number" && (
-            <span className="gameplan-pos-pill" data-testid="admin-budget-pill">
-              Cloud Spend ${(adminOverview.daily_cloud_spend_usd || 0).toFixed(2)} / $
-              {adminOverview.max_daily_cloud_usd.toFixed(2)}
-            </span>
-          )}
-          <button
-            type="button"
+          <a
+            href={BENCHMARKS_GITHUB_URL}
+            target="_blank"
+            rel="noreferrer"
             className="mini-btn"
-            data-testid="switch-ml-admin-btn"
-            onClick={onSwitchToMlAdmin}
+            data-testid="github-benchmarks-link"
+            style={{ textDecoration: "none" }}
           >
-            ML Admin -&gt;
-          </button>
+            Benchmarks on GitHub
+          </a>
           <button
             type="button"
             className="mini-btn"
@@ -68,14 +66,13 @@ export function AppAdminView({
               <table className="admin-table" data-testid="admin-users-table">
                 <thead>
                   <tr>
-                    <th>Athlete</th>
-                    <th>Role</th>
-                    <th>Teams</th>
-                    <th>Curriculum</th>
-                    <th>My Matches</th>
-                    <th>Uploaded</th>
-                    <th>Analyses</th>
-                    <th>Last Seen</th>
+                    <th style={{ width: "24%" }}>Athlete</th>
+                    <th style={{ width: "10%" }}>Role</th>
+                    <th style={{ width: "18%" }}>Teams</th>
+                    <th style={{ width: "18%" }}>Curriculum</th>
+                    <th style={{ width: "8%" }}>Matches</th>
+                    <th style={{ width: "8%" }}>Uploads</th>
+                    <th style={{ width: "14%" }}>Last Seen</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -94,53 +91,9 @@ export function AppAdminView({
                       <td>{u.academy_name || "-"}</td>
                       <td className="num-col">{u.my_matches}</td>
                       <td className="num-col">{u.uploaded_videos}</td>
-                      <td className="num-col">{u.analyses_run}</td>
                       <td className="mono-cell">{u.last_seen || "-"}</td>
                     </tr>
                   ))}
-                </tbody>
-              </table>
-            </div>
-          </section>
-
-          <section className="admin-section" aria-label="Upload and Analysis Jobs">
-            <div className="overview-library-head">
-              <h2>Upload &amp; Analysis Jobs</h2>
-            </div>
-            <div className="admin-table-wrap">
-              <table className="admin-table" data-testid="admin-jobs-table">
-                <thead>
-                  <tr>
-                    <th>Job</th>
-                    <th>File</th>
-                    <th>Owner</th>
-                    <th>Ruleset</th>
-                    <th>Status</th>
-                    <th>Created</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {jobs.map((job) => (
-                    <tr key={job.job_id}>
-                      <td className="mono-cell">{job.job_id}</td>
-                      <td>{job.filename}</td>
-                      <td className="mono-cell">{job.owner_email}</td>
-                      <td>
-                        <span className="gameplan-pos-pill">{job.ruleset}</span>
-                      </td>
-                      <td>
-                        <span className="gameplan-pos-pill">{job.status}</span>
-                      </td>
-                      <td className="mono-cell">{job.created_at}</td>
-                    </tr>
-                  ))}
-                  {jobs.length === 0 && (
-                    <tr>
-                      <td colSpan={6} className="admin-empty-cell">
-                        No upload or analysis jobs recorded yet.
-                      </td>
-                    </tr>
-                  )}
                 </tbody>
               </table>
             </div>
@@ -154,10 +107,11 @@ export function AppAdminView({
               <table className="admin-table" data-testid="admin-teams-table">
                 <thead>
                   <tr>
-                    <th>Team</th>
-                    <th>Members</th>
-                    <th>Default Curriculum</th>
-                    <th>Default Ruleset</th>
+                    <th style={{ width: "26%" }}>Team</th>
+                    <th style={{ width: "10%" }}>Members</th>
+                    <th style={{ width: "18%" }}>Default Coach</th>
+                    <th style={{ width: "28%" }}>Default Curriculum</th>
+                    <th style={{ width: "18%" }}>Default Ruleset</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -165,6 +119,7 @@ export function AppAdminView({
                     <tr key={tm.id}>
                       <td>{tm.name}</td>
                       <td className="num-col">{tm.member_count}</td>
+                      <td>{tm.default_coach || "Head Coach"}</td>
                       <td>{tm.default_curriculum}</td>
                       <td>{tm.default_ruleset}</td>
                     </tr>
@@ -177,17 +132,25 @@ export function AppAdminView({
           <section className="admin-section" aria-label="Curricula">
             <div className="overview-library-head">
               <h2>Curricula</h2>
+              <button
+                type="button"
+                className="mini-btn"
+                data-testid="open-curricula-btn"
+                onClick={onOpenCurricula}
+              >
+                Browse Curricula -&gt;
+              </button>
             </div>
             <div className="admin-table-wrap">
               <table className="admin-table" data-testid="admin-curricula-table">
                 <thead>
                   <tr>
-                    <th>Curriculum</th>
-                    <th>Visibility</th>
-                    <th>Total Docs</th>
-                    <th>Video-Backed</th>
-                    <th>Text-Only</th>
-                    <th>Status</th>
+                    <th style={{ width: "26%" }}>Curriculum</th>
+                    <th style={{ width: "12%" }}>Visibility</th>
+                    <th style={{ width: "10%" }}>Docs</th>
+                    <th style={{ width: "12%" }}>Video</th>
+                    <th style={{ width: "10%" }}>Text</th>
+                    <th style={{ width: "30%" }}>Status</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -216,12 +179,12 @@ export function AppAdminView({
               <table className="admin-table" data-testid="admin-rulesets-table">
                 <thead>
                   <tr>
-                    <th>Ruleset</th>
-                    <th>Status</th>
-                    <th>Legality Cases</th>
-                    <th>Rule Docs</th>
-                    <th>Official Videos</th>
-                    <th>Coverage</th>
+                    <th style={{ width: "22%" }}>Ruleset</th>
+                    <th style={{ width: "10%" }}>Status</th>
+                    <th style={{ width: "12%" }}>Legality</th>
+                    <th style={{ width: "10%" }}>Docs</th>
+                    <th style={{ width: "10%" }}>Videos</th>
+                    <th style={{ width: "36%" }}>Coverage</th>
                   </tr>
                 </thead>
                 <tbody>

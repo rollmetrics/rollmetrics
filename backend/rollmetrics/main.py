@@ -887,6 +887,41 @@ def _showcase_coach_summaries() -> dict[str, dict[str, Any]]:
                 ],
             },
         },
+        "malfacine_terra_2019": {
+            "overview": (
+                "Classic roosterweight sweep battle (6-6, 3-3 ADV, 2-2 PEN). Both legends traded six consecutive "
+                "2-point sweeps across 10 minutes; Bruno Malfacine edged the referee decision by answering every "
+                "Caio Terra sweep within seconds and finishing on top passing pressure."
+            ),
+            "athlete_a": {
+                "name": "Caio Terra",
+                "gi": "white",
+                "cues": [
+                    "Consolidate top base immediately after hitting the open-guard sweep so counter-sweep entries cannot answer within seconds.",
+                    "Maintain active collar-sleeve pressure early to avoid double-stalling warnings.",
+                ],
+                "cta_links": [
+                    {
+                        "label": "Open-Guard Sweep & Top Stabilization",
+                        "url": "https://www.youtube.com/watch?v=4-7AYrBCOvQ&t=3242s",
+                    },
+                ],
+            },
+            "athlete_b": {
+                "name": "Bruno Malfacine",
+                "gi": "blue",
+                "cues": [
+                    "Immediate sit-up counter-sweeps erase momentum and keep top-position initiative for the referee decision.",
+                    "Finish the final minute with heavy knee-cut and pant-grip passing pressure on top.",
+                ],
+                "cta_links": [
+                    {
+                        "label": "Sit-Up Guard Counter-Sweep & Top Pressure",
+                        "url": "https://www.youtube.com/watch?v=VWzT1iUMvEc&t=2423s",
+                    },
+                ],
+            },
+        },
     }
 
 
@@ -1673,6 +1708,234 @@ def _showcase_matches_catalog(owner_email: str = "") -> list[dict[str, Any]]:
                 },
             ],
         },
+        {
+            "id": "malfacine_terra_2019",
+            "pill": "Worlds 2019 · Black",
+            "title": "Caio Terra vs Bruno Malfacine · 2019 IBJJF Worlds Rooster QF",
+            "belt": "black",
+            "belt_label": "Black Belt · Gi · Adult",
+            "regulation_sec": 600.0,
+            "video_duration_sec": 770.94,
+            "video_start_sec": 13.0,
+            "video_end_sec": 698.0,
+            "clock_anchors": [
+                [13.0, 600.0],
+                [65.0, 540.0],
+                [110.0, 540.0],
+                [135.0, 513.0],
+                [310.0, 348.0],
+                [385.0, 284.0],
+                [485.0, 213.0],
+                [560.0, 139.0],
+                [635.0, 63.0],
+                [698.0, 0.0],
+            ],
+            "athlete_a": {"name": "Caio Terra", "belt": "black", "gi": "white"},
+            "athlete_b": {"name": "Bruno Malfacine", "belt": "black", "gi": "blue"},
+            "winner": "B",
+            "win_label": "DEC",
+            "events": [
+                {
+                    "id": "mt-1",
+                    "video_sec": 53.0,
+                    "time_str": "00:53",
+                    "clock_str": "09:12",
+                    "actor": "B",
+                    "call": "+1 ADV",
+                    "detail": "Near Sweep",
+                    "rule": "IBJJF Art. 5.2",
+                    "cta_url": "https://www.youtube.com/watch?v=4-7AYrBCOvQ&t=3242s",
+                    "pts_a": 0,
+                    "adv_a": 0,
+                    "pen_a": 0,
+                    "pts_b": 0,
+                    "adv_b": 1,
+                    "pen_b": 0,
+                    "control_3s": False,
+                },
+                {
+                    "id": "mt-2",
+                    "video_sec": 130.0,
+                    "time_str": "02:10",
+                    "clock_str": "08:38",
+                    "actor": "A",
+                    "call": "+1 PEN",
+                    "detail": "Double Stalling Warning",
+                    "rule": "IBJJF Art. 6.3.2 (F)",
+                    "cta_url": "https://www.youtube.com/watch?v=VWzT1iUMvEc&t=2967s",
+                    "pts_a": 0,
+                    "adv_a": 0,
+                    "pen_a": 1,
+                    "pts_b": 0,
+                    "adv_b": 1,
+                    "pen_b": 1,
+                    "control_3s": False,
+                },
+                {
+                    "id": "mt-3",
+                    "video_sec": 245.0,
+                    "time_str": "04:05",
+                    "clock_str": "06:43",
+                    "actor": "A",
+                    "call": "+1 ADV",
+                    "detail": "Near Sweep / Back Exposure",
+                    "rule": "IBJJF Art. 5.2",
+                    "cta_url": "https://www.youtube.com/watch?v=xp6xTVThYAo&t=1272s",
+                    "pts_a": 0,
+                    "adv_a": 1,
+                    "pen_a": 1,
+                    "pts_b": 0,
+                    "adv_b": 1,
+                    "pen_b": 1,
+                    "control_3s": False,
+                },
+                {
+                    "id": "mt-4",
+                    "video_sec": 305.0,
+                    "time_str": "05:05",
+                    "clock_str": "05:53",
+                    "actor": "B",
+                    "call": "+1 PEN",
+                    "detail": "Double Stalling Penalty",
+                    "rule": "IBJJF Art. 6.3.2 (F)",
+                    "cta_url": "https://www.youtube.com/watch?v=VWzT1iUMvEc&t=2967s",
+                    "pts_a": 0,
+                    "adv_a": 1,
+                    "pen_a": 2,
+                    "pts_b": 0,
+                    "adv_b": 1,
+                    "pen_b": 2,
+                    "control_3s": False,
+                },
+                {
+                    "id": "mt-5",
+                    "video_sec": 388.0,
+                    "time_str": "06:28",
+                    "clock_str": "04:41",
+                    "actor": "A",
+                    "call": "+2 PTS",
+                    "detail": "Open-Guard Sweep",
+                    "rule": "IBJJF Art. 4.6",
+                    "cta_url": "https://www.youtube.com/watch?v=4-7AYrBCOvQ&t=3242s",
+                    "pts_a": 2,
+                    "adv_a": 2,
+                    "pen_a": 2,
+                    "pts_b": 0,
+                    "adv_b": 1,
+                    "pen_b": 2,
+                    "control_3s": True,
+                },
+                {
+                    "id": "mt-6",
+                    "video_sec": 400.0,
+                    "time_str": "06:40",
+                    "clock_str": "04:29",
+                    "actor": "B",
+                    "call": "+2 PTS",
+                    "detail": "Counter Sweep",
+                    "rule": "IBJJF Art. 4.6",
+                    "cta_url": "https://www.youtube.com/watch?v=VWzT1iUMvEc&t=2423s",
+                    "pts_a": 2,
+                    "adv_a": 2,
+                    "pen_a": 2,
+                    "pts_b": 2,
+                    "adv_b": 2,
+                    "pen_b": 2,
+                    "control_3s": True,
+                },
+                {
+                    "id": "mt-7",
+                    "video_sec": 552.0,
+                    "time_str": "09:12",
+                    "clock_str": "02:26",
+                    "actor": "A",
+                    "call": "+2 PTS",
+                    "detail": "De La Riva / Open-Guard Sweep",
+                    "rule": "IBJJF Art. 4.6",
+                    "cta_url": "https://www.youtube.com/watch?v=4-7AYrBCOvQ&t=3242s",
+                    "pts_a": 4,
+                    "adv_a": 2,
+                    "pen_a": 2,
+                    "pts_b": 2,
+                    "adv_b": 2,
+                    "pen_b": 2,
+                    "control_3s": True,
+                },
+                {
+                    "id": "mt-8",
+                    "video_sec": 579.0,
+                    "time_str": "09:39",
+                    "clock_str": "01:59",
+                    "actor": "B",
+                    "call": "+2 PTS",
+                    "detail": "Sit-Up Sweep to Top",
+                    "rule": "IBJJF Art. 4.6",
+                    "cta_url": "https://www.youtube.com/watch?v=VWzT1iUMvEc&t=2423s",
+                    "pts_a": 4,
+                    "adv_a": 2,
+                    "pen_a": 2,
+                    "pts_b": 4,
+                    "adv_b": 2,
+                    "pen_b": 2,
+                    "control_3s": True,
+                },
+                {
+                    "id": "mt-9",
+                    "video_sec": 647.0,
+                    "time_str": "10:47",
+                    "clock_str": "00:51",
+                    "actor": "A",
+                    "call": "+2 PTS",
+                    "detail": "Late Guard Sweep",
+                    "rule": "IBJJF Art. 4.6",
+                    "cta_url": "https://www.youtube.com/watch?v=4-7AYrBCOvQ&t=3242s",
+                    "pts_a": 6,
+                    "adv_a": 2,
+                    "pen_a": 2,
+                    "pts_b": 4,
+                    "adv_b": 2,
+                    "pen_b": 2,
+                    "control_3s": True,
+                },
+                {
+                    "id": "mt-10",
+                    "video_sec": 653.0,
+                    "time_str": "10:53",
+                    "clock_str": "00:45",
+                    "actor": "B",
+                    "call": "+2 PTS",
+                    "detail": "Immediate Re-Sweep",
+                    "rule": "IBJJF Art. 4.6",
+                    "cta_url": "https://www.youtube.com/watch?v=VWzT1iUMvEc&t=2423s",
+                    "pts_a": 6,
+                    "adv_a": 3,
+                    "pen_a": 2,
+                    "pts_b": 6,
+                    "adv_b": 3,
+                    "pen_b": 2,
+                    "control_3s": True,
+                },
+                {
+                    "id": "mt-11",
+                    "video_sec": 698.0,
+                    "time_str": "11:38",
+                    "clock_str": "00:00",
+                    "actor": "B",
+                    "call": "DECISION",
+                    "detail": "Referee Decision (6-6, 3-3 ADV, 2-2 PEN)",
+                    "rule": "IBJJF Art. 2.5",
+                    "cta_url": "https://www.youtube.com/watch?v=xp6xTVThYAo&t=2150s",
+                    "pts_a": 6,
+                    "adv_a": 3,
+                    "pen_a": 2,
+                    "pts_b": 6,
+                    "adv_b": 3,
+                    "pen_b": 2,
+                    "control_3s": False,
+                    "is_finish": True,
+                },
+            ],
+        },
     ]
     resolved_owner = owner_email.strip().lower()
     for item in matches:
@@ -2277,6 +2540,7 @@ def _load_admin_overview_payload(app_cfg: Settings, active_user_email: str) -> d
             "id": tm.lower().replace(" ", "-"),
             "name": tm,
             "member_count": cnt,
+            "default_coach": "Caio Terra" if "caio" in tm.lower() else "Head Coach",
             "default_curriculum": "Caio Terra Association" if "plateau" in tm.lower() or "caio" in tm.lower() else "Open Source Jiu-Jitsu & Roadmap",
             "default_ruleset": "IBJJF v6.1",
         }
@@ -2603,7 +2867,7 @@ def _persist_analyzed_match(
             }
         )
 
-    match_id = f"usr_{uuid.uuid4().hex[:10]}"
+    match_id = secrets.token_urlsafe(9)[:11]
     clean_title = title.strip() or f"{athlete_a_name} vs. {athlete_b_name}"
     win_method = str(snap.get("win_method") or "").lower()
     win_label = "SUB" if "sub" in win_method else ("DQ" if "dq" in win_method else "WIN")
@@ -2681,6 +2945,10 @@ def _local_showcase_candidates(match_id: str, settings: Settings) -> list[Path]:
         dl_dir = REPO_ROOT / "data" / "runtime" / "showcase_caio_vitor" / "downloads"
         dl_mp4s = sorted(dl_dir.glob("*.mp4")) if dl_dir.is_dir() else []
         return [*dl_mp4s, cached]
+    if match_id == "malfacine_terra_2019":
+        mt_dir = REPO_ROOT / "data" / "runtime" / "showcase_malfacine_terra_2019"
+        mt_mp4s = sorted(mt_dir.glob("*.mp4")) if mt_dir.is_dir() else []
+        return [*mt_mp4s, cached, repo_runtime_mp4]
     if settings.environment == "test":
         return [cached, settings.runtime_dir / "uploads" / match_id]
     return [cached, repo_runtime_mp4, settings.runtime_dir / "uploads" / match_id]
@@ -3833,7 +4101,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                     "share_url": f"{app_cfg.public_url.rstrip('/')}/share/{existing_token}",
                 }
 
-        token = secrets.token_urlsafe(16)
+        token = secrets.token_urlsafe(9)[:11]
         share_record = {
             "token": token,
             "match_id": match_id,
@@ -3986,6 +4254,35 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 )
             feedback_logged = True
         return {"match": updated_match, "feedback_logged": feedback_logged}
+
+    @application.post("/api/matches/{match_id}/events/{event_id}/feedback")
+    async def submit_moment_feedback(
+        match_id: str,
+        event_id: str,
+        payload: dict[str, Any],
+        app_cfg: SettingsDep,
+        user: UserDep,
+    ) -> dict[str, Any]:
+        if not re.fullmatch(r"[A-Za-z0-9_-]{2,80}", match_id):
+            raise HTTPException(status_code=400, detail="Invalid match_id.")
+        note = str(payload.get("note") or "").strip()[:1000]
+        email = str(user.get("email") or "").strip().lower()
+        fb_path = app_cfg.runtime_dir / "moment_feedback.jsonl"
+        fb_path.parent.mkdir(parents=True, exist_ok=True)
+        with fb_path.open("a", encoding="utf-8") as fh:
+            fh.write(
+                json.dumps(
+                    {
+                        "match_id": match_id,
+                        "event_id": event_id,
+                        "email": email,
+                        "note": note,
+                        "ts": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+                    }
+                )
+                + "\n"
+            )
+        return {"ok": True, "match_id": match_id, "event_id": event_id, "feedback_logged": True}
 
     @application.get("/api/rulesets")
     async def list_rulesets(user: UserDep) -> dict[str, Any]:
@@ -4874,6 +5171,42 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         if manifest_path.exists():
             return json.loads(manifest_path.read_text(encoding="utf-8"))
         return {"version": ver, "available": False}
+
+    @application.get("/api/knowledge/curricula")
+    async def knowledge_curricula(
+        app_cfg: SettingsDep,
+        user: UserDep,
+        q: Annotated[str, Query()] = "",
+        version: Annotated[str | None, Query()] = None,
+    ) -> dict[str, Any]:
+        ver = version or app_cfg.active_index_version
+        docs_path = app_cfg.knowledge_dir / "versions" / ver / "documents.jsonl"
+        q_low = q.strip().lower()
+        entries: list[dict[str, Any]] = []
+        if docs_path.is_file():
+            for raw_line in docs_path.read_text(encoding="utf-8").splitlines():
+                if not raw_line.strip():
+                    continue
+                doc = json.loads(raw_line)
+                if doc.get("corpus") != "cta":
+                    continue
+                title = str(doc.get("title") or "")
+                pos = str(doc.get("position") or "general")
+                text_prev = str(doc.get("text") or "")[:200]
+                if q_low and q_low not in f"{title} {pos} {text_prev}".lower():
+                    continue
+                entries.append(
+                    {
+                        "doc_id": str(doc.get("doc_id") or ""),
+                        "title": title,
+                        "curriculum": str(doc.get("instructor") or "Open Source Jiu-Jitsu & CTA"),
+                        "position": pos,
+                        "timestamp_sec": doc.get("timestamp_sec"),
+                        "source_url": str(doc.get("source_url") or ""),
+                        "text_preview": text_prev,
+                    }
+                )
+        return {"version": ver, "count": len(entries), "curricula": entries[:120], "user": user.get("email", "")}
 
     @application.post("/api/knowledge/legality-check")
     async def knowledge_legality_check(

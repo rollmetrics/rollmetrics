@@ -28,6 +28,29 @@ from rollmetrics.video.analyzer import (
 STALLING_THRESHOLD_SEC = 20.0
 ADVANTAGE_MIN_HOLD_SEC = 0.8
 
+_POSITION_SCORING_RULES: tuple[tuple[tuple[str, ...], EventKind], ...] = (
+    (("back control", "back mount", "rear mount"), EventKind.BACK_CONTROL),
+    (("mount",), EventKind.MOUNT),
+    (("knee on belly", "kob"), EventKind.KNEE_ON_BELLY),
+    (("side control", "north south", "guard pass", "kesa"), EventKind.GUARD_PASS),
+    (("sweep",), EventKind.SWEEP),
+    (("takedown",), EventKind.TAKEDOWN),
+)
+
+
+def _normalize_position_key(position: str) -> str:
+    return " ".join((position or "").strip().lower().replace("_", " ").replace("-", " ").split())
+
+
+def _infer_scoring_kind_from_position(position: str) -> EventKind | None:
+    norm = _normalize_position_key(position)
+    if not norm:
+        return None
+    for needles, kind in _POSITION_SCORING_RULES:
+        if any(needle in norm for needle in needles):
+            return kind
+    return None
+
 
 class LiveRefereeSession:
     """Real-time IBJJF referee state tracker and locked-athlete CTA corner assistant."""
@@ -274,6 +297,8 @@ class LiveRefereeSession:
             self._audio_alerts.append(f"[{elapsed_sec:.1f}s] Referee combativeness cue: '{transcript.strip()}'")
 
     def _apply_observation(self, obs: FrameObservation, elapsed_sec: float) -> None:
+        prev_position = self.engine.current_position
+        prior_recent_count = len(self._recent_events)
         resolved_model = obs.model_id or obs.model_used
         self._latest_model_used = resolved_model
         self._latest_telemetry = {
@@ -297,9 +322,13 @@ class LiveRefereeSession:
         elif obs.top_or_dominant_actor == "B":
             stab_actor = AthleteId.ATHLETE_B
 
+        stab_kind = obs.stabilizing_scoring_kind
+        if stab_kind is None and stab_actor is not None:
+            stab_kind = _infer_scoring_kind_from_position(obs.current_position)
+
         self._update_stabilization(
             actor=stab_actor,
-            kind=obs.stabilizing_scoring_kind,
+            kind=stab_kind,
             elapsed_sec=elapsed_sec,
             in_bounds=obs.in_bounds,
             confidence=obs.confidence,
@@ -308,6 +337,26 @@ class LiveRefereeSession:
 
         for ev in obs.detected_events:
             self._emit_internal_event(ev)
+
+        if (
+            not self.engine.ended
+            and len(self._recent_events) == prior_recent_count
+            and obs.current_position
+            and _normalize_position_key(obs.current_position) != _normalize_position_key(prev_position)
+        ):
+            self._emit_internal_event(
+                RawObservedEvent(
+                    timestamp_sec=elapsed_sec,
+                    match_clock_str=obs.match_clock_str,
+                    actor=stab_actor or AthleteId.ATHLETE_A,
+                    kind=EventKind.POSITION_CHANGE,
+                    technique_slug=_normalize_position_key(obs.current_position).replace(" ", "_"),
+                    confidence=obs.confidence,
+                    occluded=obs.occluded,
+                    summary=f"Transition from {prev_position} to {obs.current_position}.",
+                    position_after=obs.current_position,
+                )
+            )
 
     async def process_frame(
         self,
@@ -355,8 +404,9 @@ class LiveRefereeSession:
                     )
                     self._last_vision_sec = clamped_elapsed
                     self._apply_observation(obs, clamped_elapsed)
-            except (OSError, RuntimeError, ValueError, TimeoutError) as exc:
+            except Exception as exc:  # noqa: BLE001
                 self._audio_alerts.append(f"[{clamped_elapsed:.1f}s] Vision fallback ({type(exc).__name__})")
+                self._latest_telemetry["error"] = f"{type(exc).__name__}: {str(exc)[:120]}"
                 self._tick_ongoing_stabilization_without_vision(clamped_elapsed)
             finally:
                 self._vision_in_flight = False

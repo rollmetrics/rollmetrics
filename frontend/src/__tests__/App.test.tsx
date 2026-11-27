@@ -1076,7 +1076,7 @@ describe("RollMetrics Single-Screen Video Telemetry MVP", () => {
       expect(screen.getByTestId("academy-msg")).toHaveTextContent("Open Source Jiu-Jitsu");
     });
 
-    // App Admin (/admin) + ML Admin (/ml-admin) separation
+    // App Admin (/admin) + Curricula Database (/curricula) (#268)
     fireEvent.click(screen.getByTestId("open-admin-btn"));
     await waitFor(() => {
       expect(screen.getByTestId("admin-dashboard")).toBeInTheDocument();
@@ -1085,19 +1085,17 @@ describe("RollMetrics Single-Screen Video Telemetry MVP", () => {
     expect(screen.getByTestId("admin-teams-table")).toBeInTheDocument();
     expect(screen.getByTestId("admin-curricula-table")).toBeInTheDocument();
     expect(screen.getByTestId("admin-rulesets-table")).toBeInTheDocument();
-    fireEvent.click(screen.getByTestId("switch-ml-admin-btn"));
-    await waitFor(() => {
-      expect(screen.getByTestId("ml-admin-dashboard")).toBeInTheDocument();
-    });
-    expect(screen.getByTestId("admin-scoreboard-table")).toHaveTextContent(
-      "gemini-4-hydrogen-agentic",
+    expect(screen.getByTestId("github-benchmarks-link")).toHaveAttribute(
+      "href",
+      "https://github.com/rollmetrics/rollmetrics/tree/main/benchmarks",
     );
-    expect(screen.getByTestId("admin-kb-strip")).toHaveTextContent("231 docs");
-    fireEvent.click(screen.getByTestId("admin-split-calibration"));
-    expect(screen.getByTestId("admin-scoreboard-table")).toHaveTextContent("70%");
-    fireEvent.click(screen.getByTestId("ml-admin-back-btn"));
+    fireEvent.click(screen.getByTestId("open-curricula-btn"));
     await waitFor(() => {
-      expect(screen.queryByTestId("ml-admin-dashboard")).not.toBeInTheDocument();
+      expect(screen.getByTestId("curricula-view")).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByTestId("curricula-back-btn"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("curricula-view")).not.toBeInTheDocument();
     });
 
     // One-click Share Breakdown button copies link (#170 Workstream 2.3)
@@ -1713,23 +1711,21 @@ describe("RollMetrics Single-Screen Video Telemetry MVP", () => {
       expect(screen.queryByTestId("revoke-share-btn")).not.toBeInTheDocument();
     });
 
-    // 2. Inline Human-in-the-Loop Moment Editing (+ Moment -> Edit -> Save -> Delete)
-    fireEvent.click(screen.getByTestId("add-moment-btn"));
-    await waitFor(() => {
-      expect(screen.getByTestId("moment-editor-form")).toBeInTheDocument();
+    // 2. Moment Feedback (Feedback -> note -> Submit -> Feedback saved, plus Cancel)
+    expect(screen.queryByTestId("add-moment-btn")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("film-ruleset-select")).not.toBeInTheDocument();
+    expect(screen.getByTestId("match-ruleset-pill")).toHaveTextContent("IBJJF");
+    fireEvent.click(screen.getByTestId("moment-feedback-btn"));
+    expect(screen.getByTestId("moment-feedback-form")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
+    expect(screen.queryByTestId("moment-feedback-form")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("moment-feedback-btn"));
+    fireEvent.change(screen.getByLabelText("Moment Feedback Note"), {
+      target: { value: "Check pass timing" },
     });
-    fireEvent.change(screen.getByLabelText("Edit Moment Actor"), { target: { value: "B" } });
-    fireEvent.change(screen.getByLabelText("Edit Moment Call"), { target: { value: "+3 PTS" } });
-    fireEvent.change(screen.getByLabelText("Edit Moment Detail"), { target: { value: "Guard Pass" } });
-    fireEvent.change(screen.getByLabelText("Edit Coach Note"), { target: { value: "Pin far hip" } });
-    fireEvent.click(screen.getByTestId("save-moment-btn"));
+    fireEvent.click(screen.getByTestId("submit-feedback-btn"));
     await waitFor(() => {
-      expect(screen.queryByTestId("moment-editor-form")).not.toBeInTheDocument();
-    });
-    fireEvent.click(screen.getByTestId("edit-moment-btn"));
-    fireEvent.click(screen.getByTestId("delete-moment-btn"));
-    await waitFor(() => {
-      expect(screen.queryByTestId("moment-editor-form")).not.toBeInTheDocument();
+      expect(screen.getByTestId("moment-feedback-saved")).toHaveTextContent("Feedback saved");
     });
 
     // 3. Settings modal -> Auto-Tag Academy Reference & Export Data (.zip) link
@@ -1746,35 +1742,15 @@ describe("RollMetrics Single-Screen Video Telemetry MVP", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: "Close" }));
 
-    // 4. Overview Home -> Longitudinal Progress Strip + Team Coach Roster + Upload Modal (Ruleset + Trim + Tap-to-Identify)
+    // 4. Overview Home -> Longitudinal Progress Strip + Upload Modal (Ruleset + bucket-aware labels) + Player Tap-to-Identify
     fireEvent.click(screen.getByTestId("brand-home-btn"));
     await waitFor(() => {
       expect(screen.getByTestId("longitudinal-progress-strip")).toBeInTheDocument();
-      expect(screen.getByTestId("team-coach-roster")).toBeInTheDocument();
-    });
-    fireEvent.click(screen.getByTestId("toggle-review-mc9_semifinal"));
-    await waitFor(() => {
-      expect(screen.getByTestId("toggle-review-mc9_semifinal")).toHaveTextContent("Mark Needs Review");
-    });
-    fireEvent.click(screen.getByTestId("pin-drill-mc9_semifinal"));
-    await waitFor(() => {
-      expect(screen.getByTestId("pin-drill-mc9_semifinal")).toHaveTextContent("Pin Drill (1)");
+      expect(screen.queryByTestId("team-coach-roster")).not.toBeInTheDocument();
     });
 
     fireEvent.click(screen.getByTestId("open-upload-modal-btn"));
     fireEvent.change(screen.getByTestId("upload-ruleset-select"), { target: { value: "adcc" } });
-    fireEvent.change(screen.getByLabelText("Trim Start Seconds"), { target: { value: "5" } });
-    fireEvent.change(screen.getByLabelText("Trim End Seconds"), { target: { value: "120" } });
-    const tapCanvas = screen.getByTestId("tap-to-identify-canvas");
-    fireEvent.click(tapCanvas, { clientX: 40, clientY: 30 });
-    expect(screen.getByTestId("tap-pin-a")).toBeInTheDocument();
-    fireEvent.click(tapCanvas, { clientX: 80, clientY: 30 });
-    expect(screen.getByTestId("tap-pin-b")).toBeInTheDocument();
-    // Third click resets A and clears B
-    fireEvent.click(tapCanvas, { clientX: 50, clientY: 40 });
-    expect(screen.queryByTestId("tap-pin-b")).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Reset Pins" }));
-    expect(screen.queryByTestId("tap-pin-a")).not.toBeInTheDocument();
     // Switch to Live Camera tab and verify ADCC live ruleset selector
     fireEvent.click(screen.getByRole("tab", { name: "Live Camera" }));
     const liveRulesetSelect = screen.getByTestId("live-ruleset-select") as HTMLSelectElement;
@@ -1782,17 +1758,23 @@ describe("RollMetrics Single-Screen Video Telemetry MVP", () => {
     expect(liveRulesetSelect.value).toBe("adcc");
     fireEvent.click(screen.getByRole("button", { name: "Close" }));
 
-    // Resizable right-hand Moments panel handle on desktop (#233) + Film Review ruleset switcher
+    // Resizable right-hand Moments panel handle on desktop (#233) + read-only ruleset pill (#267) + Tap-to-Identify on main video (#271)
     fireEvent.click(screen.getByTestId("home-match-mc9_semifinal"));
     await waitFor(() => {
       expect(screen.getByTestId("rail-resize-handle")).toBeInTheDocument();
-      expect(screen.getByTestId("film-ruleset-select")).toBeInTheDocument();
+      expect(screen.getByTestId("match-ruleset-pill")).toHaveTextContent("IBJJF");
     });
-    const filmRulesetSelect = screen.getByTestId("film-ruleset-select") as HTMLSelectElement;
-    fireEvent.change(filmRulesetSelect, { target: { value: "adcc" } });
-    await waitFor(() => {
-      expect(filmRulesetSelect.value).toBe("adcc");
-    });
+    fireEvent.click(screen.getByTestId("tap-to-identify-toggle"));
+    const tapCanvas = screen.getByTestId("tap-to-identify-canvas");
+    fireEvent.click(tapCanvas, { clientX: 40, clientY: 30 });
+    expect(screen.getByTestId("tap-pin-a")).toBeInTheDocument();
+    fireEvent.click(tapCanvas, { clientX: 80, clientY: 30 });
+    expect(screen.getByTestId("tap-pin-b")).toBeInTheDocument();
+    fireEvent.click(tapCanvas, { clientX: 50, clientY: 40 });
+    expect(screen.queryByTestId("tap-pin-b")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Reset Pins" }));
+    expect(screen.queryByTestId("tap-pin-a")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("tap-to-identify-toggle"));
     const resizeHandle = screen.getByTestId("rail-resize-handle");
     fireEvent.pointerDown(resizeHandle, { clientX: 800 });
     fireEvent(window, new MouseEvent("pointermove", { clientX: 740 }));

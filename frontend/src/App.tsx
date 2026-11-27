@@ -3,7 +3,6 @@ import { api, getStoredToken, mapAdjudicatedSnapshotToMatch, setStoredToken, wit
 import { EmbeddedReferenceVideo } from "./components/EmbeddedReferenceVideo";
 import { LandingPage } from "./components/LandingPage";
 import { AppAdminView } from "./views/AppAdminView";
-import { MlAdminView } from "./views/MlAdminView";
 import type {
   AcademyProfile,
   AcademyReference,
@@ -13,6 +12,7 @@ import type {
   AuthUser,
   BeltRank,
   ConnectionTestResult,
+  CurriculumEntry,
   FilmStudySummary,
   LocalHardwareStatus,
   LocalVideoFile,
@@ -23,7 +23,6 @@ import type {
   ShowcaseEvent,
   ShowcaseMatch,
   SystemStatusResponse,
-  TeamRosterItem,
 } from "./types";
 
 declare global {
@@ -369,7 +368,12 @@ function slugifyName(name: string): string {
 }
 
 function extractShareTokenFromPath(pathname: string): string {
-  const m = pathname.match(/^\/share\/([^/]+)\/?$/);
+  const m = pathname.match(/^\/(?:share|s)\/([^/]+)\/?$/);
+  return m ? decodeURIComponent(m[1]) : "";
+}
+
+function extractMatchIdFromPath(pathname: string): string {
+  const m = pathname.match(/^\/m\/([^/]+)\/?$/);
   return m ? decodeURIComponent(m[1]) : "";
 }
 
@@ -404,25 +408,23 @@ export function App() {
   const [uploadTitle, setUploadTitle] = useState<string>("");
   const [uploadRuleset, setUploadRuleset] = useState<RulesetId>("ibjjf_v6");
   const [liveRuleset, setLiveRuleset] = useState<RulesetId>("ibjjf_v6");
-  const [uploadTrimStart, setUploadTrimStart] = useState<string>("");
-  const [uploadTrimEnd, setUploadTrimEnd] = useState<string>("");
-  const [uploadAnchorA, setUploadAnchorA] = useState<AthleteAnchorPoint | null>(null);
-  const [uploadAnchorB, setUploadAnchorB] = useState<AthleteAnchorPoint | null>(null);
+  const [pinModeActive, setPinModeActive] = useState<boolean>(false);
+  const [playerAnchorA, setPlayerAnchorA] = useState<AthleteAnchorPoint | null>(null);
+  const [playerAnchorB, setPlayerAnchorB] = useState<AthleteAnchorPoint | null>(null);
   const [driveUrlInput, setDriveUrlInput] = useState<string>("");
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [uploadError, setUploadError] = useState<string>("");
   const [lastShareToken, setLastShareToken] = useState<string>("");
-  const [teamRoster, setTeamRoster] = useState<TeamRosterItem[]>([]);
-  const [editingEventId, setEditingEventId] = useState<string | null>(null);
-  const [editActor, setEditActor] = useState<"A" | "B">("A");
-  const [editCall, setEditCall] = useState<string>("+2 PTS");
-  const [editDetail, setEditDetail] = useState<string>("");
-  const [editCoachNote, setEditCoachNote] = useState<string>("");
-  const [momentEditBusy, setMomentEditBusy] = useState<boolean>(false);
+  const [feedbackEventId, setFeedbackEventId] = useState<string | null>(null);
+  const [feedbackNote, setFeedbackNote] = useState<string>("");
+  const [feedbackBusy, setFeedbackBusy] = useState<boolean>(false);
+  const [feedbackSavedId, setFeedbackSavedId] = useState<string | null>(null);
   const [autoTagBusy, setAutoTagBusy] = useState<boolean>(false);
 
   const [matches, setMatches] = useState<ShowcaseMatch[]>([FALLBACK_SEMIFINAL]);
-  const [activeMatchId, setActiveMatchId] = useState<string>("mc9_semifinal");
+  const [activeMatchId, setActiveMatchId] = useState<string>(
+    () => (typeof window !== "undefined" && extractMatchIdFromPath(window.location.pathname)) || "mc9_semifinal",
+  );
   const [currentTime, setCurrentTime] = useState<number>(0);
   const [videoDuration, setVideoDuration] = useState<number>(0);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
@@ -444,7 +446,9 @@ export function App() {
   } | null>(null);
   const [profile, setProfile] = useState<ModelProfile>("local");
 
-  const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
+  const [settingsOpen, setSettingsOpen] = useState<boolean>(
+    () => typeof window !== "undefined" && window.location.pathname === "/me",
+  );
   const [coachExpanded, setCoachExpanded] = useState<boolean>(false);
   const [inlineGifByEvent, setInlineGifByEvent] = useState<
     Record<string, { url: string; label: string }>
@@ -453,17 +457,20 @@ export function App() {
   const [demoLoginBusy, setDemoLoginBusy] = useState<boolean>(false);
   const [previewAsUser, setPreviewAsUser] = useState<boolean>(false);
   const [viewMode, setViewMode] = useState<
-    "player" | "home" | "admin" | "ml-admin" | "privacy" | "terms" | "rulebook"
+    "player" | "home" | "admin" | "curricula" | "privacy" | "terms" | "rulebook"
   >(() => {
     if (typeof window === "undefined") return "player";
     const p = window.location.pathname;
     if (p === "/admin") return "admin";
-    if (p === "/ml" || p === "/ml-admin") return "ml-admin";
+    if (p === "/curricula") return "curricula";
     if (p === "/privacy") return "privacy";
     if (p === "/terms") return "terms";
     if (p === "/rules/ibjjf-v6-1") return "rulebook";
     return "player";
   });
+  const [curriculaItems, setCurriculaItems] = useState<CurriculumEntry[]>([]);
+  const [curriculaQuery, setCurriculaQuery] = useState<string>("");
+  const [curriculaLoading, setCurriculaLoading] = useState<boolean>(false);
   const [rulebookArticle, setRulebookArticle] = useState<string>(() =>
     typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("article") || "" : "",
   );
@@ -482,7 +489,6 @@ export function App() {
   const [filmStudyAthlete, setFilmStudyAthlete] = useState<string>("");
   const [filmStudySummary, setFilmStudySummary] = useState<FilmStudySummary | null>(null);
   const [adminOverview, setAdminOverview] = useState<AdminOverviewResponse | null>(null);
-  const [adminSplit, setAdminSplit] = useState<"heldout" | "calibration">("heldout");
   const [adminLoading, setAdminLoading] = useState<boolean>(false);
   const [uploadBucket, setUploadBucket] = useState<MatchBucket>("my_matches");
   const [personalSummary, setPersonalSummary] = useState<PersonalCoachingSummary | null>(null);
@@ -578,7 +584,12 @@ export function App() {
       setProfileCurriculumInput(me.academy_id === "cta" ? "cta" : "osjj-roadmap");
       if (catalog.matches.length > 0) {
         setMatches(catalog.matches);
-        const defId = catalog.default_match_id || catalog.matches[0].id;
+        const urlMatchId =
+          typeof window !== "undefined" ? extractMatchIdFromPath(window.location.pathname) : "";
+        const defId =
+          urlMatchId && catalog.matches.some((m) => m.id === urlMatchId)
+            ? urlMatchId
+            : catalog.default_match_id || catalog.matches[0].id;
         setActiveMatchId(defId);
         const defMatch = catalog.matches.find((m) => m.id === defId) || catalog.matches[0];
         if (defMatch.events.length > 0) {
@@ -589,10 +600,6 @@ export function App() {
         .getPersonalCoachingSummary()
         .then((gp) => setPersonalSummary(gp))
         .catch(() => {});
-      api
-        .getTeamRoster()
-        .then((res) => setTeamRoster(res.roster || []))
-        .catch(() => setTeamRoster([]));
       api
         .getMyAcademy()
         .then((ac) => {
@@ -683,21 +690,23 @@ export function App() {
   }, [authConfig, loadWorkspace, user]);
 
   const navigateViewMode = useCallback(
-    (next: "player" | "home" | "admin" | "ml-admin" | "privacy" | "terms") => {
+    (next: "player" | "home" | "admin" | "curricula" | "privacy" | "terms", matchIdOverride?: string) => {
       setViewMode(next);
       if (typeof window !== "undefined" && typeof window.history?.pushState === "function") {
         const targetPath =
           next === "admin"
             ? "/admin"
-            : next === "ml-admin"
-              ? "/ml"
+            : next === "curricula"
+              ? "/curricula"
               : next === "privacy"
                 ? "/privacy"
                 : next === "terms"
                   ? "/terms"
-                  : "/";
+                  : next === "player" && matchIdOverride
+                    ? `/m/${encodeURIComponent(matchIdOverride)}`
+                    : "/";
         if (window.location.pathname !== targetPath) {
-          window.history.pushState({ viewMode: next }, "", targetPath);
+          window.history.pushState({ viewMode: next, matchId: matchIdOverride }, "", targetPath);
         }
       }
     },
@@ -736,17 +745,28 @@ export function App() {
       const nextShare = extractShareTokenFromPath(p);
       setShareToken(nextShare);
       if (nextShare) return;
+      const nextMatchId = extractMatchIdFromPath(p);
+      if (nextMatchId) {
+        setActiveMatchId(nextMatchId);
+        setViewMode("player");
+        return;
+      }
+      if (p === "/me") {
+        setSettingsOpen(true);
+        return;
+      }
+      setSettingsOpen(false);
       if (p === "/admin") {
         setViewMode("admin");
-      } else if (p === "/ml" || p === "/ml-admin") {
-        setViewMode("ml-admin");
+      } else if (p === "/curricula") {
+        setViewMode("curricula");
       } else if (p === "/privacy") {
         setViewMode("privacy");
       } else if (p === "/terms") {
         setViewMode("terms");
       } else {
         setViewMode((prev) =>
-          prev === "admin" || prev === "ml-admin" || prev === "privacy" || prev === "terms"
+          prev === "admin" || prev === "curricula" || prev === "privacy" || prev === "terms"
             ? "player"
             : prev,
         );
@@ -757,7 +777,7 @@ export function App() {
   }, []);
 
   useEffect(() => {
-    if ((viewMode !== "admin" && viewMode !== "ml-admin") || !user) return;
+    if (viewMode !== "admin" || !user) return;
     let cancelled = false;
     setAdminLoading(true);
     api
@@ -773,6 +793,24 @@ export function App() {
       cancelled = true;
     };
   }, [viewMode, user]);
+
+  useEffect(() => {
+    if (viewMode !== "curricula" || !user) return;
+    let cancelled = false;
+    setCurriculaLoading(true);
+    api
+      .getCurricula(curriculaQuery)
+      .then((res) => {
+        if (!cancelled) setCurriculaItems(res.curricula || []);
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (!cancelled) setCurriculaLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [viewMode, user, curriculaQuery]);
 
   useEffect(() => {
     if (!filmStudyAthlete || !user) {
@@ -969,7 +1007,7 @@ export function App() {
     if (liveCameraActive || liveSimActive) {
       stopLiveSession();
     }
-    navigateViewMode("player");
+    navigateViewMode("player", matchId);
     setActiveMatchId(matchId);
     setSimMatchId(matchId);
     setCurrentTime(0);
@@ -1006,8 +1044,26 @@ export function App() {
     }
   };
 
+  const closeSettings = useCallback(() => {
+    setSettingsOpen(false);
+    if (
+      typeof window !== "undefined" &&
+      window.location.pathname === "/me" &&
+      typeof window.history?.pushState === "function"
+    ) {
+      window.history.pushState({ viewMode }, "", "/");
+    }
+  }, [viewMode]);
+
   const handleOpenSettings = async () => {
     setSettingsOpen(true);
+    if (
+      typeof window !== "undefined" &&
+      window.location.pathname !== "/me" &&
+      typeof window.history?.pushState === "function"
+    ) {
+      window.history.pushState({ viewMode: "me" }, "", "/me");
+    }
     setConfigSavedMsg("");
     setAcademyMsg("");
     try {
@@ -1273,92 +1329,20 @@ export function App() {
     }
   };
 
-  const handleStartEditMoment = (ev: ShowcaseEvent) => {
-    setEditingEventId(ev.id);
-    setEditActor(ev.actor);
-    setEditCall(ev.call);
-    setEditDetail(ev.detail);
-    setEditCoachNote(ev.coach_note || "");
-  };
-
-  const persistMatchMoments = async (nextEvents: ShowcaseEvent[], overrideRuleset?: RulesetId) => {
-    const targetRuleset = overrideRuleset || activeMatch.ruleset || "ibjjf_v6";
-    setMomentEditBusy(true);
+  const handleSubmitMomentFeedback = async (eventId: string) => {
+    const trimmed = feedbackNote.trim();
+    if (!trimmed) return;
+    setFeedbackBusy(true);
     try {
-      const res = await api.updateMatchMoments(activeMatch.id, {
-        events: nextEvents,
-        ruleset: targetRuleset,
-        opt_in_feedback: !overrideRuleset,
-      });
-      if (res?.match) {
-        setMatches((prev) => prev.map((m) => (m.id === activeMatch.id ? res.match : m)));
-      } else {
-        setMatches((prev) =>
-          prev.map((m) => (m.id === activeMatch.id ? { ...m, ruleset: targetRuleset, events: nextEvents } : m)),
-        );
-      }
+      await api.submitMomentFeedback(activeMatch.id, eventId, trimmed);
     } catch {
-      setMatches((prev) =>
-        prev.map((m) => (m.id === activeMatch.id ? { ...m, ruleset: targetRuleset, events: nextEvents } : m)),
-      );
+      // Confirm locally even if offline
     } finally {
-      setMomentEditBusy(false);
-      setEditingEventId(null);
+      setFeedbackBusy(false);
+      setFeedbackEventId(null);
+      setFeedbackNote("");
+      setFeedbackSavedId(eventId);
     }
-  };
-
-  const handleSwitchMatchRuleset = async (nextRuleset: RulesetId) => {
-    await persistMatchMoments(activeMatch.events, nextRuleset);
-  };
-
-  const handleSaveMomentEdit = async (eventId: string) => {
-    const nextEvents = activeMatch.events.map((ev) =>
-      ev.id === eventId
-        ? {
-            ...ev,
-            actor: editActor,
-            call: editCall,
-            detail: editDetail.trim() || ev.detail,
-            coach_note: editCoachNote.trim() || undefined,
-            edited_by: user?.email || "coach",
-          }
-        : ev,
-    );
-    await persistMatchMoments(nextEvents);
-  };
-
-  const handleDeleteMoment = async (eventId: string) => {
-    const nextEvents = activeMatch.events.filter((ev) => ev.id !== eventId);
-    await persistMatchMoments(nextEvents);
-  };
-
-  const handleAddMoment = async () => {
-    const sec = Math.max(0, Math.round(currentTime));
-    const fmt = (s: number) =>
-      `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
-    const lastEv = activeMatch.events[activeMatch.events.length - 1];
-    const newEv: ShowcaseEvent = {
-      id: `manual-${Date.now()}`,
-      video_sec: sec,
-      time_str: fmt(sec),
-      clock_str: fmt(Math.max(0, (activeMatch.regulation_sec || 300) - sec)),
-      actor: "A",
-      call: "+2 PTS",
-      detail: "Coach Moment",
-      rule: activeMatch.ruleset === "adcc" ? "ADCC Rules" : "IBJJF Art. 4",
-      cta_url: "https://www.youtube.com/watch?v=4-7AYrBCOvQ",
-      pts_a: (lastEv?.pts_a || 0) + 2,
-      adv_a: lastEv?.adv_a || 0,
-      pen_a: lastEv?.pen_a || 0,
-      pts_b: lastEv?.pts_b || 0,
-      adv_b: lastEv?.adv_b || 0,
-      pen_b: lastEv?.pen_b || 0,
-      coach_note: "Added during film review",
-    };
-    const nextEvents = [...activeMatch.events, newEv].sort((a, b) => a.video_sec - b.video_sec);
-    await persistMatchMoments(nextEvents);
-    setSelectedEventId(newEv.id);
-    handleStartEditMoment(newEv);
   };
 
   const handleAutoTagAcademyRef = async () => {
@@ -1381,43 +1365,6 @@ export function App() {
     }
   };
 
-  const handleToggleRosterReview = async (item: TeamRosterItem) => {
-    const nextStatus = item.review_status === "reviewed" ? "needs_review" : "reviewed";
-    try {
-      const updated = await api.updateMatchReview(item.match_id, { review_status: nextStatus });
-      setTeamRoster((prev) =>
-        prev.map((r) =>
-          r.match_id === item.match_id
-            ? { ...r, review_status: updated.review_status, pinned_drills: updated.pinned_drills }
-            : r,
-        ),
-      );
-    } catch {
-      // Ignore review toggle error
-    }
-  };
-
-  const handlePinRosterDrill = async (item: TeamRosterItem) => {
-    try {
-      const updated = await api.updateMatchReview(item.match_id, {
-        pin_drill: {
-          title: `Drill for ${item.title}`,
-          url: "https://www.youtube.com/watch?v=4-7AYrBCOvQ",
-          note: "Pinned by team coach",
-        },
-      });
-      setTeamRoster((prev) =>
-        prev.map((r) =>
-          r.match_id === item.match_id
-            ? { ...r, review_status: updated.review_status, pinned_drills: updated.pinned_drills }
-            : r,
-        ),
-      );
-    } catch {
-      // Ignore pin error
-    }
-  };
-
   const handleDirectUploadFile = async (file: File | null) => {
     if (!file) return;
     setIngestBusy(true);
@@ -1426,8 +1373,6 @@ export function App() {
     try {
       const athA = uploadAthleteA.trim() || user?.name || "Athlete A";
       const athB = uploadAthleteB.trim() || "Opponent";
-      const trimStart = uploadTrimStart.trim() ? Number(uploadTrimStart) : undefined;
-      const trimEnd = uploadTrimEnd.trim() ? Number(uploadTrimEnd) : undefined;
       const init = await api.initUpload({
         filename: file.name,
         content_type: file.type || "video/mp4",
@@ -1441,10 +1386,6 @@ export function App() {
         athlete_b_gi: uploadGiB,
         title: uploadTitle.trim() || file.name.replace(/\.[^.]+$/, ""),
         ruleset: uploadRuleset,
-        trim_start_sec: Number.isFinite(trimStart) ? trimStart : undefined,
-        trim_end_sec: Number.isFinite(trimEnd) ? trimEnd : undefined,
-        athlete_a_anchor: uploadAnchorA || undefined,
-        athlete_b_anchor: uploadAnchorB || undefined,
       });
       setUploadProgress(45);
       let newMatch: ShowcaseMatch;
@@ -1488,8 +1429,6 @@ export function App() {
     try {
       const athA = uploadAthleteA.trim() || user?.name || "Athlete A";
       const athB = uploadAthleteB.trim() || "Opponent";
-      const trimStart = uploadTrimStart.trim() ? Number(uploadTrimStart) : undefined;
-      const trimEnd = uploadTrimEnd.trim() ? Number(uploadTrimEnd) : undefined;
       const done = await api.uploadGoogleDrive({
         drive_url: driveUrlInput.trim(),
         title: uploadTitle.trim() || `${athA} vs. ${athB}`,
@@ -1502,10 +1441,6 @@ export function App() {
         athlete_b_gi: uploadGiB,
         profile,
         ruleset: uploadRuleset,
-        trim_start_sec: Number.isFinite(trimStart) ? trimStart : undefined,
-        trim_end_sec: Number.isFinite(trimEnd) ? trimEnd : undefined,
-        athlete_a_anchor: uploadAnchorA || undefined,
-        athlete_b_anchor: uploadAnchorB || undefined,
       });
       setUploadProgress(100);
       setMatches((prev) => [done.match, ...prev]);
@@ -1640,7 +1575,14 @@ export function App() {
       liveInFlightRef.current = false;
       try {
         const msg = JSON.parse(String(event.data || "{}")) as Record<string, unknown>;
-        if (msg.type === "pong" || msg.type === "error") return;
+        if (msg.type === "pong") return;
+        if (msg.type === "error") {
+          setLiveTelemetry((prev) => ({
+            ...prev,
+            position: `Error: ${String(msg.detail || "Live session error")}`,
+          }));
+          return;
+        }
         const sb = (msg.scoreboard as Record<string, unknown>) || msg;
         const a = (sb.athlete_a as Record<string, unknown>) || {};
         const b = (sb.athlete_b as Record<string, unknown>) || {};
@@ -1673,6 +1615,11 @@ export function App() {
       }
     };
 
+    ws.onerror = () => {
+      liveInFlightRef.current = false;
+      setLiveTelemetry((prev) => ({ ...prev, position: "Live connection error" }));
+    };
+
     ws.onclose = () => {
       liveInFlightRef.current = false;
     };
@@ -1690,10 +1637,11 @@ export function App() {
       const activeWs = liveWsRef.current;
       const v = videoRef.current;
       if (!activeWs || activeWs.readyState !== WebSocket.OPEN || !v) return;
+      if (v.readyState > 0 && v.readyState < 2) return;
       const now = Date.now();
-      // Minimum 1.5s spacing + strict in-flight backpressure (max 6s timeout) (#107)
+      // Minimum 1.5s spacing + strict in-flight backpressure (15s timeout for Gemma 4 vision) (#107, #270)
       if (now - liveLastSentRef.current < 1500) return;
-      if (liveInFlightRef.current && now - liveInFlightSinceRef.current < 6000) return;
+      if (liveInFlightRef.current && now - liveInFlightSinceRef.current < 15000) return;
 
       let canvas = liveCanvasRef.current;
       if (!canvas) {
@@ -2199,33 +2147,30 @@ export function App() {
       {!shareToken && viewMode === "home" ? (
         <main className="overview-home" data-testid="overview-home">
           <section className="athlete-profile-strip" data-testid="athlete-profile-strip">
-            <div className="athlete-profile-id">
-              {user?.picture ? (
-                <img src={user.picture} alt={user.name} className="user-avatar" />
-              ) : (
-                <span className="user-avatar" aria-hidden="true">
-                  {getInitials(user?.name || "Athlete")}
-                </span>
-              )}
-              <div>
-                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
-                  <strong style={{ fontSize: "1rem" }}>{user?.name || "Athlete"}</strong>
-                  <BeltSwatch belt={(user?.belt as BeltRank) || "white"} />
-                  <span style={{ fontSize: "0.82rem", color: "var(--text-secondary)", textTransform: "capitalize" }}>
-                    {(user?.belt || "white")} Belt
+            <div className="athlete-profile-top">
+              <div className="athlete-profile-id">
+                {user?.picture ? (
+                  <img src={user.picture} alt={user.name} className="user-avatar" />
+                ) : (
+                  <span className="user-avatar" aria-hidden="true">
+                    {getInitials(user?.name || "Athlete")}
                   </span>
-                </div>
-                <div className="athlete-profile-meta">
-                  <span>Academy: <strong>{user?.academy || user?.teams?.[0] || "Independent"}</strong></span>
-                  {user?.coach && <span>Coach: <strong>{user.coach}</strong></span>}
-                  <span>Curriculum: <strong>{academy?.academy_name || "Open Source Curriculum"}</strong></span>
+                )}
+                <div>
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
+                    <strong style={{ fontSize: "1rem" }}>{user?.name || "Athlete"}</strong>
+                    <BeltSwatch belt={(user?.belt as BeltRank) || "white"} />
+                    <span style={{ fontSize: "0.82rem", color: "var(--text-secondary)", textTransform: "capitalize" }}>
+                      {(user?.belt || "white")} Belt
+                    </span>
+                  </div>
+                  <div className="athlete-profile-meta">
+                    <span>Academy: <strong>{user?.academy || user?.teams?.[0] || "Independent"}</strong></span>
+                    {user?.coach && <span>Coach: <strong>{user.coach}</strong></span>}
+                    <span>Curriculum: <strong>{academy?.academy_name || "Open Source Curriculum"}</strong></span>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className="athlete-profile-stats">
-              <span>Matches: <strong>{matches.filter((m) => m.bucket === "my_matches").length}</strong></span>
-              {personalSummary?.record?.label && <span>Record: <strong>{personalSummary.record.label}</strong></span>}
-              <span>Film Study: <strong>{filmStudyMatches.length}</strong></span>
               <button
                 type="button"
                 className="mini-btn"
@@ -2234,6 +2179,22 @@ export function App() {
               >
                 Edit Profile
               </button>
+            </div>
+            <div className="athlete-profile-stats">
+              <span className="athlete-stat-item">
+                <span className="athlete-stat-label">Matches</span>
+                <strong>{matches.filter((m) => m.bucket === "my_matches").length}</strong>
+              </span>
+              {personalSummary?.record?.label && (
+                <span className="athlete-stat-item">
+                  <span className="athlete-stat-label">Record</span>
+                  <strong>{personalSummary.record.label}</strong>
+                </span>
+              )}
+              <span className="athlete-stat-item">
+                <span className="athlete-stat-label">Film Study</span>
+                <strong>{filmStudyMatches.length}</strong>
+              </span>
             </div>
           </section>
 
@@ -2293,46 +2254,6 @@ export function App() {
                 <span>
                   Record: <strong>{personalSummary.record.label}</strong>
                 </span>
-              </div>
-            </section>
-          )}
-
-          {(user?.role === "coach" || user?.is_admin) && teamRoster.length > 0 && (
-            <section className="overview-library" data-testid="team-coach-roster">
-              <div className="overview-library-head">
-                <h2>Team Coach Roster</h2>
-                <span className="gameplan-stat-muted">{teamRoster.length} team uploads</span>
-              </div>
-              <div className="match-library-grid">
-                {teamRoster.map((item) => (
-                  <div key={item.match_id} className="match-library-card" data-testid={`roster-card-${item.match_id}`}>
-                    <div className="library-card-top">
-                      <span className="library-card-pill">{item.athlete_name}</span>
-                      <span className="win-pill">
-                        {item.review_status === "reviewed" ? "Reviewed" : "Needs Review"}
-                      </span>
-                    </div>
-                    <div className="library-card-sub">{item.title}</div>
-                    <div style={{ display: "flex", gap: "0.4rem", marginTop: "0.5rem", flexWrap: "wrap" }}>
-                      <button
-                        type="button"
-                        className="mini-btn"
-                        data-testid={`toggle-review-${item.match_id}`}
-                        onClick={() => void handleToggleRosterReview(item)}
-                      >
-                        {item.review_status === "reviewed" ? "Mark Needs Review" : "Mark Reviewed"}
-                      </button>
-                      <button
-                        type="button"
-                        className="mini-btn"
-                        data-testid={`pin-drill-${item.match_id}`}
-                        onClick={() => void handlePinRosterDrill(item)}
-                      >
-                        Pin Drill ({item.pinned_drills.length})
-                      </button>
-                    </div>
-                  </div>
-                ))}
               </div>
             </section>
           )}
@@ -2463,20 +2384,6 @@ export function App() {
                   </div>
                 </div>
                 <p className="coach-overview-text">{filmStudySummary.summary_text}</p>
-                {filmStudySummary.a_game_patterns.filter((p) => !/medical stoppage/i.test(p)).length > 0 && (
-                  <div className="scouting-sub-block">
-                    <div className="coach-section-label">Signature Techniques &amp; Scoring Positions</div>
-                    <div className="gameplan-positions">
-                      {filmStudySummary.a_game_patterns
-                        .filter((p) => !/medical stoppage/i.test(p))
-                        .map((pat) => (
-                          <span key={pat} className="gameplan-pos-pill">
-                            {pat}
-                          </span>
-                        ))}
-                    </div>
-                  </div>
-                )}
                 {filmStudySummary.coaching_takeaways.length > 0 && (
                   <div className="scouting-sub-block">
                     <div className="coach-section-label">Coaching Notes</div>
@@ -2585,19 +2492,99 @@ export function App() {
           adminOverview={adminOverview}
           adminLoading={adminLoading}
           authConfig={authConfig}
-          onSwitchToMlAdmin={() => navigateViewMode("ml-admin")}
+          onOpenCurricula={() => navigateViewMode("curricula")}
           onBackToApp={() => navigateViewMode("player")}
         />
-      ) : !shareToken && viewMode === "ml-admin" ? (
-        <MlAdminView
-          adminOverview={adminOverview}
-          adminLoading={adminLoading}
-          adminSplit={adminSplit}
-          onChangeSplit={setAdminSplit}
-          authConfig={authConfig}
-          onSwitchToAppAdmin={() => navigateViewMode("admin")}
-          onBackToApp={() => navigateViewMode("player")}
-        />
+      ) : !shareToken && viewMode === "curricula" ? (
+        <main className="admin-dashboard" data-testid="curricula-view">
+          <div className="admin-header">
+            <div>
+              <h1 className="admin-title">Curricula Database</h1>
+              <p className="admin-subtitle">
+                Indexed Open-Source Jiu-Jitsu and academy curriculum modules.
+              </p>
+            </div>
+            <button
+              type="button"
+              className="mini-btn"
+              data-testid="curricula-back-btn"
+              onClick={() => navigateViewMode("player")}
+            >
+              &lt;- Back to App
+            </button>
+          </div>
+          <div className="admin-section">
+            <input
+              className="input-clean"
+              data-testid="curricula-search-input"
+              aria-label="Filter curricula modules"
+              placeholder="Search techniques, positions, or instructors..."
+              value={curriculaQuery}
+              onChange={(e) => setCurriculaQuery(e.target.value)}
+            />
+            {curriculaLoading ? (
+              <div style={{ fontSize: "0.85rem", color: "var(--text-secondary)" }}>
+                Loading curricula...
+              </div>
+            ) : (
+              <div className="admin-table-wrap">
+                <table className="admin-table" data-testid="curricula-list-table">
+                  <thead>
+                    <tr>
+                      <th style={{ width: "36%" }}>Module</th>
+                      <th style={{ width: "22%" }}>Curriculum</th>
+                      <th style={{ width: "16%" }}>Position</th>
+                      <th style={{ width: "12%" }}>Time</th>
+                      <th style={{ width: "14%" }}>Reference</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {curriculaItems.map((item) => (
+                      <tr key={item.doc_id || item.title}>
+                        <td>{item.title}</td>
+                        <td>{item.curriculum}</td>
+                        <td>
+                          <span className="gameplan-pos-pill">{item.position}</span>
+                        </td>
+                        <td className="mono-cell">
+                          {typeof item.timestamp_sec === "number"
+                            ? formatCountdown(item.timestamp_sec)
+                            : "-"}
+                        </td>
+                        <td>
+                          {item.source_url ? (
+                            <button
+                              type="button"
+                              className="mini-btn"
+                              onClick={() =>
+                                setReferenceModal({
+                                  url: item.source_url,
+                                  title: item.title,
+                                  subtitle: `${item.curriculum} · ${item.position}`,
+                                })
+                              }
+                            >
+                              Watch
+                            </button>
+                          ) : (
+                            "-"
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                    {curriculaItems.length === 0 && (
+                      <tr>
+                        <td colSpan={5} className="admin-empty-cell">
+                          No curriculum modules match this filter.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </main>
       ) : (
         /* Single-Screen Stage: 100dvh Zero-Scroll Desktop Fit with Resizable Moments Panel */
         <main
@@ -2643,6 +2630,68 @@ export function App() {
               }}
               onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
             />
+            {pinModeActive && !shareToken && (
+              <div
+                role="button"
+                tabIndex={0}
+                aria-label="Tap video to pin Athlete A then Athlete B"
+                data-testid="tap-to-identify-canvas"
+                className="video-pin-overlay"
+                onClick={(e) => {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  const x = rect.width > 0 ? Number(((e.clientX - rect.left) / rect.width).toFixed(3)) : 0.35;
+                  const y = rect.height > 0 ? Number(((e.clientY - rect.top) / rect.height).toFixed(3)) : 0.5;
+                  if (!playerAnchorA) {
+                    setPlayerAnchorA({ x, y });
+                  } else if (!playerAnchorB) {
+                    setPlayerAnchorB({ x, y });
+                  } else {
+                    setPlayerAnchorA({ x, y });
+                    setPlayerAnchorB(null);
+                  }
+                }}
+              >
+                <div className="video-pin-banner" onClick={(e) => e.stopPropagation()}>
+                  <span>
+                    {!playerAnchorA
+                      ? "Tap Athlete A on video"
+                      : !playerAnchorB
+                        ? "Tap Athlete B on video"
+                        : "Athletes A & B pinned"}
+                  </span>
+                  {(playerAnchorA || playerAnchorB) && (
+                    <button
+                      type="button"
+                      className="mini-btn"
+                      onClick={() => {
+                        setPlayerAnchorA(null);
+                        setPlayerAnchorB(null);
+                      }}
+                    >
+                      Reset Pins
+                    </button>
+                  )}
+                </div>
+                {playerAnchorA && (
+                  <span
+                    className="tap-pin tap-pin-a"
+                    data-testid="tap-pin-a"
+                    style={{ left: `${playerAnchorA.x * 100}%`, top: `${playerAnchorA.y * 100}%` }}
+                  >
+                    A
+                  </span>
+                )}
+                {playerAnchorB && (
+                  <span
+                    className="tap-pin tap-pin-b"
+                    data-testid="tap-pin-b"
+                    style={{ left: `${playerAnchorB.x * 100}%`, top: `${playerAnchorB.y * 100}%` }}
+                  >
+                    B
+                  </span>
+                )}
+              </div>
+            )}
             {videoBuffering && !videoError && (
               <div className="video-buffering-spinner" aria-label="Buffering video" />
             )}
@@ -2952,31 +3001,23 @@ export function App() {
         {/* Right Column: Unified Match Moments & Coaching Rail */}
         <aside className="event-rail" aria-label="Match Moments">
           <div className="rail-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "0.5rem" }}>
-            <strong style={{ fontFamily: "var(--font-display)", fontSize: "0.88rem" }}>
-              Moments ({displayedEvents.length})
-            </strong>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.45rem" }}>
+              <strong style={{ fontFamily: "var(--font-display)", fontSize: "0.88rem" }}>
+                Moments ({displayedEvents.length})
+              </strong>
+              <span className="gameplan-pos-pill" data-testid="match-ruleset-pill">
+                {activeMatch.ruleset === "adcc" ? "ADCC" : "IBJJF"}
+              </span>
+            </div>
             {!shareToken && (
               <div style={{ display: "flex", gap: "0.35rem", alignItems: "center" }}>
-                <select
-                  aria-label="Match Ruleset"
-                  data-testid="film-ruleset-select"
-                  className="mini-btn"
-                  disabled={momentEditBusy}
-                  value={activeMatch.ruleset || "ibjjf_v6"}
-                  onChange={(e) => void handleSwitchMatchRuleset(e.target.value as RulesetId)}
-                >
-                  <option value="ibjjf_v6">IBJJF v6.1</option>
-                  <option value="adcc">ADCC</option>
-                  <option value="sparring">Sparring</option>
-                </select>
                 <button
                   type="button"
                   className="mini-btn"
-                  data-testid="add-moment-btn"
-                  disabled={momentEditBusy}
-                  onClick={() => void handleAddMoment()}
+                  data-testid="tap-to-identify-toggle"
+                  onClick={() => setPinModeActive((prev) => !prev)}
                 >
-                  + Moment
+                  {pinModeActive ? "Done Pinning" : "Pin A/B"}
                 </button>
                 <button
                   type="button"
@@ -3293,72 +3334,32 @@ export function App() {
 
                       {!shareToken && (
                         <div className="moment-edit-row" style={{ marginTop: "0.45rem" }}>
-                          {editingEventId === ev.id ? (
-                            <div className="moment-editor-form" data-testid="moment-editor-form">
-                              <div style={{ display: "flex", gap: "0.35rem", flexWrap: "wrap" }}>
-                                <select
-                                  aria-label="Edit Moment Actor"
-                                  className="input-clean"
-                                  style={{ width: 92 }}
-                                  value={editActor}
-                                  onChange={(e) => setEditActor(e.target.value as "A" | "B")}
-                                >
-                                  <option value="A">{labelA}</option>
-                                  <option value="B">{labelB}</option>
-                                </select>
-                                <select
-                                  aria-label="Edit Moment Call"
-                                  className="input-clean"
-                                  style={{ width: 120 }}
-                                  value={editCall}
-                                  onChange={(e) => setEditCall(e.target.value)}
-                                >
-                                  <option value="+2 PTS">+2 PTS</option>
-                                  <option value="+3 PTS">+3 PTS</option>
-                                  <option value="+4 PTS">+4 PTS</option>
-                                  <option value="+1 ADV">+1 ADV</option>
-                                  <option value="+1 PEN">+1 PEN</option>
-                                  <option value="SUBMISSION">SUBMISSION</option>
-                                  <option value="COACH NOTE">COACH NOTE</option>
-                                </select>
-                                <input
-                                  aria-label="Edit Moment Detail"
-                                  className="input-clean"
-                                  style={{ flex: 1, minWidth: 120 }}
-                                  value={editDetail}
-                                  onChange={(e) => setEditDetail(e.target.value)}
-                                />
-                              </div>
+                          {feedbackEventId === ev.id ? (
+                            <div className="moment-editor-form" data-testid="moment-feedback-form">
                               <input
-                                aria-label="Edit Coach Note"
+                                aria-label="Moment Feedback Note"
                                 className="input-clean"
-                                placeholder="Coach note for athlete (optional)"
-                                value={editCoachNote}
-                                onChange={(e) => setEditCoachNote(e.target.value)}
+                                placeholder="Flag an error or add a note..."
+                                value={feedbackNote}
+                                onChange={(e) => setFeedbackNote(e.target.value)}
                               />
                               <div style={{ display: "flex", gap: "0.35rem", flexWrap: "wrap" }}>
                                 <button
                                   type="button"
                                   className="mini-btn"
-                                  data-testid="save-moment-btn"
-                                  disabled={momentEditBusy}
-                                  onClick={() => void handleSaveMomentEdit(ev.id)}
+                                  data-testid="submit-feedback-btn"
+                                  disabled={feedbackBusy || !feedbackNote.trim()}
+                                  onClick={() => void handleSubmitMomentFeedback(ev.id)}
                                 >
-                                  Save Moment
+                                  Submit
                                 </button>
                                 <button
                                   type="button"
                                   className="mini-btn"
-                                  data-testid="delete-moment-btn"
-                                  disabled={momentEditBusy}
-                                  onClick={() => void handleDeleteMoment(ev.id)}
-                                >
-                                  Delete
-                                </button>
-                                <button
-                                  type="button"
-                                  className="mini-btn"
-                                  onClick={() => setEditingEventId(null)}
+                                  onClick={() => {
+                                    setFeedbackEventId(null);
+                                    setFeedbackNote("");
+                                  }}
                                 >
                                   Cancel
                                 </button>
@@ -3366,9 +3367,9 @@ export function App() {
                             </div>
                           ) : (
                             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "0.4rem" }}>
-                              {ev.coach_note ? (
-                                <span style={{ fontSize: "0.73rem", color: "#a7f3d0" }} data-testid="moment-coach-note">
-                                  Note: {ev.coach_note}
+                              {feedbackSavedId === ev.id ? (
+                                <span style={{ fontSize: "0.73rem", color: "#a7f3d0" }} data-testid="moment-feedback-saved">
+                                  Feedback saved
                                 </span>
                               ) : (
                                 <span />
@@ -3376,10 +3377,13 @@ export function App() {
                               <button
                                 type="button"
                                 className="legal-link-btn"
-                                data-testid="edit-moment-btn"
-                                onClick={() => handleStartEditMoment(ev)}
+                                data-testid="moment-feedback-btn"
+                                onClick={() => {
+                                  setFeedbackEventId(ev.id);
+                                  setFeedbackNote("");
+                                }}
                               >
-                                Edit Moment
+                                Feedback
                               </button>
                             </div>
                           )}
@@ -3411,7 +3415,7 @@ export function App() {
                   ? "Athlete Profile & Settings"
                   : "Profile, Connection & Model Config"}
               </strong>
-              <button type="button" className="mini-btn" onClick={() => setSettingsOpen(false)}>
+              <button type="button" className="mini-btn" onClick={closeSettings}>
                 Close
               </button>
             </div>
@@ -3836,31 +3840,29 @@ export function App() {
                   </button>
                 )}
                 {user?.is_admin !== false && !previewAsUser && (
-                  <>
-                    <button
-                      type="button"
-                      className="mini-btn"
-                      data-testid="open-admin-btn"
-                      onClick={() => {
-                        setSettingsOpen(false);
-                        navigateViewMode("admin");
-                      }}
-                    >
-                      App Admin -&gt;
-                    </button>
-                    <button
-                      type="button"
-                      className="mini-btn"
-                      data-testid="open-ml-admin-btn"
-                      onClick={() => {
-                        setSettingsOpen(false);
-                        navigateViewMode("ml-admin");
-                      }}
-                    >
-                      ML Admin -&gt;
-                    </button>
-                  </>
+                  <button
+                    type="button"
+                    className="mini-btn"
+                    data-testid="open-admin-btn"
+                    onClick={() => {
+                      setSettingsOpen(false);
+                      navigateViewMode("admin");
+                    }}
+                  >
+                    App Admin -&gt;
+                  </button>
                 )}
+                <button
+                  type="button"
+                  className="mini-btn"
+                  data-testid="settings-curricula-btn"
+                  onClick={() => {
+                    setSettingsOpen(false);
+                    navigateViewMode("curricula");
+                  }}
+                >
+                  Curricula -&gt;
+                </button>
                 {(authConfig?.auth_required || user?.auth_mode === "google_id_token") && (
                   <button type="button" className="mini-btn" onClick={handleSignOut}>
                     Sign Out
@@ -3892,7 +3894,7 @@ export function App() {
       {uploadModalOpen && (
         <div className="overlay-backdrop" onClick={() => setUploadModalOpen(false)}>
           <div
-            className="config-modal"
+            className="config-modal upload-modal-card"
             role="dialog"
             aria-label="Add Match"
             data-testid="upload-match-modal"
@@ -3984,7 +3986,7 @@ export function App() {
 
             {uploadTab !== "live" ? (
               <>
-                <div className="academy-ref-grid">
+                <div className="academy-ref-grid upload-modal-grid">
                   <input
                     className="input-clean"
                     aria-label="Match Title"
@@ -3992,7 +3994,7 @@ export function App() {
                     value={uploadTitle}
                     onChange={(e) => setUploadTitle(e.target.value)}
                   />
-                  <div style={{ display: "flex", gap: "0.4rem" }}>
+                  <div className="upload-select-row">
                     <select
                       aria-label="Uniform"
                       className="input-clean"
@@ -4021,109 +4023,21 @@ export function App() {
                       value={uploadRuleset}
                       onChange={(e) => setUploadRuleset(e.target.value as RulesetId)}
                     >
-                      <option value="ibjjf_v6">IBJJF v6.1</option>
+                      <option value="ibjjf_v6">IBJJF</option>
                       <option value="adcc">ADCC</option>
-                      <option value="sparring">Sparring</option>
                     </select>
                   </div>
-                  <div style={{ display: "flex", gap: "0.4rem" }}>
-                    <input
-                      type="number"
-                      min={0}
-                      className="input-clean"
-                      aria-label="Trim Start Seconds"
-                      placeholder="Start trim (s)"
-                      value={uploadTrimStart}
-                      onChange={(e) => setUploadTrimStart(e.target.value)}
-                    />
-                    <input
-                      type="number"
-                      min={0}
-                      className="input-clean"
-                      aria-label="Trim End Seconds"
-                      placeholder="End trim (s)"
-                      value={uploadTrimEnd}
-                      onChange={(e) => setUploadTrimEnd(e.target.value)}
-                    />
-                  </div>
-                  <div className="tap-identify-box">
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "0.78rem", color: "var(--text-secondary)" }}>
-                      <span>
-                        Tap-to-Identify (t=2s):{" "}
-                        {!uploadAnchorA
-                          ? "Tap Athlete A"
-                          : !uploadAnchorB
-                            ? "Tap Athlete B"
-                            : "A & B locked"}
-                      </span>
-                      {(uploadAnchorA || uploadAnchorB) && (
-                        <button
-                          type="button"
-                          className="legal-link-btn"
-                          onClick={() => {
-                            setUploadAnchorA(null);
-                            setUploadAnchorB(null);
-                          }}
-                        >
-                          Reset Pins
-                        </button>
-                      )}
-                    </div>
-                    <div
-                      role="button"
-                      tabIndex={0}
-                      aria-label="Tap to identify athletes on t=2s thumbnail"
-                      data-testid="tap-to-identify-canvas"
-                      className="tap-identify-canvas"
-                      onClick={(e) => {
-                        const rect = e.currentTarget.getBoundingClientRect();
-                        const x = rect.width > 0 ? Number(((e.clientX - rect.left) / rect.width).toFixed(3)) : 0.35;
-                        const y = rect.height > 0 ? Number(((e.clientY - rect.top) / rect.height).toFixed(3)) : 0.5;
-                        if (!uploadAnchorA) {
-                          setUploadAnchorA({ x, y });
-                        } else if (!uploadAnchorB) {
-                          setUploadAnchorB({ x, y });
-                        } else {
-                          setUploadAnchorA({ x, y });
-                          setUploadAnchorB(null);
-                        }
-                      }}
-                    >
-                      {uploadAnchorA && (
-                        <span
-                          className="tap-pin tap-pin-a"
-                          data-testid="tap-pin-a"
-                          style={{ left: `${uploadAnchorA.x * 100}%`, top: `${uploadAnchorA.y * 100}%` }}
-                        >
-                          A
-                        </span>
-                      )}
-                      {uploadAnchorB && (
-                        <span
-                          className="tap-pin tap-pin-b"
-                          data-testid="tap-pin-b"
-                          style={{ left: `${uploadAnchorB.x * 100}%`, top: `${uploadAnchorB.y * 100}%` }}
-                        >
-                          B
-                        </span>
-                      )}
-                      {!uploadAnchorA && !uploadAnchorB && (
-                        <span className="tap-identify-hint">Click frame to lock Athlete A, then Athlete B</span>
-                      )}
-                    </div>
-                  </div>
-                  <div style={{ display: "flex", gap: "0.4rem" }}>
+                  <div className="upload-athlete-row">
                     <input
                       className="input-clean"
                       aria-label="Athlete A Name"
-                      placeholder="Athlete A (you)"
+                      placeholder={uploadBucket === "my_matches" ? "Athlete A (you)" : "Athlete A"}
                       value={uploadAthleteA}
                       onChange={(e) => setUploadAthleteA(e.target.value)}
                     />
                     <select
                       aria-label="Athlete A Gi"
-                      className="input-clean"
-                      style={{ width: 88 }}
+                      className="input-clean upload-gi-select"
                       value={uploadGiA}
                       onChange={(e) => setUploadGiA(e.target.value as "white" | "blue" | "black")}
                     >
@@ -4132,18 +4046,17 @@ export function App() {
                       <option value="black">Black</option>
                     </select>
                   </div>
-                  <div style={{ display: "flex", gap: "0.4rem" }}>
+                  <div className="upload-athlete-row">
                     <input
                       className="input-clean"
                       aria-label="Athlete B Name"
-                      placeholder="Opponent name"
+                      placeholder={uploadBucket === "my_matches" ? "Opponent name" : "Athlete B"}
                       value={uploadAthleteB}
                       onChange={(e) => setUploadAthleteB(e.target.value)}
                     />
                     <select
                       aria-label="Athlete B Gi"
-                      className="input-clean"
-                      style={{ width: 88 }}
+                      className="input-clean upload-gi-select"
                       value={uploadGiB}
                       onChange={(e) => setUploadGiB(e.target.value as "white" | "blue" | "black")}
                     >
@@ -4197,9 +4110,8 @@ export function App() {
                   value={liveRuleset}
                   onChange={(e) => setLiveRuleset(e.target.value as RulesetId)}
                 >
-                  <option value="ibjjf_v6">IBJJF v6.1</option>
+                  <option value="ibjjf_v6">IBJJF</option>
                   <option value="adcc">ADCC</option>
-                  <option value="sparring">Sparring</option>
                 </select>
                 <button
                   type="button"

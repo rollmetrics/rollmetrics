@@ -232,26 +232,43 @@ class GeminiCloudProvider(VisionProvider):
         prompt = (
             f"{build_division_context_prompt(division)}\n"
             f"Live Frame Elapsed Time: {elapsed_sec:.1f}s. Prior Position: {current_position}.{audio_note}\n"
-            "Identify the active BJJ position, whether Athlete A or B is stabilizing a point-scoring "
-            "transition toward 3.0s in-bounds, combativeness for stalling detection, any completed "
-            "foul or submission event, and a sharp CTA corner cue for the locked athlete."
+            "Compare this frame against Prior Position. Identify the active BJJ position, set "
+            "stabilizing_scoring_kind ('takedown', 'sweep', 'knee_on_belly', 'guard_pass', 'mount', "
+            "'back_control', or 'none'; use 'guard_pass' for side control or north-south past the legs) "
+            "whenever top_or_dominant_actor is establishing or holding scoring control toward 3.0s "
+            "in-bounds, track combativeness for stalling detection, emit detected_events (with "
+            f"timestamp_sec={elapsed_sec:.1f}) whenever a scoring move, advantage, foul, submission, "
+            "or clear positional transition occurs, and give a sharp CTA corner cue for the locked athlete."
         )
-        interaction, tel = await self._create_interaction(
-            model=model,
-            input_items=[
-                {
-                    "type": "image",
-                    "data": b64_jpeg,
-                    "mime_type": "image/jpeg",
-                },
-                {
-                    "type": "text",
-                    "text": prompt,
-                },
-            ],
-            thinking_level="low",
-            schema=FRAME_OBSERVATION_JSON_SCHEMA,
-        )
+        input_items = [
+            {
+                "type": "image",
+                "data": b64_jpeg,
+                "mime_type": "image/jpeg",
+            },
+            {
+                "type": "text",
+                "text": prompt,
+            },
+        ]
+        try:
+            interaction, tel = await self._create_interaction(
+                model=model,
+                input_items=input_items,
+                thinking_level="low",
+                schema=FRAME_OBSERVATION_JSON_SCHEMA,
+            )
+        except Exception:
+            fallback_model = self.settings.tracker_model
+            if self.model_override or model == fallback_model:
+                raise
+            model = fallback_model
+            interaction, tel = await self._create_interaction(
+                model=model,
+                input_items=input_items,
+                thinking_level="low",
+                schema=FRAME_OBSERVATION_JSON_SCHEMA,
+            )
         parsed = parse_json_lenient(extract_interaction_text(interaction))
         return coerce_frame_observation(
             parsed,

@@ -90,6 +90,17 @@ CREATE TABLE IF NOT EXISTS gcs_assets (
     UNIQUE(match_id, asset_type)
 );
 
+CREATE TABLE IF NOT EXISTS ocr_labels (
+    match_id TEXT PRIMARY KEY,
+    labeler_id TEXT NOT NULL,
+    winner TEXT NOT NULL DEFAULT '',
+    method TEXT NOT NULL DEFAULT '',
+    event_count INTEGER NOT NULL DEFAULT 0,
+    payload_json TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    FOREIGN KEY (match_id) REFERENCES matches(match_id)
+);
+
 CREATE VIRTUAL TABLE IF NOT EXISTS matches_fts USING fts5(
     match_id UNINDEXED,
     athlete_a,
@@ -133,7 +144,7 @@ class EncyclopediaStore:
     def __init__(self, db_path: Path) -> None:
         self.db_path = Path(db_path)
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
-        self._conn = sqlite3.connect(str(self.db_path))
+        self._conn = sqlite3.connect(str(self.db_path), timeout=30.0)
         self._conn.row_factory = sqlite3.Row
         self._conn.executescript(SCHEMA_SQL)
         self._conn.commit()
@@ -349,6 +360,58 @@ class EncyclopediaStore:
         elif asset_type == "annotation_json":
             self._conn.execute("UPDATE matches SET gcs_annotation_uri = ? WHERE match_id = ?", (gcs_uri, match_id))
         self._conn.commit()
+
+    def upsert_ocr_label(
+        self,
+        match_id: str,
+        *,
+        labeler_id: str,
+        winner: str,
+        method: str,
+        event_count: int,
+        payload_json: str,
+    ) -> None:
+        self._conn.execute(
+            """
+            INSERT INTO ocr_labels (match_id, labeler_id, winner, method, event_count, payload_json, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(match_id) DO UPDATE SET
+                labeler_id=excluded.labeler_id,
+                winner=excluded.winner,
+                method=excluded.method,
+                event_count=excluded.event_count,
+                payload_json=excluded.payload_json,
+                created_at=excluded.created_at
+            """,
+            (match_id, labeler_id, winner, method, event_count, payload_json, utc_now_iso()),
+        )
+        self._conn.commit()
+
+    def get_ocr_label_json(self, match_id: str) -> str | None:
+        row = self._conn.execute("SELECT payload_json FROM ocr_labels WHERE match_id = ?", (match_id,)).fetchone()
+        return str(row["payload_json"]) if row else None
+
+    def get_annotation(self, match_id: str) -> MatchAnnotationBundle | None:
+        row = self._conn.execute("SELECT payload_json FROM annotations WHERE match_id = ?", (match_id,)).fetchone()
+        return MatchAnnotationBundle.model_validate_json(str(row["payload_json"])) if row else None
+
+    def list_ingested_matches(
+        self,
+        *,
+        unannotated_only: bool = False,
+        limit: int = 500,
+    ) -> list[MatchRecord]:
+        if unannotated_only:
+            sql = (
+                "SELECT m.* FROM matches m "
+                "LEFT JOIN annotations a ON m.match_id = a.match_id "
+                "WHERE m.gcs_raw_uri != '' AND a.match_id IS NULL "
+                "ORDER BY m.match_id ASC LIMIT ?"
+            )
+        else:
+            sql = "SELECT * FROM matches WHERE gcs_raw_uri != '' ORDER BY match_id ASC LIMIT ?"
+        rows = self._conn.execute(sql, (limit,)).fetchall()
+        return [self._row_to_match(r) for r in rows]
 
     def commit(self) -> None:
         self._conn.commit()

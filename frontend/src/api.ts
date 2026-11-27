@@ -356,6 +356,14 @@ export const api = {
         body: JSON.stringify(payload),
       },
     ),
+  submitMomentFeedback: (matchId: string, eventId: string, note: string) =>
+    apiFetch<{ ok: boolean; match_id: string; event_id: string; feedback_logged: boolean }>(
+      `/api/matches/${encodeURIComponent(matchId)}/events/${encodeURIComponent(eventId)}/feedback`,
+      {
+        method: "POST",
+        body: JSON.stringify({ note }),
+      },
+    ),
   getTeamRoster: () => apiFetch<{ roster: TeamRosterItem[] }>("/api/team/roster"),
   updateMatchReview: (
     matchId: string,
@@ -395,6 +403,10 @@ export const api = {
       },
     ),
   getLocalHardware: () => apiFetch<LocalHardwareStatus>("/api/local/hardware"),
+  getCurricula: (q?: string) =>
+    apiFetch<import("./types").CurriculaResponse>(
+      `/api/knowledge/curricula${q ? `?q=${encodeURIComponent(q)}` : ""}`,
+    ),
   scanLocalFolder: (folder_path: string) =>
     apiFetch<LocalFolderScanResponse>("/api/local/folder/scan", {
       method: "POST",

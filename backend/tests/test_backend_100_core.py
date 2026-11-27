@@ -1395,7 +1395,7 @@ def test_encyclopedia_and_cli_100(tmp_path: Path, monkeypatch: pytest.MonkeyPatc
     assert harv_mod.classify_video("Every Match | IBJJF Worlds", 900, "IBJJF") == "multi_match_compilation"
     assert harv_mod.classify_video("IBJJF Worlds Final 2025", 200, "IBJJF") == "standalone_match"
     assert harv_mod.classify_video("IBJJF Worlds Clip", 0, "IBJJF") == "non_match"
-    assert harv_mod.infer_footage_and_preset("IBJJF", "IBJJF") == ("broadcast_scoreboard", "ibjjf_top_left_bug")
+    assert harv_mod.infer_footage_and_preset("IBJJF", "IBJJF") == ("matside_raw", "")
     assert harv_mod.infer_footage_and_preset("YouTube_ColoredBelt", "Gym") == ("matside_raw", "")
 
     assert harv_mod.video_entry_to_records({}, source_label="IBJJF", harvest_source="ibjjf", v1_video_ids=set()) == (None, [])
@@ -1461,4 +1461,214 @@ def test_encyclopedia_and_cli_100(tmp_path: Path, monkeypatch: pytest.MonkeyPatc
     monkeypatch.setattr(vault_mod.GCSVault, "backup_catalog", lambda self, _p: ("gs://b/cat.gz", 10, "sha"))
     monkeypatch.setattr(ing_enc_mod, "ingest_match_to_gcs", _fake_ingest_cli)
     assert cli_mod.main(["encyclopedia", "ingest", "--db", str(db_cli), "--bucket", "example-b", "--limit", "2", "--backup-catalog"]) == 0
+
+
+def test_encyclopedia_v2_and_annotator_100(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    import threading
+
+    from rollmetrics.encyclopedia import annotator as ann_mod
+    from rollmetrics.encyclopedia import gcs_vault as vault_mod
+    from rollmetrics.encyclopedia import ingestor as ing_enc_mod
+    from rollmetrics.encyclopedia import schema as enc_schema
+    from rollmetrics.encyclopedia import store as enc_store_mod
+    from rollmetrics.evals.scoreboard_bench.schema import CompactScore, GroundTruthMatchLabel
+
+    sample_mp4 = _make_tiny_mp4(tmp_path / "ann_sample.mp4")
+    db_path = tmp_path / "enc2" / "catalog.sqlite"
+    vid = enc_schema.VideoRecord(
+        video_id="vid_ann_1",
+        channel="FloGrappling",
+        url="https://www.youtube.com/watch?v=vid_ann_1",
+        title="Alpha vs Beta | 2025 IBJJF Worlds",
+        duration_sec=120.0,
+    )
+    m_base = enc_schema.MatchRecord(
+        match_id="flo-ann-1",
+        video_id="vid_ann_1",
+        url="https://www.youtube.com/watch?v=vid_ann_1",
+        start_sec=0.0,
+        end_sec=60.0,
+        duration_sec=60.0,
+        athlete_a="Alpha",
+        athlete_b="Beta",
+        event_name="IBJJF Worlds",
+        event_year=2025,
+        belt="black",
+        uniform="gi",
+        source="FloGrappling",
+        footage_type="broadcast_scoreboard",
+        overlay_preset="flograppling_lower_bar",
+        tier=1,
+        in_scoreboard_v1=False,
+    )
+
+    # 1. annotator._ffmpeg_bin missing + found, build_storyboard_sheets, compute_ocr_agreement, coerce_annotation_bundle
+    monkeypatch.setattr(ann_mod.shutil, "which", lambda *_a, **_kw: None)
+    with pytest.raises(FileNotFoundError):
+        ann_mod._ffmpeg_bin()
+    monkeypatch.undo()
+
+    sheets = ann_mod.build_storyboard_sheets(
+        sample_mp4,
+        duration_sec=4.0,
+        max_sheets=1,
+        cols=2,
+        rows=2,
+        tile_w=64,
+        tile_h=48,
+    )
+    assert len(sheets) == 1 and sheets[0].startswith(b"\xff\xd8")
+
+    malformed_raw = {
+        "summary": "Coerced test summary.",
+        "scoring_events": [{"bad": "event"}],
+        "technique_events": [{"bad": "tech"}],
+        "vision_metadata": {
+            "athlete_a_appearance": "white gi",
+            "athlete_b_appearance": "blue gi",
+            "camera_angle": "broadcast_elevated",
+            "referee_signals": [{"bad": "signal"}],
+        },
+        "rule_edge_cases": [{"bad": "edge"}],
+    }
+    bundle_none = ann_mod.coerce_annotation_bundle(malformed_raw, match=m_base, model_id="gemini-4-hydrogen", ocr_label_json=None)
+    assert bundle_none.ocr_agreement_score is None
+    assert ann_mod.compute_ocr_agreement(bundle_none, "{bad-json") is None
+
+    # 2. annotate_match_from_gcs missing key + full path
+    vault = vault_mod.GCSVault(bucket="gs://example-vault")
+    with enc_store_mod.EncyclopediaStore(db_path) as store:
+        store.upsert_video(vid)
+        store.upsert_match(m_base)
+        store.record_gcs_asset(m_base.match_id, "raw_video", "gs://example-vault/clips/flo-ann-1/raw.mp4", 100, "sha1")
+        assert len(store.list_ingested_matches(unannotated_only=True)) == 1
+
+        with pytest.raises(RuntimeError, match="GEMINI_API_KEY"):
+            ann_mod.annotate_match_from_gcs(
+                m_base,
+                store=store,
+                vault=vault,
+                scratch_root=tmp_path / "ann_scratch",
+                settings=Settings(gemini_api_key=""),
+            )
+
+        monkeypatch.setattr(
+            vault,
+            "download_file",
+            lambda _rel, dest: (Path(dest).parent.mkdir(parents=True, exist_ok=True), shutil.copyfile(sample_mp4, dest))[1],
+        )
+        monkeypatch.setattr(vault, "upload_file", lambda _p, rel: (f"gs://example-vault/{rel}", 64, "sha_ann"))
+
+        class _FakeAnnClient:
+            class _Interactions:
+                def create(self, **_kw: Any) -> dict[str, Any]:
+                    return {
+                        "outputs": [
+                            {
+                                "type": "text",
+                                "text": json.dumps(
+                                    {
+                                        "summary": "Clean sweep finish.",
+                                        "scoring_events": [{"video_sec": 10.0, "athlete": "A", "event_type": "sweep", "points": 2}],
+                                        "technique_events": [],
+                                        "vision_metadata": {"camera_angle": "broadcast_elevated", "referee_signals": []},
+                                        "rule_edge_cases": [],
+                                    }
+                                ),
+                            }
+                        ]
+                    }
+
+            def __init__(self, api_key: str) -> None:
+                assert api_key == "test-key"
+                self.interactions = self._Interactions()
+
+        monkeypatch.setattr(ann_mod.genai, "Client", _FakeAnnClient)
+        annotated = ann_mod.annotate_match_from_gcs(
+            m_base,
+            store=store,
+            vault=vault,
+            scratch_root=tmp_path / "ann_scratch",
+            settings=Settings(gemini_api_key="test-key", tracker_model="gemini-4-hydrogen"),
+        )
+        assert annotated.match_id == m_base.match_id
+    monkeypatch.undo()
+
+    # 3. ingestor.py remaining lines (db_lock, local OCR success with & without db_lock, periodic backup error)
+    gt_label = GroundTruthMatchLabel(
+        match_id=m_base.match_id,
+        video_id=m_base.video_id,
+        active_bout_start_sec=0.0,
+        active_bout_end_sec=60.0,
+        labeler_id="local_ocr_test",
+        winner="A",
+        method="points",
+        final_score_a=CompactScore(points=2, advantages=0, penalties=0),
+        final_score_b=CompactScore(points=0, advantages=0, penalties=0),
+        events=[],
+    )
+    monkeypatch.setattr(ing_enc_mod, "download_match_video", lambda _url, out, **_kw: (Path(out).parent.mkdir(parents=True, exist_ok=True), shutil.copyfile(sample_mp4, out), Path(out))[2])
+    monkeypatch.setattr(ing_enc_mod, "create_masked_video_clip", lambda **kw: (shutil.copyfile(sample_mp4, kw["dst_video"]), {"ok": True})[1])
+    monkeypatch.setattr(ing_enc_mod, "label_match_from_scoreboard_crops_local_ocr", lambda **_kw: gt_label)
+    monkeypatch.setattr(vault, "upload_file", lambda _p, rel: (f"gs://example-vault/{rel}", 64, "sha_ing"))
+
+    with enc_store_mod.EncyclopediaStore(db_path) as store:
+        res_nolock = ing_enc_mod.ingest_match_to_gcs(
+            m_base,
+            store=store,
+            vault=vault,
+            scratch_root=tmp_path / "ing_s1",
+            render_masked=True,
+            run_local_ocr=True,
+            db_lock=None,
+        )
+        assert res_nolock["ocr_summary"]["winner"] == "A"
+        res_lock = ing_enc_mod.ingest_match_to_gcs(
+            m_base,
+            store=store,
+            vault=vault,
+            scratch_root=tmp_path / "ing_s2",
+            render_masked=False,
+            run_local_ocr=True,
+            db_lock=threading.Lock(),
+        )
+        assert res_lock["ocr_summary"]["winner"] == "A"
+
+    monkeypatch.setattr(vault, "backup_catalog", lambda _p: (_ for _ in ()).throw(RuntimeError("backup fail")))
+    par_res = ing_enc_mod.ingest_cohort_parallel(
+        [m_base],
+        db_path=db_path,
+        vault=vault,
+        scratch_root=tmp_path / "ing_par",
+        workers=1,
+        render_masked=False,
+        run_local_ocr=False,
+        backup_every=1,
+    )
+    assert len(par_res) == 1 and par_res[0]["status"] == "ok"
+    monkeypatch.undo()
+
+    # 4. cli.py encyclopedia annotate (25 matches -> hits ok, error, periodic backup, final backup) + export-v2
+    db_cli2 = tmp_path / "enc2" / "cli_v2.sqlite"
+    with enc_store_mod.EncyclopediaStore(db_cli2) as store2:
+        store2.upsert_video(vid)
+        for idx in range(25):
+            mi = m_base.model_copy(update={"match_id": f"flo-cli-{idx:02d}"})
+            store2.upsert_match(mi, commit=False)
+            store2.record_gcs_asset(mi.match_id, "raw_video", f"gs://example-vault/clips/{mi.match_id}/raw.mp4", 100, f"sha{idx}")
+        store2.commit()
+
+    ann_calls = {"n": 0}
+
+    def _fake_ann_cli(match: Any, **_kw: Any) -> enc_schema.MatchAnnotationBundle:
+        ann_calls["n"] += 1
+        if ann_calls["n"] == 2:
+            raise RuntimeError("transient annotate error")
+        return enc_schema.MatchAnnotationBundle(match_id=match.match_id, annotator_id="test", tier=1, summary="ok")
+
+    monkeypatch.setattr(ann_mod, "annotate_match_from_gcs", _fake_ann_cli)
+    monkeypatch.setattr(vault_mod.GCSVault, "backup_catalog", lambda self, _p: ("gs://b/cat.gz", 10, "sha"))
+    assert cli_mod.main(["encyclopedia", "annotate", "--db", str(db_cli2), "--bucket", "example-b", "--limit", "25", "--workers", "1", "--backup-catalog"]) == 0
+    assert cli_mod.main(["encyclopedia", "export-v2", "--db", str(db_cli2), "--bucket", "example-b", "--target", str(tmp_path / "v2_out")]) == 0
+
 

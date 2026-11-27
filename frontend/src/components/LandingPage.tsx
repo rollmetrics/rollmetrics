@@ -12,7 +12,7 @@ interface LandingPageProps {
 interface LandingMoment {
   id: string;
   videoSec: number;
-  leftPct: string;
+  leftPct: number;
   tone: "adv" | "win" | "pen";
   label: string;
   tag: string;
@@ -22,83 +22,87 @@ interface LandingMoment {
   clock: string;
   scoreA: [number, number, number];
   scoreB: [number, number, number];
-  gifNote: string;
   curriculumTitle: string;
   curriculumTime: string;
 }
 
 const GITHUB_URL = "https://github.com/rollmetrics/rollmetrics";
+const CLIP_DURATION_SEC = 10.5;
+const CLIP_START_CLOCK_SEC = 127; // 02:07
 
 const LANDING_MOMENTS: LandingMoment[] = [
   {
-    id: "guard-angle",
-    videoSec: 1.0,
-    leftPct: "16%",
+    id: "m1",
+    videoSec: 0.5,
+    leftPct: 12,
     tone: "adv",
-    label: "Closed guard angle (+1 ADV at 04:42)",
-    tag: "+1 ADV · 04:42",
+    label: "Sit-up guard elevation (02:07)",
+    tag: "OPEN GUARD · 02:07",
     tagClass: "adv",
-    title: "Closed guard angle",
-    detail: "IBJJF Art. 5.3 (submission threat)",
-    clock: "04:42",
-    scoreA: [0, 1, 0],
-    scoreB: [0, 0, 0],
-    gifNote: "0:01 clip ready to replay or share",
-    curriculumTitle: "Closed guard hip angle & collar break",
+    title: "Sit-up guard elevation",
+    detail: "Bruno Malfacine attacks off-balance from bottom",
+    clock: "02:07",
+    scoreA: [4, 2, 2],
+    scoreB: [2, 2, 2],
+    curriculumTitle: "Sit-up guard single-leg sweep",
     curriculumTime: "04:15",
   },
   {
-    id: "sweep-top",
-    videoSec: 2.4,
-    leftPct: "40%",
-    tone: "win",
-    label: "Sweep to top (+2 PTS at 03:18)",
-    tag: "+2 PTS · 03:18",
-    tagClass: "win",
-    title: "Sweep to top",
-    detail: "IBJJF Art. 4.3 (3s hold)",
-    clock: "03:18",
-    scoreA: [2, 1, 0],
-    scoreB: [0, 0, 0],
-    gifNote: "0:02 clip ready to replay or share",
-    curriculumTitle: "Underhook sweep finish & base control",
+    id: "m2",
+    videoSec: 2.0,
+    leftPct: 35,
+    tone: "adv",
+    label: "Sweep reversal to top (02:05)",
+    tag: "SWEEP · 02:05",
+    tagClass: "adv",
+    title: "Sweep reversal to top",
+    detail: "IBJJF Art. 4.6 (3s stabilization starts)",
+    clock: "02:05",
+    scoreA: [4, 2, 2],
+    scoreB: [2, 2, 2],
+    curriculumTitle: "Open-guard sweep finish & base control",
     curriculumTime: "08:20",
   },
   {
-    id: "guard-pass",
-    videoSec: 3.9,
-    leftPct: "65%",
+    id: "m3",
+    videoSec: 5.0,
+    leftPct: 62,
     tone: "win",
-    label: "Guard pass (+3 PTS at 02:19)",
-    tag: "+3 PTS · 02:19",
+    label: "Top passing stabilization (02:02)",
+    tag: "3s HOLD · 02:02",
     tagClass: "win",
-    title: "Guard pass",
-    detail: "IBJJF Art. 4.4 (3s hold)",
-    clock: "02:19",
-    scoreA: [5, 1, 0],
-    scoreB: [2, 0, 1],
-    gifNote: "0:04 clip ready to replay or share",
-    curriculumTitle: "Knee-cut frame recovery",
+    title: "Top passing stabilization",
+    detail: "IBJJF Art. 4.1 (control verified over frames)",
+    clock: "02:02",
+    scoreA: [4, 2, 2],
+    scoreB: [2, 2, 2],
+    curriculumTitle: "Knee-cut & pant-grip stabilization",
     curriculumTime: "12:40",
   },
   {
-    id: "triangle-finish",
-    videoSec: 5.1,
-    leftPct: "85%",
-    tone: "pen",
-    label: "Triangle choke finish (SUB at 01:04)",
-    tag: "SUB · 01:04",
-    tagClass: "pen",
-    title: "Triangle choke finish",
-    detail: "IBJJF Art. 1.3 (tap confirmed)",
-    clock: "01:04",
-    scoreA: [5, 1, 0],
-    scoreB: [2, 0, 1],
-    gifNote: "0:05 clip ready to replay or share",
-    curriculumTitle: "Triangle angle cut & shin lock",
-    curriculumTime: "16:05",
+    id: "m4",
+    videoSec: 7.5,
+    leftPct: 86,
+    tone: "win",
+    label: "Sweep awarded 4-4 tie (01:59)",
+    tag: "+2 PTS · 01:59",
+    tagClass: "win",
+    title: "Sweep awarded (4-4 tie)",
+    detail: "IBJJF Art. 4.6 (2 pts confirmed on board)",
+    clock: "01:59",
+    scoreA: [4, 2, 2],
+    scoreB: [4, 2, 2],
+    curriculumTitle: "Roosterweight top-game pressure passing",
+    curriculumTime: "16:10",
   },
 ];
+
+function formatClockSec(totalSec: number): string {
+  const clamped = Math.max(0, Math.round(totalSec));
+  const m = Math.floor(clamped / 60);
+  const s = clamped % 60;
+  return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+}
 
 export function LandingPage({
   gisButtonRef,
@@ -109,25 +113,33 @@ export function LandingPage({
   demoLoginBusy,
 }: LandingPageProps) {
   const previewVideoRef = useRef<HTMLVideoElement | null>(null);
-  const [activeIdx, setActiveIdx] = useState(2);
-  const [slowMo, setSlowMo] = useState(false);
+  const [activeIdx, setActiveIdx] = useState(3);
+  const [progressPct, setProgressPct] = useState(LANDING_MOMENTS[3].leftPct);
+  const [liveClock, setLiveClock] = useState(LANDING_MOMENTS[3].clock);
 
   const activeMoment = LANDING_MOMENTS[activeIdx];
 
   const selectMoment = (idx: number) => {
     const next = LANDING_MOMENTS[idx];
     setActiveIdx(idx);
+    setProgressPct(next.leftPct);
+    setLiveClock(next.clock);
     if (previewVideoRef.current) {
       previewVideoRef.current.currentTime = next.videoSec;
     }
   };
 
-  const toggleSlowMo = () => {
-    const next = !slowMo;
-    setSlowMo(next);
-    if (previewVideoRef.current) {
-      previewVideoRef.current.playbackRate = next ? 0.4 : 1.0;
+  const handleVideoTimeUpdate = () => {
+    const v = previewVideoRef.current;
+    if (!v) return;
+    const t = Math.max(0, Math.min(CLIP_DURATION_SEC, v.currentTime || 0));
+    setProgressPct(Math.round((t / CLIP_DURATION_SEC) * 100));
+    setLiveClock(formatClockSec(CLIP_START_CLOCK_SEC - t));
+    let matchedIdx = 0;
+    for (let i = 0; i < LANDING_MOMENTS.length; i += 1) {
+      if (t >= LANDING_MOMENTS[i].videoSec) matchedIdx = i;
     }
+    setActiveIdx(matchedIdx);
   };
 
   return (
@@ -162,13 +174,9 @@ export function LandingPage({
       <main className="landing-main">
         <section className="landing-hero" id="signin">
           <div className="landing-hero-copy">
-            <div className="landing-eyebrow">Open-Source Jiu-Jitsu Film Study</div>
-            <h1 className="landing-h1">
-              Score matches, cut GIFs, and coach from your gym&apos;s library.
-            </h1>
+            <h1 className="landing-h1">Break down jiu-jitsu matches.</h1>
             <p className="landing-lead">
-              IBJJF scoring, slow-motion clips, and private curriculum links. Run offline on your
-              own hardware or sign in to the hosted beta.
+              Automatic scoring, key moments, and study clips from any match video.
             </p>
 
             <div className="landing-cta-block">
@@ -213,7 +221,7 @@ export function LandingPage({
           <div className="landing-preview-card" aria-label="Sample match analysis output">
             <div className="landing-preview-top">
               <span>Match Moments</span>
-              <span>IBJJF v6.1 · Gi</span>
+              <span>Worlds 2019 · Rooster QF</span>
             </div>
 
             <div className="landing-video-preview" data-testid="landing-video-preview">
@@ -225,63 +233,62 @@ export function LandingPage({
                 loop
                 muted
                 playsInline
+                onTimeUpdate={handleVideoTimeUpdate}
                 className="landing-video-thumb"
-                aria-label="Sample Brazilian Jiu-Jitsu match clip"
+                aria-label="Caio Terra vs Bruno Malfacine 2019 IBJJF Worlds clip"
               />
-              <button
-                type="button"
-                className={`landing-play-badge${slowMo ? " active" : ""}`}
-                data-testid="landing-slowmo-toggle"
-                aria-pressed={slowMo}
-                onClick={toggleSlowMo}
-              >
-                {slowMo ? "▶ 0.4x Slow-Mo · Tap for 1x" : "▶ Match Video · 0.4x Replay"}
-              </button>
-            </div>
-
-            <div className="landing-scoreboard">
-              <div className="landing-score-side">
-                <span className="landing-score-name">Athlete A</span>
-                <div className="landing-score-nums">
-                  <span className="pts">{activeMoment.scoreA[0]}</span>
-                  <span className="adv">{activeMoment.scoreA[1]}</span>
-                  <span className="pen">{activeMoment.scoreA[2]}</span>
-                </div>
-              </div>
-              <div className="landing-score-clock" data-testid="landing-score-clock">
-                {activeMoment.clock}
-              </div>
-              <div className="landing-score-side right">
-                <div className="landing-score-nums">
-                  <span className="pts">{activeMoment.scoreB[0]}</span>
-                  <span className="adv">{activeMoment.scoreB[1]}</span>
-                  <span className="pen">{activeMoment.scoreB[2]}</span>
-                </div>
-                <span className="landing-score-name">Athlete B</span>
-              </div>
             </div>
 
             <div
               className="landing-scrubber"
+              data-testid="landing-timeline"
               role="group"
               aria-label="Interactive match moment markers"
             >
               <div
                 className="landing-scrubber-fill"
-                style={{ width: activeMoment.leftPct }}
+                style={{ width: `${progressPct}%` }}
               />
               {LANDING_MOMENTS.map((m, idx) => (
                 <button
                   key={m.id}
                   type="button"
                   className={`landing-pin ${m.tone}${idx === activeIdx ? " active" : ""}`}
-                  style={{ left: m.leftPct }}
+                  style={{ left: `${m.leftPct}%` }}
                   data-testid={`landing-pin-${idx}`}
                   aria-label={m.label}
                   aria-pressed={idx === activeIdx}
                   onClick={() => selectMoment(idx)}
                 />
               ))}
+            </div>
+
+            <div className="landing-scoreboard" data-testid="landing-scoreboard">
+              <div className="landing-score-side">
+                <span className="landing-score-name">
+                  <span className="landing-gi-dot white" aria-label="White Gi" />
+                  Terra
+                </span>
+                <div className="landing-score-nums" data-testid="landing-score-a">
+                  <span className="pts">{activeMoment.scoreA[0]}</span>
+                  <span className="adv">{activeMoment.scoreA[1]}</span>
+                  <span className="pen">{activeMoment.scoreA[2]}</span>
+                </div>
+              </div>
+              <div className="landing-score-clock" data-testid="landing-score-clock">
+                {liveClock}
+              </div>
+              <div className="landing-score-side right">
+                <div className="landing-score-nums" data-testid="landing-score-b">
+                  <span className="pts">{activeMoment.scoreB[0]}</span>
+                  <span className="adv">{activeMoment.scoreB[1]}</span>
+                  <span className="pen">{activeMoment.scoreB[2]}</span>
+                </div>
+                <span className="landing-score-name">
+                  Malfacine
+                  <span className="landing-gi-dot blue" aria-label="Blue Gi" />
+                </span>
+              </div>
             </div>
 
             <div className="landing-output-list">
@@ -298,13 +305,6 @@ export function LandingPage({
                   <strong>{activeMoment.title}</strong> · {activeMoment.detail}
                 </div>
               </button>
-              <div className="landing-output-item">
-                <span className="landing-output-tag">GIF</span>
-                <div className="landing-output-text">
-                  <strong>{slowMo ? "0.4x slow-motion active" : "0.4x slow-motion clip"}</strong> ·{" "}
-                  {activeMoment.gifNote}
-                </div>
-              </div>
               <div className="landing-output-item">
                 <span className="landing-output-tag blue">CURRICULUM</span>
                 <div className="landing-output-text">

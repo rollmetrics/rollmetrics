@@ -433,7 +433,7 @@ def _cmd_encyclopedia_search(args: argparse.Namespace) -> int:
 
 def _cmd_encyclopedia_ingest(args: argparse.Namespace) -> int:
     from rollmetrics.encyclopedia.gcs_vault import GCSVault
-    from rollmetrics.encyclopedia.ingestor import ingest_match_to_gcs
+    from rollmetrics.encyclopedia.ingestor import ingest_cohort_parallel
     from rollmetrics.encyclopedia.store import EncyclopediaStore
 
     settings = get_settings()
@@ -442,7 +442,6 @@ def _cmd_encyclopedia_ingest(args: argparse.Namespace) -> int:
     vault = GCSVault(bucket=args.bucket)
     vault.ensure_bucket()
 
-    results: list[dict[str, Any]] = []
     with EncyclopediaStore(db_path) as store:
         cohort = store.select_cohort(
             limit=int(args.limit),
@@ -452,35 +451,132 @@ def _cmd_encyclopedia_ingest(args: argparse.Namespace) -> int:
             source=args.source,
             exclude_ingested=True,
         )
-        for match in cohort:
-            try:
-                res = ingest_match_to_gcs(
-                    match,
-                    store=store,
-                    vault=vault,
-                    scratch_root=scratch_root,
-                    render_masked=not bool(args.no_mask),
-                )
-            except Exception as exc:  # noqa: BLE001
-                res = {"match_id": match.match_id, "video_id": match.video_id, "status": "error", "error": str(exc)}
-            results.append(res)
-        backup_info: dict[str, Any] | None = None
-        if args.backup_catalog:
-            uri, size_b, sha = vault.backup_catalog(db_path)
-            backup_info = {"uri": uri, "size_bytes": size_b, "sha256": sha}
+
+    results = ingest_cohort_parallel(
+        cohort,
+        db_path=db_path,
+        vault=vault,
+        scratch_root=scratch_root,
+        workers=int(args.workers),
+        render_masked=not bool(args.no_mask),
+        run_local_ocr=not bool(args.no_ocr),
+        backup_every=int(args.backup_every),
+    )
+
+    backup_info: dict[str, Any] | None = None
+    if args.backup_catalog:
+        uri, size_b, sha = vault.backup_catalog(db_path)
+        backup_info = {"uri": uri, "size_bytes": size_b, "sha256": sha}
+    with EncyclopediaStore(db_path) as store:
         stats = store.stats()
 
+    ok_count = sum(1 for r in results if r.get("status") == "ok")
+    err_count = len(results) - ok_count
     _print_json(
         {
             "bucket": vault.bucket,
             "requested": int(args.limit),
             "processed": len(results),
+            "ok_count": ok_count,
+            "error_count": err_count,
             "results": results,
             "catalog_backup": backup_info,
             "stats": stats,
         },
         args.output,
     )
+    return 0
+
+
+def _cmd_encyclopedia_annotate(args: argparse.Namespace) -> int:
+    import threading
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+
+    from rollmetrics.encyclopedia.annotator import annotate_match_from_gcs
+    from rollmetrics.encyclopedia.gcs_vault import GCSVault
+    from rollmetrics.encyclopedia.store import EncyclopediaStore
+
+    settings = get_settings()
+    db_path = _encyclopedia_db_path(args)
+    scratch_root = settings.runtime_dir / "encyclopedia" / "tmp"
+    vault = GCSVault(bucket=args.bucket)
+
+    with EncyclopediaStore(db_path) as store:
+        targets = store.list_ingested_matches(
+            unannotated_only=not bool(args.force),
+            limit=int(args.limit),
+        )
+
+    db_lock = threading.Lock()
+    results: list[dict[str, Any]] = []
+
+    def _ann_worker(match: Any) -> dict[str, Any]:
+        try:
+            with EncyclopediaStore(db_path) as local_store:
+                bundle = annotate_match_from_gcs(
+                    match,
+                    store=local_store,
+                    vault=vault,
+                    scratch_root=scratch_root,
+                    settings=settings,
+                    model_id=args.model,
+                )
+            return {
+                "match_id": match.match_id,
+                "status": "ok",
+                "scoring_events": len(bundle.scoring_events),
+                "technique_events": len(bundle.technique_events),
+                "referee_signals": len(bundle.vision_metadata.referee_signals),
+                "rule_edge_cases": len(bundle.rule_edge_cases),
+                "ocr_agreement_score": bundle.ocr_agreement_score,
+            }
+        except Exception as exc:  # noqa: BLE001
+            return {"match_id": match.match_id, "status": "error", "error": str(exc)}
+
+    max_workers = max(1, min(int(args.workers), len(targets) or 1))
+    with ThreadPoolExecutor(max_workers=max_workers) as pool:
+        futs = [pool.submit(_ann_worker, m) for m in targets]
+        for idx, fut in enumerate(as_completed(futs), start=1):
+            results.append(fut.result())
+            if args.backup_catalog and idx % 25 == 0:
+                with db_lock:
+                    vault.backup_catalog(db_path)
+
+    with EncyclopediaStore(db_path) as store:
+        stats = store.stats()
+
+    if args.backup_catalog:
+        vault.backup_catalog(db_path)
+
+    _print_json(
+        {
+            "bucket": vault.bucket,
+            "requested": int(args.limit),
+            "processed": len(results),
+            "ok_count": sum(1 for r in results if r.get("status") == "ok"),
+            "error_count": sum(1 for r in results if r.get("status") != "ok"),
+            "results": results,
+            "stats": stats,
+        },
+        args.output,
+    )
+    return 0
+
+
+def _cmd_encyclopedia_export_v2(args: argparse.Namespace) -> int:
+    from rollmetrics.encyclopedia.exporter import export_scoreboard_v2
+    from rollmetrics.encyclopedia.store import EncyclopediaStore
+
+    settings = get_settings()
+    target = Path(args.target) if args.target else (settings.knowledge_dir / "evals" / "scoreboard_v2")
+    with EncyclopediaStore(_encyclopedia_db_path(args)) as store:
+        manifest = export_scoreboard_v2(
+            store,
+            target_dir=target,
+            bucket=args.bucket,
+            calibration_ratio=float(args.calibration_ratio),
+        )
+    _print_json(manifest, args.output)
     return 0
 
 
@@ -656,18 +752,40 @@ def build_parser() -> argparse.ArgumentParser:
     p_enc_search.add_argument("--output", default=None)
     p_enc_search.set_defaults(func=_cmd_encyclopedia_search)
 
-    p_enc_ingest = enc_sub.add_parser("ingest", help="Stream-download, mask, upload to GCS, and purge local temp.")
+    p_enc_ingest = enc_sub.add_parser("ingest", help="Stream-download, mask, OCR, upload to GCS, and purge local temp.")
     p_enc_ingest.add_argument("--bucket", default="gs://rollmetrics-ibjjf-vault")
     p_enc_ingest.add_argument("--limit", type=int, default=3)
+    p_enc_ingest.add_argument("--workers", type=int, default=3)
+    p_enc_ingest.add_argument("--backup-every", type=int, default=25)
     p_enc_ingest.add_argument("--footage-type", default=None)
     p_enc_ingest.add_argument("--belt", default=None)
     p_enc_ingest.add_argument("--uniform", default=None)
     p_enc_ingest.add_argument("--source", default=None)
     p_enc_ingest.add_argument("--no-mask", action="store_true")
+    p_enc_ingest.add_argument("--no-ocr", action="store_true")
     p_enc_ingest.add_argument("--backup-catalog", action="store_true")
     p_enc_ingest.add_argument("--db", default=None)
     p_enc_ingest.add_argument("--output", default=None)
     p_enc_ingest.set_defaults(func=_cmd_encyclopedia_ingest)
+
+    p_enc_ann = enc_sub.add_parser("annotate", help="Run Tier 1B 4-layer Gemini Vision annotation from GCS clips.")
+    p_enc_ann.add_argument("--bucket", default="gs://rollmetrics-ibjjf-vault")
+    p_enc_ann.add_argument("--limit", type=int, default=10)
+    p_enc_ann.add_argument("--workers", type=int, default=4)
+    p_enc_ann.add_argument("--model", default=None)
+    p_enc_ann.add_argument("--force", action="store_true")
+    p_enc_ann.add_argument("--backup-catalog", action="store_true")
+    p_enc_ann.add_argument("--db", default=None)
+    p_enc_ann.add_argument("--output", default=None)
+    p_enc_ann.set_defaults(func=_cmd_encyclopedia_annotate)
+
+    p_enc_exp = enc_sub.add_parser("export-v2", help="Export verified cohort into knowledge_base/evals/scoreboard_v2.")
+    p_enc_exp.add_argument("--bucket", default="gs://rollmetrics-ibjjf-vault")
+    p_enc_exp.add_argument("--target", default=None)
+    p_enc_exp.add_argument("--calibration-ratio", type=float, default=0.30)
+    p_enc_exp.add_argument("--db", default=None)
+    p_enc_exp.add_argument("--output", default=None)
+    p_enc_exp.set_defaults(func=_cmd_encyclopedia_export_v2)
 
     return parser
 

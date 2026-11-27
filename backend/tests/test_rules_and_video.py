@@ -1165,3 +1165,126 @@ def test_ollama_local_agentic_video_understanding_loop_and_masking(
     assert res.events[0].kind == EventKind.SWEEP
     assert res.events[0].hold_duration_sec == pytest.approx(3.4)
     assert len(res.coaching_notes) >= 1
+
+
+@pytest.mark.asyncio
+async def test_gemini_live_frame_fallback_to_tracker_and_reraise_on_override() -> None:
+    calls: list[str] = []
+
+    class _RateLimitError(Exception):
+        pass
+
+    class _FallbackClient:
+        class _Interactions:
+            def create(self, **kwargs: Any) -> dict[str, Any]:
+                model = str(kwargs.get("model", ""))
+                calls.append(model)
+                if "gemma" in model:
+                    raise _RateLimitError("429 RESOURCE_EXHAUSTED on gemma")
+                return {
+                    "outputs": [
+                        {
+                            "type": "text",
+                            "text": json.dumps(
+                                {
+                                    "current_position": "Side Control",
+                                    "top_or_dominant_actor": "B",
+                                    "stabilizing_scoring_kind": "guard_pass",
+                                    "active_combativeness_a": True,
+                                    "active_combativeness_b": True,
+                                    "in_bounds": True,
+                                    "confidence": 0.91,
+                                    "corner_cue": "Frame under the chin and shrimp.",
+                                    "detected_events": [],
+                                }
+                            ),
+                        }
+                    ],
+                    "usage": {"total_input_tokens": 120, "total_output_tokens": 45},
+                }
+
+        def __init__(self) -> None:
+            self.interactions = self._Interactions()
+
+    settings = Settings(
+        profile="cloud",
+        gemini_api_key="test-key",
+        gemma_api_model="gemma-4-26b-a4b-it",
+        tracker_model="gemini-4-hydrogen",
+    )
+    provider = GeminiCloudProvider(settings=settings, client=_FallbackClient())
+    obs = await provider.analyze_live_frame(b"\xff\xd8\xff\xd9", division=MatchDivisionConfig(), elapsed_sec=14.0)
+    assert calls == ["gemma-4-26b-a4b-it", "gemini-4-hydrogen"]
+    assert obs.model_used == "gemini-4-hydrogen"
+    assert obs.stabilizing_scoring_kind == EventKind.GUARD_PASS
+
+    override_provider = GeminiCloudProvider(
+        settings=settings,
+        client=_FallbackClient(),
+        model_override="gemma-4-26b-a4b-it",
+    )
+    with pytest.raises(Exception, match="429 RESOURCE_EXHAUSTED"):
+        await override_provider.analyze_live_frame(b"\xff\xd8\xff\xd9", division=MatchDivisionConfig(), elapsed_sec=16.0)
+
+
+@pytest.mark.asyncio
+async def test_live_session_infers_scoring_position_emits_position_change_and_survives_api_error() -> None:
+    from rollmetrics.video.live_session import _infer_scoring_kind_from_position
+
+    assert _infer_scoring_kind_from_position("") is None
+    assert _infer_scoring_kind_from_position("Open Guard") is None
+    assert _infer_scoring_kind_from_position("Side Control") == EventKind.GUARD_PASS
+    assert _infer_scoring_kind_from_position("Back Mount") == EventKind.BACK_CONTROL
+    assert _infer_scoring_kind_from_position("Full Mount") == EventKind.MOUNT
+
+    class _CustomApiError(Exception):
+        pass
+
+    scripted = _ScriptedLiveProvider(
+        [
+            # Frame 1 (t=0.0): Open Guard -> emits POSITION_CHANGE moment into timeline!
+            FrameObservation(
+                current_position="Open Guard",
+                top_or_dominant_actor="B",
+                stabilizing_scoring_kind=None,
+                corner_cue="Control sleeves and off-balance.",
+            ),
+            # Frame 2 (t=2.0): Side Control with stabilizing_scoring_kind=None -> infers GUARD_PASS!
+            FrameObservation(
+                current_position="side_control",
+                top_or_dominant_actor="B",
+                stabilizing_scoring_kind=None,
+                corner_cue="Frame across the neck.",
+            ),
+            # Frame 3 (t=4.0): Generic API Exception -> caught cleanly without crashing, ticks hold!
+            _CustomApiError("503 UNAVAILABLE"),
+            # Frame 4 (t=5.5): Still Side Control -> 3.5s held -> awards +3 PTS to B!
+            FrameObservation(
+                current_position="side_control",
+                top_or_dominant_actor="B",
+                stabilizing_scoring_kind=None,
+                corner_cue="Keep frames tight.",
+            ),
+        ]
+    )
+    session = LiveRefereeSession(
+        division=MatchDivisionConfig(),
+        profile="cloud",
+        provider=scripted,
+        min_vision_interval_sec=1.0,
+    )
+    s0 = await session.process_frame(b"jpg", elapsed_sec=0.0)
+    assert len(s0["scoreboard"]["timeline"]) == 1
+    assert s0["scoreboard"]["timeline"][0]["raw_kind"] == "position_change"
+
+    s1 = await session.process_frame(b"jpg", elapsed_sec=2.0)
+    assert s1["active_stabilization"] is not None
+    assert s1["active_stabilization"]["kind"] == "guard_pass"
+
+    s2 = await session.process_frame(b"jpg", elapsed_sec=4.0)
+    assert "error" in s2["telemetry"]
+    assert "_CustomApiError" in s2["telemetry"]["error"]
+
+    s3 = await session.process_frame(b"jpg", elapsed_sec=5.5)
+    assert s3["athlete_b"]["points"] == 3
+    assert any(ev["awarded_points"] == 3 for ev in s3["scoreboard"]["timeline"])

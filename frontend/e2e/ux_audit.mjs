@@ -183,28 +183,18 @@ async function main() {
     await desk.locator('[data-testid="home-match-mc9_semifinal"]').click();
     await desk.waitForSelector('[data-testid="row-athlete-a"]');
 
-    // Dedicated App Admin (/admin) + ML Admin (/ml) Dashboards via Settings modal footer
+    // Dedicated App Admin (/admin) + Curricula (/curricula) via Settings modal footer (#268)
     await desk.locator('[data-testid="user-profile"]').click();
     await desk.waitForSelector('[data-testid="open-admin-btn"]');
     await desk.locator('[data-testid="open-admin-btn"]').click();
     await desk.waitForSelector('[data-testid="admin-dashboard"]');
     await desk.waitForSelector('[data-testid="admin-users-table"] tbody tr td');
-    await desk.waitForSelector('[data-testid="admin-jobs-table"]');
     const adminText = await desk.locator('[data-testid="admin-dashboard"]').textContent();
     assert((adminText || "").includes("@"), "Admin dashboard missing user email");
-    await desk.locator('[data-testid="switch-ml-admin-btn"]').click();
-    await desk.waitForSelector('[data-testid="ml-admin-dashboard"]');
-    await desk.waitForSelector('[data-testid="admin-scoreboard-table"] tbody tr td.mono-cell');
-    const mlText = await desk.locator('[data-testid="ml-admin-dashboard"]').textContent();
-    assert((mlText || "").includes("122 matches"), "ML Admin dashboard missing 122 matches");
-    if (SHOT_DIR) {
-      await desk.screenshot({
-        path: path.join(SHOT_DIR, "29_admin_ml_dashboard.png"),
-        fullPage: false,
-      });
-    }
-    await desk.locator('[data-testid="admin-split-calibration"]').click();
-    await desk.locator('[data-testid="ml-admin-back-btn"]').click();
+    assert(!(adminText || "").includes("No upload or analysis jobs"), "Admin dashboard still shows empty jobs block");
+    await desk.locator('[data-testid="open-curricula-btn"]').click();
+    await desk.waitForSelector('[data-testid="curricula-view"]');
+    await desk.locator('[data-testid="curricula-back-btn"]').click();
     await desk.waitForSelector('[data-testid="row-athlete-a"]');
 
     // Public /privacy, /terms, and /share/{token} routes (#147, #170)

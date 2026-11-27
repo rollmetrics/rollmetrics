@@ -307,6 +307,9 @@ def test_main_100_endpoints_errors_and_websocket(tmp_path: Path, monkeypatch: py
     assert client.delete("/api/matches/bad..id").status_code == 400
     assert client.put("/api/matches/bad..id/moments", json={"events": []}).status_code == 400
     assert client.put("/api/matches/nonexistent_match/moments", json={"events": []}).status_code == 404
+    assert client.post("/api/matches/bad..id/events/ev1/feedback", json={"note": "x"}).status_code == 400
+    r_fb = client.post("/api/matches/mc9_semifinal/events/ev1/feedback", json={"note": "Check pass timing"})
+    assert r_fb.status_code == 200 and r_fb.json()["feedback_logged"] is True
     assert client.post("/api/matches/bad..id/review", json={"review_status": "reviewed"}).status_code == 400
     assert client.get("/api/share/nonexistent_tok/media/missing.mp4").status_code == 404
 
@@ -449,10 +452,22 @@ def test_main_100_endpoints_errors_and_websocket(tmp_path: Path, monkeypatch: py
     assert client.post("/api/academies/me/references", json={"title": "T", "text": "Body"}).status_code == 422
     monkeypatch.undo()
 
-    # Knowledge manifest unavailable for nonexistent version (L4860)
+    # Knowledge manifest unavailable for nonexistent version (L4860) + curricula endpoint (#268)
     monkeypatch.setattr(main_mod, "_get_retriever", lambda *_a, **_kw: None)
     assert client.get("/api/knowledge/manifest?version=v9.9.9").json()["available"] is False
     monkeypatch.undo()
+    assert client.get("/api/knowledge/curricula").status_code == 200
+    assert client.get("/api/knowledge/curricula?q=zzzz_no_match_999").json()["count"] == 0
+    kb_cur = tmp_path / "kb_cur"
+    (kb_cur / "versions" / "v0.1.0").mkdir(parents=True, exist_ok=True)
+    (kb_cur / "versions" / "v0.1.0" / "documents.jsonl").write_text(
+        "\n" + json.dumps({"corpus": "ibjjf", "title": "Rule"}) + "\n" + json.dumps({"corpus": "cta", "doc_id": "d1", "title": "Sweep", "position": "guard", "text": "Hip bump"}) + "\n",
+        encoding="utf-8",
+    )
+    c_cur = TestClient(create_app(Settings(environment="test", allow_local_dev_bypass=True, knowledge_dir=kb_cur, runtime_dir=tmp_path / "rt_cur")))
+    assert c_cur.get("/api/knowledge/curricula?q=sweep").json()["count"] == 1
+    assert c_cur.get("/api/knowledge/curricula?q=nomatch").json()["count"] == 0
+    assert main_mod._local_showcase_candidates("malfacine_terra_2019", s)
 
     # Evals latest cached JSON read (L4933-4934)
     eval_cache = s.runtime_dir / "latest_eval_v9.9.9.json"

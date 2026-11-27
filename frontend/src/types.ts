@@ -216,6 +216,7 @@ export interface AdminOverviewResponse {
     id: string;
     name: string;
     member_count: number;
+    default_coach?: string;
     default_curriculum: string;
     default_ruleset: string;
   }>;
@@ -424,4 +425,20 @@ export interface LocalAcademyImportResponse {
   academy_id: string;
   academy_name: string;
   imported_count: number;
+}
+
+export interface CurriculumEntry {
+  doc_id: string;
+  title: string;
+  curriculum: string;
+  position: string;
+  timestamp_sec?: number | null;
+  source_url: string;
+  text_preview: string;
+}
+
+export interface CurriculaResponse {
+  version: string;
+  count: number;
+  curricula: CurriculumEntry[];
 }

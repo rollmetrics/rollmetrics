@@ -199,6 +199,8 @@ describe("RollMetrics API client & snapshot mapper", () => {
     await api.getSharedMatch("tok123");
     await api.generateSharedHighlight("tok123", { start_sec: 10, duration_sec: 5, speed: 0.4 });
     await api.getLocalHardware();
+    await api.getCurricula();
+    await api.getCurricula("sweep");
     await api.scanLocalFolder("~/Videos/BJJ");
     await api.analyzeLocalVideo({ video_path: "/tmp/roll.mp4", title: "Local Roll" });
     await api.importLocalAcademyFolder({ folder_path: "/tmp/notes", academy_id: "cta" });
@@ -208,6 +210,7 @@ describe("RollMetrics API client & snapshot mapper", () => {
     await api.deleteMatch("custom_1");
     await api.revokeShareLink("tok123");
     await api.updateMatchMoments("mc9_semifinal", { events: [], ruleset: "adcc" });
+    await api.submitMomentFeedback("mc9_semifinal", "ev1", "Check timing");
     await api.getTeamRoster();
     await api.updateMatchReview("mc9_semifinal", { review_status: "reviewed" });
     await api.autoTagAcademyReference({ url: "https://youtu.be/dQw4w9WgXcQ", title: "Knee Cut" });

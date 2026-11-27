@@ -433,7 +433,7 @@ def test_ibjjf_sources_model_bench_and_desktop_extra_branches(
     assert len(main_mod._load_presets(settings)) >= 2
 
     catalog = main_mod._showcase_matches_catalog()
-    assert main_mod._build_collection_scouting_summary(catalog, focus_athlete="Caio Terra")["match_count"] == 1
+    assert main_mod._build_collection_scouting_summary(catalog, focus_athlete="Caio Terra")["match_count"] >= 2
     assert main_mod._build_collection_scouting_summary([], focus_athlete="Nobody")["match_count"] == 0
     loss_draw = [
         {"bucket": "my_matches", "winner": "B", "win_label": "PTS", "events": [{"pts_a": 0, "pts_b": 2, "detail": "Sweep"}]},

@@ -2047,22 +2047,44 @@ body {
 
 .admin-table-wrap {
   width: 100%;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
+  overflow-x: hidden;
 }
 
 .admin-table {
   width: 100%;
+  table-layout: fixed;
   border-collapse: collapse;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
 }
 
 .admin-table th,
 .admin-table td {
   text-align: left;
-  padding: 0.52rem 0.65rem;
+  padding: 0.48rem 0.55rem;
   border-bottom: 1px solid var(--border-hairline);
-  white-space: nowrap;
+  white-space: normal;
+  word-break: break-word;
+  vertical-align: top;
+}
+
+select.input-clean,
+select.mini-btn {
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: var(--bg-elevated);
+  color: var(--text-primary);
+  font-size: 0.84rem;
+  padding-right: 2rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.65rem center;
+  background-size: 12px;
+  cursor: pointer;
+}
+
+select option {
+  background: #0f141c;
+  color: #f8fafc;
 }
 
 .admin-table th {
@@ -2763,10 +2785,31 @@ body:has(.landing-page) {
 }
 
 .landing-score-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
   font-size: 0.78rem;
   font-weight: 600;
   color: var(--text-secondary);
   white-space: nowrap;
+}
+
+.landing-gi-dot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.landing-gi-dot.white {
+  background: #f8fafc;
+  border: 1px solid #94a3b8;
+}
+
+.landing-gi-dot.blue {
+  background: #3b82f6;
+  border: 1px solid #93c5fd;
 }
 
 .landing-score-nums {
@@ -2794,7 +2837,7 @@ body:has(.landing-page) {
 
 .landing-scrubber {
   height: 6px;
-  margin: 4px 0;
+  margin: 10px 0;
   background: var(--bg-elevated);
   border-radius: 3px;
   position: relative;
@@ -2805,34 +2848,48 @@ body:has(.landing-page) {
   height: 100%;
   background: var(--text-primary);
   border-radius: 3px;
+  pointer-events: none;
   transition: width 180ms ease;
 }
 
 .landing-pin {
   position: absolute;
   top: 50%;
+  z-index: 4;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.landing-pin::before {
+  content: "";
   width: 12px;
   height: 12px;
-  padding: 0;
-  border: 1.5px solid rgba(11, 14, 19, 0.92);
   border-radius: 2px;
-  transform: translate(-50%, -50%) rotate(45deg);
-  cursor: pointer;
+  border: 1.5px solid rgba(11, 14, 19, 0.92);
+  transform: rotate(45deg);
   transition: transform 140ms ease, box-shadow 140ms ease;
 }
 
-.landing-pin:hover {
-  transform: translate(-50%, -50%) rotate(45deg) scale(1.2);
+.landing-pin:hover::before {
+  transform: rotate(45deg) scale(1.22);
 }
 
-.landing-pin.active {
-  transform: translate(-50%, -50%) rotate(45deg) scale(1.28);
-  box-shadow: 0 0 0 3px rgba(248, 250, 252, 0.28);
+.landing-pin.active::before {
+  transform: rotate(45deg) scale(1.3);
+  box-shadow: 0 0 0 3px rgba(248, 250, 252, 0.32);
 }
 
-.landing-pin.win { background: var(--signal-control); }
-.landing-pin.adv { background: var(--signal-adv); }
-.landing-pin.pen { background: var(--signal-pen); }
+.landing-pin.win::before { background: var(--signal-control); }
+.landing-pin.adv::before { background: var(--signal-adv); }
+.landing-pin.pen::before { background: var(--signal-pen); }
 
 .landing-output-list {
   display: flex;
@@ -3218,16 +3275,131 @@ body:has(.landing-page) {
   color: var(--signal-control);
 }
 
+/* #271 Roomier + Add Match Modal, Accessible Select Sizing, & Video Pin Overlay */
+.upload-modal-card {
+  max-width: 720px;
+  padding: 1.5rem;
+  gap: 1rem;
+}
+
+.upload-modal-card .input-clean,
+.upload-modal-card select.input-clean,
+.upload-modal-card .rail-seg-btn,
+.upload-modal-card .analyze-trigger-btn,
+.upload-modal-card .mini-btn {
+  font-size: 0.96rem;
+  min-height: 44px;
+}
+
+.upload-modal-card select.input-clean {
+  padding: 0.65rem 2.35rem 0.65rem 0.85rem;
+}
+
+.upload-modal-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.upload-select-row,
+.upload-athlete-row {
+  display: flex;
+  gap: 0.55rem;
+  align-items: center;
+}
+
+.upload-select-row > select {
+  flex: 1;
+  min-width: 0;
+}
+
+.upload-athlete-row > input {
+  flex: 1;
+  min-width: 0;
+}
+
+.upload-gi-select {
+  width: 120px;
+  flex-shrink: 0;
+}
+
+.video-pin-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  cursor: crosshair;
+  background: rgba(6, 8, 11, 0.22);
+}
+
+.video-pin-banner {
+  position: absolute;
+  top: 0.65rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  background: rgba(11, 14, 19, 0.92);
+  border: 1px solid var(--border-focus);
+  color: var(--text-primary);
+  font-size: 0.82rem;
+}
+
+@media (max-width: 640px) {
+  .upload-modal-card {
+    padding: 1.05rem;
+  }
+
+  .upload-select-row,
+  .upload-athlete-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .upload-gi-select {
+    width: 100%;
+  }
+}
+
 .athlete-profile-strip {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
   gap: 0.85rem;
-  padding: 0.95rem 1.15rem;
+  padding: 1.05rem 1.25rem;
   border-radius: 12px;
   background: var(--bg-card);
   border: 1px solid var(--border-hairline);
+}
+
+.athlete-profile-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+}
+
+.athlete-profile-stats {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.25rem;
+  padding-top: 0.7rem;
+  border-top: 1px solid var(--border-hairline);
+  font-size: 0.84rem;
+}
+
+.athlete-stat-item {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4rem;
+}
+
+.athlete-stat-label {
+  color: var(--text-muted);
+  font-size: 0.78rem;
 }
 
 .athlete-profile-id {
