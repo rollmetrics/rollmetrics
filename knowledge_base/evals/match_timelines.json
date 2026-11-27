@@ -1,0 +1,510 @@
+{
+  "version": "v0.1.0",
+  "timelines": [
+    {
+      "id": "mastermind_cup9_semifinal",
+      "title": "Mastermind Cup 9 Semifinal: Kory Mathewson vs. Michael Dube",
+      "subtitle": "Mat 2 #25 - Men Gi White Belt Master 2 (-82.3 kg) - Sub at 2:51 (Inside-Triangle Armbar)",
+      "youtube_url": "https://youtu.be/sH8gkS1eti4?t=51",
+      "division": {
+        "uniform": "gi",
+        "belt": "white",
+        "age_division": "master",
+        "weight_class": "-82.3 kg (Middle)",
+        "duration_sec": 300,
+        "athlete_a_name": "Kory Mathewson (Plateau BJJ / CTA)",
+        "athlete_a_appearance": "White Gi",
+        "athlete_b_name": "Michael Dube",
+        "athlete_b_appearance": "White Gi (Opponent)",
+        "locked_athlete": "A"
+      },
+      "events": [
+        {
+          "timestamp_sec": 37.0,
+          "match_clock_str": "04:23",
+          "actor": "A",
+          "kind": "position_change",
+          "hold_duration_sec": 3.0,
+          "confidence": 0.96,
+          "position_after": "Closed Guard",
+          "summary": "Same-side collar + right-elbow grip guard pull with left foot framing Dube's right hip cleanly into closed guard."
+        },
+        {
+          "timestamp_sec": 53.0,
+          "match_clock_str": "04:07",
+          "actor": "B",
+          "kind": "minor_foul",
+          "technique_slug": "fingers_inside_sleeve_or_pant_cuff",
+          "hold_duration_sec": 0.0,
+          "confidence": 0.94,
+          "position_after": "Closed Guard",
+          "summary": "Referee strips Dube's left fingers hooked inside Kory's right sleeve cuff and awards 1st minor-foul penalty to Athlete B."
+        },
+        {
+          "timestamp_sec": 156.0,
+          "match_clock_str": "02:24",
+          "actor": "A",
+          "kind": "position_change",
+          "hold_duration_sec": 3.0,
+          "confidence": 0.95,
+          "position_after": "Closed Guard",
+          "summary": "Arm-across scissor off-balance collapses Dube's tripod onto his right hip; Kory shoots high diamond guard trapping head and right arm."
+        },
+        {
+          "timestamp_sec": 171.0,
+          "match_clock_str": "02:09",
+          "actor": "A",
+          "kind": "submission",
+          "hold_duration_sec": 3.0,
+          "confidence": 0.98,
+          "position_after": "Closed Guard",
+          "summary": "Inside-triangle straight armbar (Sankaku Juji-Gatame) on Dube's right arm forces the tap at 2:51 elapsed."
+        }
+      ],
+      "expected": {
+        "winner": "A",
+        "win_method_substr": "Submission",
+        "athlete_a": {
+          "points": 0,
+          "advantages": 0,
+          "penalties": 0,
+          "disqualified": false,
+          "submitted_opponent": true
+        },
+        "athlete_b": {
+          "points": 0,
+          "advantages": 0,
+          "penalties": 1,
+          "disqualified": false,
+          "submitted_opponent": false
+        }
+      }
+    },
+    {
+      "id": "mastermind_cup9_final",
+      "title": "Mastermind Cup 9 Gold Final: Kory Mathewson vs. Vincent Lamoureux",
+      "subtitle": "Mat 2 #30 - Men Gi White Belt Master 2 (-82.3 kg) - Referee Decision 5:00 (0-0 pts, 1-1 adv, 2-2 pen)",
+      "youtube_url": "https://youtu.be/sH8gkS1eti4?t=225",
+      "division": {
+        "uniform": "gi",
+        "belt": "white",
+        "age_division": "master",
+        "weight_class": "-82.3 kg (Middle)",
+        "duration_sec": 300,
+        "athlete_a_name": "Kory Mathewson (Plateau BJJ / CTA)",
+        "athlete_a_appearance": "White Gi",
+        "athlete_b_name": "Vincent Lamoureux",
+        "athlete_b_appearance": "Blue Gi",
+        "locked_athlete": "A"
+      },
+      "events": [
+        {
+          "timestamp_sec": 42.0,
+          "match_clock_str": "04:18",
+          "actor": "A",
+          "kind": "position_change",
+          "hold_duration_sec": 3.0,
+          "confidence": 0.92,
+          "position_after": "Closed Guard",
+          "summary": "Collar + sleeve guard pull locks full closed guard after brief left-shin stuff."
+        },
+        {
+          "timestamp_sec": 55.0,
+          "match_clock_str": "04:05",
+          "actor": "B",
+          "kind": "position_change",
+          "hold_duration_sec": 3.0,
+          "confidence": 0.91,
+          "position_after": "Closed Guard",
+          "summary": "Lamoureux swims double-unders into 69s Wave-1 tripod stack; Kory frames and squares hips back to closed guard at 02:56 with 0 pts and 0 adv conceded."
+        },
+        {
+          "timestamp_sec": 156.0,
+          "match_clock_str": "02:24",
+          "actor": "A",
+          "kind": "double_stalling",
+          "hold_duration_sec": 0.0,
+          "confidence": 0.95,
+          "position_after": "Closed Guard",
+          "summary": "1st simultaneous double-stalling call in closed guard (1-1 pen, 0-0 adv)."
+        },
+        {
+          "timestamp_sec": 189.0,
+          "match_clock_str": "01:51",
+          "actor": "A",
+          "kind": "position_change",
+          "hold_duration_sec": 2.0,
+          "confidence": 0.89,
+          "position_after": "Turtle",
+          "summary": "Seated wrestle-up sprawled to bottom turtle (01:49); Lamoureux pulls arm-out gi guillotine (01:46) and Kory pops head free (0 pts, 0 technical adv)."
+        },
+        {
+          "timestamp_sec": 261.0,
+          "match_clock_str": "00:39",
+          "actor": "A",
+          "kind": "double_stalling",
+          "hold_duration_sec": 0.0,
+          "confidence": 0.96,
+          "position_after": "Closed Guard",
+          "summary": "2nd simultaneous double-stalling call in closed guard (2-2 pen -> automatic +1 IBJJF penalty advantage awarded to each athlete: 1-1 adv)."
+        },
+        {
+          "timestamp_sec": 291.0,
+          "match_clock_str": "00:09",
+          "actor": "A",
+          "kind": "position_change",
+          "hold_duration_sec": 3.0,
+          "confidence": 0.94,
+          "position_after": "Closed Guard",
+          "summary": "Closing 39s offensive flurry: pendulum angle, hip-bump feint, right-leg triangle shoot (00:16), 90-degree shoulder clamp, and buzzer sweep securing Referee Decision."
+        }
+      ],
+      "expected": {
+        "winner": "referee_decision",
+        "win_method_substr": "Referee Decision",
+        "athlete_a": {
+          "points": 0,
+          "advantages": 1,
+          "penalties": 2,
+          "disqualified": false,
+          "submitted_opponent": false
+        },
+        "athlete_b": {
+          "points": 0,
+          "advantages": 1,
+          "penalties": 2,
+          "disqualified": false,
+          "submitted_opponent": false
+        }
+      }
+    },
+    {
+      "id": "edge_3s_downgrade_and_cumulative_mount",
+      "title": "Edge Case: Sub-3s Pass Downgrade to Advantage + Cumulative Sweep-to-Mount (+6)",
+      "subtitle": "Tests 3.0s stabilization boundary (Art. 5.2) and cumulative +2 Sweep + +4 Mount (Art. 3.1)",
+      "youtube_url": "https://www.youtube.com/watch?v=NkB3me-Vdqw",
+      "division": {
+        "uniform": "gi",
+        "belt": "blue",
+        "age_division": "adult",
+        "duration_sec": 360
+      },
+      "events": [
+        {
+          "timestamp_sec": 40.0,
+          "actor": "A",
+          "kind": "sweep",
+          "hold_duration_sec": 3.4,
+          "position_after": "Side Control"
+        },
+        {
+          "timestamp_sec": 85.0,
+          "actor": "B",
+          "kind": "sweep",
+          "hold_duration_sec": 3.5,
+          "position_after": "Closed Guard"
+        },
+        {
+          "timestamp_sec": 130.0,
+          "actor": "B",
+          "kind": "guard_pass",
+          "hold_duration_sec": 2.1,
+          "position_after": "Half Guard"
+        },
+        {
+          "timestamp_sec": 210.0,
+          "actor": "A",
+          "kind": "sweep",
+          "hold_duration_sec": 3.2,
+          "position_after": "Mount"
+        },
+        {
+          "timestamp_sec": 214.0,
+          "actor": "A",
+          "kind": "mount",
+          "hold_duration_sec": 4.2,
+          "position_after": "Mount"
+        }
+      ],
+      "expected": {
+        "winner": "A",
+        "win_method_substr": "Points",
+        "athlete_a": {
+          "points": 8,
+          "advantages": 0,
+          "penalties": 0,
+          "disqualified": false,
+          "submitted_opponent": false
+        },
+        "athlete_b": {
+          "points": 2,
+          "advantages": 1,
+          "penalties": 0,
+          "disqualified": false,
+          "submitted_opponent": false
+        }
+      }
+    },
+    {
+      "id": "edge_fourth_penalty_dq_cascade",
+      "title": "Edge Case: Full 4-Step Penalty Cascade Ending in Disqualification",
+      "subtitle": "Tests 1st verbal/mark -> 2nd +1 adv -> 3rd +2 pts -> 4th DQ (IBJJF Art. 5.3 & 7.2)",
+      "youtube_url": "https://www.youtube.com/watch?v=oKkIEcbUc0g",
+      "division": {
+        "uniform": "gi",
+        "belt": "purple",
+        "age_division": "adult",
+        "duration_sec": 420
+      },
+      "events": [
+        {
+          "timestamp_sec": 30.0,
+          "actor": "B",
+          "kind": "minor_foul",
+          "technique_slug": "guard_pull_without_grip"
+        },
+        {
+          "timestamp_sec": 95.0,
+          "actor": "B",
+          "kind": "minor_foul",
+          "technique_slug": "fingers_inside_sleeve_or_pant_cuff"
+        },
+        {
+          "timestamp_sec": 175.0,
+          "actor": "B",
+          "kind": "minor_foul",
+          "technique_slug": "stalling"
+        },
+        {
+          "timestamp_sec": 240.0,
+          "actor": "B",
+          "kind": "minor_foul",
+          "technique_slug": "fleeing_mat_bounds"
+        },
+        {
+          "timestamp_sec": 260.0,
+          "actor": "B",
+          "kind": "takedown",
+          "hold_duration_sec": 4.0
+        }
+      ],
+      "expected": {
+        "winner": "A",
+        "win_method_substr": "Disqualification",
+        "athlete_a": {
+          "points": 2,
+          "advantages": 1,
+          "penalties": 0,
+          "disqualified": false,
+          "submitted_opponent": false
+        },
+        "athlete_b": {
+          "points": 0,
+          "advantages": 0,
+          "penalties": 4,
+          "disqualified": true,
+          "submitted_opponent": false
+        }
+      }
+    },
+    {
+      "id": "edge_triple_double_stalling_advantage_tiebreak",
+      "title": "Edge Case: Triple Double-Stalling Cascade + Late Near-Pass Advantage Tie-Breaker",
+      "subtitle": "Tests simultaneous 3rd-penalty +2/+2 points and Art. 2.2 advantage victory",
+      "youtube_url": "https://www.youtube.com/watch?v=iGbn75D1ma0",
+      "division": {
+        "uniform": "gi",
+        "belt": "brown",
+        "age_division": "master",
+        "duration_sec": 300
+      },
+      "events": [
+        {
+          "timestamp_sec": 60.0,
+          "actor": "A",
+          "kind": "double_stalling"
+        },
+        {
+          "timestamp_sec": 140.0,
+          "actor": "A",
+          "kind": "double_stalling"
+        },
+        {
+          "timestamp_sec": 220.0,
+          "actor": "A",
+          "kind": "double_stalling"
+        },
+        {
+          "timestamp_sec": 280.0,
+          "actor": "A",
+          "kind": "guard_pass",
+          "hold_duration_sec": 1.6,
+          "in_bounds": false
+        }
+      ],
+      "expected": {
+        "winner": "A",
+        "win_method_substr": "Advantages",
+        "athlete_a": {
+          "points": 2,
+          "advantages": 2,
+          "penalties": 3,
+          "disqualified": false,
+          "submitted_opponent": false
+        },
+        "athlete_b": {
+          "points": 2,
+          "advantages": 1,
+          "penalties": 3,
+          "disqualified": false,
+          "submitted_opponent": false
+        }
+      }
+    },
+    {
+      "id": "edge_adult_black_nogi_heelhook_legal",
+      "title": "Edge Case: Adult Black Belt No-Gi Legal Knee Reap & Heel Hook Finish",
+      "subtitle": "Verifies Adult Brown/Black No-Gi exception permits reaping and inside heel hook finish",
+      "youtube_url": "https://www.youtube.com/watch?v=nTT-OrtbOwU",
+      "division": {
+        "uniform": "nogi",
+        "belt": "black",
+        "age_division": "adult",
+        "duration_sec": 600
+      },
+      "events": [
+        {
+          "timestamp_sec": 45.0,
+          "actor": "B",
+          "kind": "takedown",
+          "hold_duration_sec": 3.5,
+          "position_after": "Open Guard"
+        },
+        {
+          "timestamp_sec": 110.0,
+          "actor": "A",
+          "kind": "position_change",
+          "technique_slug": "knee_reap",
+          "position_after": "50/50"
+        },
+        {
+          "timestamp_sec": 128.0,
+          "actor": "A",
+          "kind": "submission",
+          "technique_slug": "heel_hook",
+          "position_after": "50/50"
+        }
+      ],
+      "expected": {
+        "winner": "A",
+        "win_method_substr": "Submission",
+        "athlete_a": {
+          "points": 0,
+          "advantages": 0,
+          "penalties": 0,
+          "disqualified": false,
+          "submitted_opponent": true
+        },
+        "athlete_b": {
+          "points": 2,
+          "advantages": 0,
+          "penalties": 0,
+          "disqualified": false,
+          "submitted_opponent": false
+        }
+      }
+    },
+    {
+      "id": "edge_master_gi_reap_dq_despite_lead",
+      "title": "Edge Case: Master Black Belt Gi Knee Reap Immediate Disqualification",
+      "subtitle": "Verifies reaping remains an instant DQ in Master and Gi divisions even when ahead 5-0",
+      "youtube_url": "https://www.youtube.com/watch?v=9Bc6FTevca4",
+      "division": {
+        "uniform": "gi",
+        "belt": "black",
+        "age_division": "master",
+        "duration_sec": 300
+      },
+      "events": [
+        {
+          "timestamp_sec": 35.0,
+          "actor": "A",
+          "kind": "takedown",
+          "hold_duration_sec": 3.3,
+          "position_after": "Half Guard"
+        },
+        {
+          "timestamp_sec": 90.0,
+          "actor": "A",
+          "kind": "guard_pass",
+          "hold_duration_sec": 3.6,
+          "position_after": "Side Control"
+        },
+        {
+          "timestamp_sec": 165.0,
+          "actor": "A",
+          "kind": "sweep",
+          "technique_slug": "knee_reap",
+          "position_after": "Open Guard"
+        }
+      ],
+      "expected": {
+        "winner": "B",
+        "win_method_substr": "Disqualification",
+        "athlete_a": {
+          "points": 5,
+          "advantages": 0,
+          "penalties": 0,
+          "disqualified": true,
+          "submitted_opponent": false
+        },
+        "athlete_b": {
+          "points": 0,
+          "advantages": 0,
+          "penalties": 0,
+          "disqualified": false,
+          "submitted_opponent": false
+        }
+      }
+    },
+    {
+      "id": "edge_white_belt_jumping_guard_dq",
+      "title": "Edge Case: White Belt Jumping Closed Guard Immediate Disqualification",
+      "subtitle": "Verifies IBJJF Art. 6.2.2 (#5) immediate DQ when a White Belt jumps closed guard",
+      "youtube_url": "https://www.youtube.com/watch?v=fqKb6EZw6f0",
+      "division": {
+        "uniform": "gi",
+        "belt": "white",
+        "age_division": "master",
+        "duration_sec": 300
+      },
+      "events": [
+        {
+          "timestamp_sec": 22.0,
+          "actor": "B",
+          "kind": "position_change",
+          "technique_slug": "jumping_closed_guard",
+          "position_after": "Closed Guard"
+        }
+      ],
+      "expected": {
+        "winner": "A",
+        "win_method_substr": "Disqualification",
+        "athlete_a": {
+          "points": 0,
+          "advantages": 0,
+          "penalties": 0,
+          "disqualified": false,
+          "submitted_opponent": false
+        },
+        "athlete_b": {
+          "points": 0,
+          "advantages": 0,
+          "penalties": 0,
+          "disqualified": true,
+          "submitted_opponent": false
+        }
+      }
+    }
+  ]
+}

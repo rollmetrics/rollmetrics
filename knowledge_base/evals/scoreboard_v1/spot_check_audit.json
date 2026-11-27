@@ -1,0 +1,427 @@
+{
+  "spot_checked_matches": 8,
+  "labeler_winner_accuracy": 0.75,
+  "labeler_final_score_exact_match": 0.75,
+  "labeler_mae_points": 0.625,
+  "labeler_mae_advantages": 0.0625,
+  "labeler_mae_penalties": 0.125,
+  "labeler_score_event_f1": 0.7059,
+  "per_match": [
+    {
+      "match_id": "mc9-2026-kory-semi",
+      "model_id": "scoreboard_crop_vision_ocr_v1",
+      "winner_ok": true,
+      "gt_winner": "B",
+      "pred_winner": "B",
+      "final_score_exact": true,
+      "gt_score": {
+        "A": {
+          "points": 0,
+          "advantages": 0,
+          "penalties": 1
+        },
+        "B": {
+          "points": 0,
+          "advantages": 0,
+          "penalties": 0
+        }
+      },
+      "pred_score": {
+        "A": {
+          "points": 0,
+          "advantages": 0,
+          "penalties": 1
+        },
+        "B": {
+          "points": 0,
+          "advantages": 0,
+          "penalties": 0
+        }
+      },
+      "pts_abs_errors": [
+        0,
+        0
+      ],
+      "adv_abs_errors": [
+        0,
+        0
+      ],
+      "pen_abs_errors": [
+        0,
+        0
+      ],
+      "event_tp": 0,
+      "event_fp": 1,
+      "event_fn": 1,
+      "leakage_verified": true,
+      "latency_ms": 0.0,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "match_id": "mc9-2026-kory-final",
+      "model_id": "scoreboard_crop_vision_ocr_v1",
+      "winner_ok": false,
+      "gt_winner": "referee_decision",
+      "pred_winner": "A",
+      "final_score_exact": false,
+      "gt_score": {
+        "A": {
+          "points": 0,
+          "advantages": 1,
+          "penalties": 2
+        },
+        "B": {
+          "points": 0,
+          "advantages": 1,
+          "penalties": 2
+        }
+      },
+      "pred_score": {
+        "A": {
+          "points": 0,
+          "advantages": 1,
+          "penalties": 2
+        },
+        "B": {
+          "points": 0,
+          "advantages": 0,
+          "penalties": 0
+        }
+      },
+      "pts_abs_errors": [
+        0,
+        0
+      ],
+      "adv_abs_errors": [
+        0,
+        1
+      ],
+      "pen_abs_errors": [
+        0,
+        2
+      ],
+      "event_tp": 0,
+      "event_fp": 3,
+      "event_fn": 4,
+      "leakage_verified": true,
+      "latency_ms": 0.0,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "match_id": "mc9-2026-seb-nogi-qf",
+      "model_id": "scoreboard_crop_vision_ocr_v1",
+      "winner_ok": true,
+      "gt_winner": "A",
+      "pred_winner": "A",
+      "final_score_exact": false,
+      "gt_score": {
+        "A": {
+          "points": 18,
+          "advantages": 1,
+          "penalties": 0
+        },
+        "B": {
+          "points": 0,
+          "advantages": 0,
+          "penalties": 0
+        }
+      },
+      "pred_score": {
+        "A": {
+          "points": 8,
+          "advantages": 1,
+          "penalties": 0
+        },
+        "B": {
+          "points": 0,
+          "advantages": 0,
+          "penalties": 0
+        }
+      },
+      "pts_abs_errors": [
+        10,
+        0
+      ],
+      "adv_abs_errors": [
+        0,
+        0
+      ],
+      "pen_abs_errors": [
+        0,
+        0
+      ],
+      "event_tp": 3,
+      "event_fp": 1,
+      "event_fn": 3,
+      "leakage_verified": true,
+      "latency_ms": 0.0,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "match_id": "mc9-2026-seb-nogi-final",
+      "model_id": "scoreboard_crop_vision_ocr_v1",
+      "winner_ok": true,
+      "gt_winner": "B",
+      "pred_winner": "B",
+      "final_score_exact": true,
+      "gt_score": {
+        "A": {
+          "points": 0,
+          "advantages": 0,
+          "penalties": 0
+        },
+        "B": {
+          "points": 6,
+          "advantages": 0,
+          "penalties": 0
+        }
+      },
+      "pred_score": {
+        "A": {
+          "points": 0,
+          "advantages": 0,
+          "penalties": 0
+        },
+        "B": {
+          "points": 6,
+          "advantages": 0,
+          "penalties": 0
+        }
+      },
+      "pts_abs_errors": [
+        0,
+        0
+      ],
+      "adv_abs_errors": [
+        0,
+        0
+      ],
+      "pen_abs_errors": [
+        0,
+        0
+      ],
+      "event_tp": 1,
+      "event_fp": 1,
+      "event_fn": 1,
+      "leakage_verified": true,
+      "latency_ms": 0.0,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "match_id": "flo-crown26-3mf7jDcht_8-m01",
+      "model_id": "scoreboard_crop_vision_ocr_v1",
+      "winner_ok": true,
+      "gt_winner": "A",
+      "pred_winner": "A",
+      "final_score_exact": true,
+      "gt_score": {
+        "A": {
+          "points": 4,
+          "advantages": 2,
+          "penalties": 1
+        },
+        "B": {
+          "points": 2,
+          "advantages": 0,
+          "penalties": 1
+        }
+      },
+      "pred_score": {
+        "A": {
+          "points": 4,
+          "advantages": 2,
+          "penalties": 1
+        },
+        "B": {
+          "points": 2,
+          "advantages": 0,
+          "penalties": 1
+        }
+      },
+      "pts_abs_errors": [
+        0,
+        0
+      ],
+      "adv_abs_errors": [
+        0,
+        0
+      ],
+      "pen_abs_errors": [
+        0,
+        0
+      ],
+      "event_tp": 7,
+      "event_fp": 0,
+      "event_fn": 0,
+      "leakage_verified": true,
+      "latency_ms": 0.0,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "match_id": "flo-crown26-3mf7jDcht_8-m03",
+      "model_id": "scoreboard_crop_vision_ocr_v1",
+      "winner_ok": true,
+      "gt_winner": "A",
+      "pred_winner": "A",
+      "final_score_exact": true,
+      "gt_score": {
+        "A": {
+          "points": 2,
+          "advantages": 2,
+          "penalties": 0
+        },
+        "B": {
+          "points": 2,
+          "advantages": 1,
+          "penalties": 0
+        }
+      },
+      "pred_score": {
+        "A": {
+          "points": 2,
+          "advantages": 2,
+          "penalties": 0
+        },
+        "B": {
+          "points": 2,
+          "advantages": 1,
+          "penalties": 0
+        }
+      },
+      "pts_abs_errors": [
+        0,
+        0
+      ],
+      "adv_abs_errors": [
+        0,
+        0
+      ],
+      "pen_abs_errors": [
+        0,
+        0
+      ],
+      "event_tp": 5,
+      "event_fp": 0,
+      "event_fn": 0,
+      "leakage_verified": true,
+      "latency_ms": 0.0,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "match_id": "flo-pans26-OElTQxqVr_o",
+      "model_id": "scoreboard_crop_vision_ocr_v1",
+      "winner_ok": true,
+      "gt_winner": "A",
+      "pred_winner": "A",
+      "final_score_exact": true,
+      "gt_score": {
+        "A": {
+          "points": 0,
+          "advantages": 1,
+          "penalties": 0
+        },
+        "B": {
+          "points": 0,
+          "advantages": 0,
+          "penalties": 0
+        }
+      },
+      "pred_score": {
+        "A": {
+          "points": 0,
+          "advantages": 1,
+          "penalties": 0
+        },
+        "B": {
+          "points": 0,
+          "advantages": 0,
+          "penalties": 0
+        }
+      },
+      "pts_abs_errors": [
+        0,
+        0
+      ],
+      "adv_abs_errors": [
+        0,
+        0
+      ],
+      "pen_abs_errors": [
+        0,
+        0
+      ],
+      "event_tp": 1,
+      "event_fp": 0,
+      "event_fn": 0,
+      "leakage_verified": true,
+      "latency_ms": 0.0,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "match_id": "flo-nogiw25-uNUo16LJ-UQ",
+      "model_id": "scoreboard_crop_vision_ocr_v1",
+      "winner_ok": false,
+      "gt_winner": "A",
+      "pred_winner": "B",
+      "final_score_exact": true,
+      "gt_score": {
+        "A": {
+          "points": 0,
+          "advantages": 0,
+          "penalties": 0
+        },
+        "B": {
+          "points": 0,
+          "advantages": 1,
+          "penalties": 0
+        }
+      },
+      "pred_score": {
+        "A": {
+          "points": 0,
+          "advantages": 0,
+          "penalties": 0
+        },
+        "B": {
+          "points": 0,
+          "advantages": 1,
+          "penalties": 0
+        }
+      },
+      "pts_abs_errors": [
+        0,
+        0
+      ],
+      "adv_abs_errors": [
+        0,
+        0
+      ],
+      "pen_abs_errors": [
+        0,
+        0
+      ],
+      "event_tp": 1,
+      "event_fp": 0,
+      "event_fn": 0,
+      "leakage_verified": true,
+      "latency_ms": 0.0,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0
+    }
+  ]
+}

@@ -1,0 +1,92 @@
+name: Deploy Cloud Run
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: deploy-cloudrun-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Build & Deploy to Cloud Run
+    if: github.repository == 'rollmetrics/rollmetrics' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud via Workload Identity Federation
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
+          service_account: ${{ secrets.GCP_DEPLOYER_SA }}
+
+      - name: Setup Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Artifact Registry Docker auth
+        run: gcloud auth configure-docker "${{ secrets.GCP_REGION }}-docker.pkg.dev" --quiet
+
+      - name: Build and push container image
+        env:
+          IMAGE_SHA: ${{ secrets.GCP_ARTIFACT_REPO }}/rollmetrics:${{ github.sha }}
+          IMAGE_LATEST: ${{ secrets.GCP_ARTIFACT_REPO }}/rollmetrics:latest
+        run: |
+          docker build -t "${IMAGE_SHA}" -t "${IMAGE_LATEST}" .
+          docker push "${IMAGE_SHA}"
+          docker push "${IMAGE_LATEST}"
+
+      - name: Deploy RollMetrics to Cloud Run
+        env:
+          IMAGE_SHA: ${{ secrets.GCP_ARTIFACT_REPO }}/rollmetrics:${{ github.sha }}
+          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+          GCP_REGION: ${{ secrets.GCP_REGION }}
+          GCP_RUNTIME_SA: ${{ secrets.GCP_RUNTIME_SA }}
+          ALLOWLIST_EMAILS: ${{ secrets.ROLLMETRICS_ALLOWLIST_EMAILS }}
+          OWNER_EMAIL: ${{ secrets.ROLLMETRICS_OWNER_EMAIL }}
+          PUBLIC_URL: ${{ secrets.ROLLMETRICS_PUBLIC_URL }}
+          DEFAULT_ACADEMY_ID: ${{ secrets.ROLLMETRICS_DEFAULT_ACADEMY_ID }}
+          ALLOW_OPEN_SIGNUP: ${{ secrets.ROLLMETRICS_ALLOW_OPEN_SIGNUP }}
+          GOOGLE_CLIENT_ID: ${{ secrets.ROLLMETRICS_GOOGLE_CLIENT_ID }}
+          GCS_BUCKET: ${{ secrets.ROLLMETRICS_GCS_BUCKET }}
+          FULL_SHA: ${{ github.sha }}
+        run: |
+          SHORT_SHA="${FULL_SHA:0:7}"
+          gcloud run deploy rollmetrics \
+            --project="${GCP_PROJECT_ID}" \
+            --region="${GCP_REGION}" \
+            --image="${IMAGE_SHA}" \
+            --service-account="${GCP_RUNTIME_SA}" \
+            --allow-unauthenticated \
+            --memory=2Gi \
+            --cpu=2 \
+            --timeout=600 \
+            --set-env-vars="^;^ROLLMETRICS_ENVIRONMENT=cloud;ROLLMETRICS_PROFILE=cloud;ROLLMETRICS_BUILD_SHA=${SHORT_SHA};ROLLMETRICS_ALLOWLIST_EMAILS=${ALLOWLIST_EMAILS};ROLLMETRICS_OWNER_EMAIL=${OWNER_EMAIL};ROLLMETRICS_DEFAULT_ACADEMY_ID=${DEFAULT_ACADEMY_ID};ROLLMETRICS_ALLOW_OPEN_SIGNUP=${ALLOW_OPEN_SIGNUP};ROLLMETRICS_ALLOW_LOCAL_DEV_BYPASS=false;ROLLMETRICS_PUBLIC_URL=${PUBLIC_URL};ROLLMETRICS_GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID};ROLLMETRICS_GCS_BUCKET=${GCS_BUCKET}" \
+            --set-secrets="GEMINI_API_KEY=GEMINI_API_KEY:latest,ROLLMETRICS_GEMINI_API_KEY=GEMINI_API_KEY:latest"
+
+      - name: Verify live Cloud Run health and production auth gate
+        env:
+          PUBLIC_URL: ${{ secrets.ROLLMETRICS_PUBLIC_URL }}
+        run: |
+          for i in $(seq 1 20); do
+            if curl -fsS "${PUBLIC_URL}/api/health" >/dev/null 2>&1; then
+              break
+            fi
+            sleep 2
+          done
+          curl -fsS "${PUBLIC_URL}/" >/dev/null
+          curl -fsS "${PUBLIC_URL}/api/health"
+          echo ""
+          STATUS_CODE="$(curl -s -o /dev/null -w "%{http_code}" "${PUBLIC_URL}/api/system/status")"
+          echo "Unauthenticated /api/system/status HTTP code: ${STATUS_CODE}"
+          if [ "${STATUS_CODE}" != "401" ] && [ "${STATUS_CODE}" != "403" ]; then
+            echo "Expected 401 or 403 for unauthenticated /api/system/status, got ${STATUS_CODE}"
+            exit 1
+          fi

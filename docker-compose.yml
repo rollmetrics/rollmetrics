@@ -1,0 +1,37 @@
+services:
+  rollmetrics:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rollmetrics
+    ports:
+      - "8090:8090"
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      PORT: "8090"
+      ROLLMETRICS_PORT: "8090"
+      ROLLMETRICS_ENVIRONMENT: ${ROLLMETRICS_ENVIRONMENT:-local}
+      ROLLMETRICS_PROFILE: ${ROLLMETRICS_PROFILE:-local}
+      ROLLMETRICS_OLLAMA_BASE_URL: ${ROLLMETRICS_OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+      ROLLMETRICS_OLLAMA_VISION_MODEL: ${ROLLMETRICS_OLLAMA_VISION_MODEL:-gemma4:e2b-it-q4_K_M}
+      ROLLMETRICS_OLLAMA_TEXT_MODEL: ${ROLLMETRICS_OLLAMA_TEXT_MODEL:-gemma4:e2b-it-q4_K_M}
+      ROLLMETRICS_ALLOWLIST_EMAILS: ${ROLLMETRICS_ALLOWLIST_EMAILS:-}
+      ROLLMETRICS_OWNER_EMAIL: ${ROLLMETRICS_OWNER_EMAIL:-}
+      ROLLMETRICS_DEFAULT_ACADEMY_ID: ${ROLLMETRICS_DEFAULT_ACADEMY_ID:-osjj-roadmap}
+      ROLLMETRICS_ALLOW_LOCAL_DEV_BYPASS: ${ROLLMETRICS_ALLOW_LOCAL_DEV_BYPASS:-true}
+      ROLLMETRICS_GOOGLE_CLIENT_ID: ${ROLLMETRICS_GOOGLE_CLIENT_ID:-}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      ROLLMETRICS_GEMINI_API_KEY: ${ROLLMETRICS_GEMINI_API_KEY:-${GEMINI_API_KEY:-}}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./data:/app/data
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8090/healthz"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped

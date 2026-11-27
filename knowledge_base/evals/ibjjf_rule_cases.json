@@ -1,0 +1,409 @@
+{
+  "version": "v0.1.0",
+  "cases": [
+    {
+      "id": "rule-01-adult-black-nogi-heelhook",
+      "mode": "legality",
+      "technique_slug": "heel_hook",
+      "belt": "black",
+      "uniform": "nogi",
+      "age_division": "adult",
+      "expected_severity": "legal",
+      "expected_article_substr": "6.2.3"
+    },
+    {
+      "id": "rule-02-adult-brown-nogi-heelhook",
+      "mode": "legality",
+      "technique_slug": "heel_hook",
+      "belt": "brown",
+      "uniform": "nogi",
+      "age_division": "adult",
+      "expected_severity": "legal",
+      "expected_article_substr": "6.2.3"
+    },
+    {
+      "id": "rule-03-adult-black-gi-heelhook-dq",
+      "mode": "legality",
+      "technique_slug": "heel_hook",
+      "belt": "black",
+      "uniform": "gi",
+      "age_division": "adult",
+      "expected_severity": "serious_foul_dq",
+      "expected_article_substr": "6.2.3"
+    },
+    {
+      "id": "rule-04-master-black-nogi-heelhook-dq",
+      "mode": "legality",
+      "technique_slug": "heel_hook",
+      "belt": "black",
+      "uniform": "nogi",
+      "age_division": "master",
+      "expected_severity": "serious_foul_dq",
+      "expected_article_substr": "6.2.3"
+    },
+    {
+      "id": "rule-05-adult-purple-nogi-heelhook-dq",
+      "mode": "legality",
+      "technique_slug": "heel_hook",
+      "belt": "purple",
+      "uniform": "nogi",
+      "age_division": "adult",
+      "expected_severity": "serious_foul_dq",
+      "expected_article_substr": "6.2.3"
+    },
+    {
+      "id": "rule-06-adult-brown-nogi-reap",
+      "mode": "legality",
+      "technique_slug": "knee_reap",
+      "belt": "brown",
+      "uniform": "nogi",
+      "age_division": "adult",
+      "expected_severity": "legal",
+      "expected_article_substr": "6.2.3"
+    },
+    {
+      "id": "rule-07-adult-black-nogi-reap",
+      "mode": "legality",
+      "technique_slug": "knee_reap",
+      "belt": "black",
+      "uniform": "nogi",
+      "age_division": "adult",
+      "expected_severity": "legal",
+      "expected_article_substr": "6.2.3"
+    },
+    {
+      "id": "rule-08-master-brown-nogi-reap-dq",
+      "mode": "legality",
+      "technique_slug": "knee_reap",
+      "belt": "brown",
+      "uniform": "nogi",
+      "age_division": "master",
+      "expected_severity": "serious_foul_dq",
+      "expected_article_substr": "6.2.3"
+    },
+    {
+      "id": "rule-09-adult-black-gi-reap-dq",
+      "mode": "legality",
+      "technique_slug": "knee_reap",
+      "belt": "black",
+      "uniform": "gi",
+      "age_division": "adult",
+      "expected_severity": "serious_foul_dq",
+      "expected_article_substr": "6.2.3"
+    },
+    {
+      "id": "rule-10-master-white-gi-jumping-guard-dq",
+      "mode": "legality",
+      "technique_slug": "jumping_closed_guard",
+      "belt": "white",
+      "uniform": "gi",
+      "age_division": "master",
+      "expected_severity": "serious_foul_dq",
+      "expected_article_substr": "6.2.2"
+    },
+    {
+      "id": "rule-11-adult-white-nogi-jumping-guard-dq",
+      "mode": "legality",
+      "technique_slug": "jumping_closed_guard",
+      "belt": "white",
+      "uniform": "nogi",
+      "age_division": "adult",
+      "expected_severity": "serious_foul_dq",
+      "expected_article_substr": "6.2.2"
+    },
+    {
+      "id": "rule-12-adult-blue-gi-jumping-guard-legal",
+      "mode": "legality",
+      "technique_slug": "jumping_closed_guard",
+      "belt": "blue",
+      "uniform": "gi",
+      "age_division": "adult",
+      "expected_severity": "legal",
+      "expected_article_substr": "6.2.2"
+    },
+    {
+      "id": "rule-13-master-white-gi-wristlock-dq",
+      "mode": "legality",
+      "technique_slug": "wristlock",
+      "belt": "white",
+      "uniform": "gi",
+      "age_division": "master",
+      "expected_severity": "serious_foul_dq",
+      "expected_article_substr": "6.2.2"
+    },
+    {
+      "id": "rule-14-juvenile-blue-gi-wristlock-dq",
+      "mode": "legality",
+      "technique_slug": "wristlock",
+      "belt": "blue",
+      "uniform": "gi",
+      "age_division": "juvenile",
+      "expected_severity": "serious_foul_dq",
+      "expected_article_substr": "6.2.2"
+    },
+    {
+      "id": "rule-15-master-blue-gi-wristlock-legal",
+      "mode": "legality",
+      "technique_slug": "wristlock",
+      "belt": "blue",
+      "uniform": "gi",
+      "age_division": "master",
+      "expected_severity": "legal",
+      "expected_article_substr": "6.2.2"
+    },
+    {
+      "id": "rule-16-adult-purple-nogi-wristlock-legal",
+      "mode": "legality",
+      "technique_slug": "wristlock",
+      "belt": "purple",
+      "uniform": "nogi",
+      "age_division": "adult",
+      "expected_severity": "legal",
+      "expected_article_substr": "6.2.2"
+    },
+    {
+      "id": "rule-17-master-white-gi-single-leg-head-outside-dq",
+      "mode": "legality",
+      "technique_slug": "single_leg_head_outside",
+      "belt": "white",
+      "uniform": "gi",
+      "age_division": "master",
+      "expected_severity": "serious_foul_dq",
+      "expected_article_substr": "6.2.2"
+    },
+    {
+      "id": "rule-18-juvenile-purple-gi-single-leg-head-outside-dq",
+      "mode": "legality",
+      "technique_slug": "single_leg_head_outside",
+      "belt": "purple",
+      "uniform": "gi",
+      "age_division": "juvenile",
+      "expected_severity": "serious_foul_dq",
+      "expected_article_substr": "6.2.2"
+    },
+    {
+      "id": "rule-19-adult-blue-gi-single-leg-head-outside-legal",
+      "mode": "legality",
+      "technique_slug": "single_leg_head_outside",
+      "belt": "blue",
+      "uniform": "gi",
+      "age_division": "adult",
+      "expected_severity": "legal",
+      "expected_article_substr": "6.2.2"
+    },
+    {
+      "id": "rule-20-adult-purple-gi-kneebar-dq",
+      "mode": "legality",
+      "technique_slug": "kneebar",
+      "belt": "purple",
+      "uniform": "gi",
+      "age_division": "adult",
+      "expected_severity": "serious_foul_dq",
+      "expected_article_substr": "6.2.2"
+    },
+    {
+      "id": "rule-21-master-brown-gi-kneebar-legal",
+      "mode": "legality",
+      "technique_slug": "kneebar",
+      "belt": "brown",
+      "uniform": "gi",
+      "age_division": "master",
+      "expected_severity": "legal",
+      "expected_article_substr": "6.2.2"
+    },
+    {
+      "id": "rule-22-juvenile-brown-gi-kneebar-dq",
+      "mode": "legality",
+      "technique_slug": "kneebar",
+      "belt": "brown",
+      "uniform": "gi",
+      "age_division": "juvenile",
+      "expected_severity": "serious_foul_dq",
+      "expected_article_substr": "6.2.2"
+    },
+    {
+      "id": "rule-23-adult-blue-nogi-toehold-dq",
+      "mode": "legality",
+      "technique_slug": "toe_hold",
+      "belt": "blue",
+      "uniform": "nogi",
+      "age_division": "adult",
+      "expected_severity": "serious_foul_dq",
+      "expected_article_substr": "6.2.2"
+    },
+    {
+      "id": "rule-24-adult-black-gi-toehold-legal",
+      "mode": "legality",
+      "technique_slug": "toe_hold",
+      "belt": "black",
+      "uniform": "gi",
+      "age_division": "adult",
+      "expected_severity": "legal",
+      "expected_article_substr": "6.2.2"
+    },
+    {
+      "id": "rule-25-master-purple-gi-bicep-slicer-dq",
+      "mode": "legality",
+      "technique_slug": "bicep_slicer",
+      "belt": "purple",
+      "uniform": "gi",
+      "age_division": "master",
+      "expected_severity": "serious_foul_dq",
+      "expected_article_substr": "6.2.2"
+    },
+    {
+      "id": "rule-26-master-brown-gi-bicep-slicer-legal",
+      "mode": "legality",
+      "technique_slug": "bicep_slicer",
+      "belt": "brown",
+      "uniform": "gi",
+      "age_division": "master",
+      "expected_severity": "legal",
+      "expected_article_substr": "6.2.2"
+    },
+    {
+      "id": "rule-27-adult-white-gi-calf-slicer-dq",
+      "mode": "legality",
+      "technique_slug": "calf_slicer",
+      "belt": "white",
+      "uniform": "gi",
+      "age_division": "adult",
+      "expected_severity": "serious_foul_dq",
+      "expected_article_substr": "6.2.2"
+    },
+    {
+      "id": "rule-28-adult-black-nogi-calf-slicer-legal",
+      "mode": "legality",
+      "technique_slug": "calf_slicer",
+      "belt": "black",
+      "uniform": "nogi",
+      "age_division": "adult",
+      "expected_severity": "legal",
+      "expected_article_substr": "6.2.2"
+    },
+    {
+      "id": "rule-29-adult-black-nogi-slam-dq",
+      "mode": "legality",
+      "technique_slug": "slam",
+      "belt": "black",
+      "uniform": "nogi",
+      "age_division": "adult",
+      "expected_severity": "serious_foul_dq",
+      "expected_article_substr": "6.2.3"
+    },
+    {
+      "id": "rule-30-adult-black-gi-spinal-lock-dq",
+      "mode": "legality",
+      "technique_slug": "spinal_lock_without_choke",
+      "belt": "black",
+      "uniform": "gi",
+      "age_division": "adult",
+      "expected_severity": "serious_foul_dq",
+      "expected_article_substr": "6.2.3"
+    },
+    {
+      "id": "rule-31-master-black-nogi-scissor-takedown-dq",
+      "mode": "legality",
+      "technique_slug": "scissor_takedown",
+      "belt": "black",
+      "uniform": "nogi",
+      "age_division": "master",
+      "expected_severity": "serious_foul_dq",
+      "expected_article_substr": "6.2.3"
+    },
+    {
+      "id": "rule-32-adult-brown-nogi-suplex-head-dq",
+      "mode": "legality",
+      "technique_slug": "suplex_head_neck",
+      "belt": "brown",
+      "uniform": "nogi",
+      "age_division": "adult",
+      "expected_severity": "serious_foul_dq",
+      "expected_article_substr": "6.2.3"
+    },
+    {
+      "id": "rule-33-master-white-gi-fingers-in-cuff-minor",
+      "mode": "legality",
+      "technique_slug": "fingers_inside_sleeve_or_pant_cuff",
+      "belt": "white",
+      "uniform": "gi",
+      "age_division": "master",
+      "expected_severity": "minor_foul",
+      "expected_article_substr": "6.3.2"
+    },
+    {
+      "id": "rule-34-adult-purple-nogi-grab-shorts-minor",
+      "mode": "legality",
+      "technique_slug": "grabbing_rashguard_or_shorts_nogi",
+      "belt": "purple",
+      "uniform": "nogi",
+      "age_division": "adult",
+      "expected_severity": "minor_foul",
+      "expected_article_substr": "6.3.2"
+    },
+    {
+      "id": "rule-35-adult-purple-gi-cloth-grip-legal",
+      "mode": "legality",
+      "technique_slug": "grabbing_rashguard_or_shorts_nogi",
+      "belt": "purple",
+      "uniform": "gi",
+      "age_division": "adult",
+      "expected_severity": "legal",
+      "expected_article_substr": "6.3.2"
+    },
+    {
+      "id": "rule-36-engine-guard-pass-3s-stabilized",
+      "mode": "scoring_event",
+      "belt": "white",
+      "uniform": "gi",
+      "age_division": "master",
+      "event": {
+        "timestamp_sec": 45.0,
+        "actor": "A",
+        "kind": "guard_pass",
+        "hold_duration_sec": 3.4,
+        "in_bounds": true,
+        "opponent_locked_submission": false
+      },
+      "expected_points": 3,
+      "expected_advantages": 0,
+      "expected_article_substr": "4.2"
+    },
+    {
+      "id": "rule-37-engine-guard-pass-under-3s-advantage",
+      "mode": "scoring_event",
+      "belt": "white",
+      "uniform": "gi",
+      "age_division": "master",
+      "event": {
+        "timestamp_sec": 60.0,
+        "actor": "A",
+        "kind": "guard_pass",
+        "hold_duration_sec": 1.9,
+        "in_bounds": true,
+        "opponent_locked_submission": false
+      },
+      "expected_points": 0,
+      "expected_advantages": 1,
+      "expected_article_substr": "5.2"
+    },
+    {
+      "id": "rule-38-engine-sweep-inside-locked-sub-advantage",
+      "mode": "scoring_event",
+      "belt": "blue",
+      "uniform": "gi",
+      "age_division": "adult",
+      "event": {
+        "timestamp_sec": 90.0,
+        "actor": "B",
+        "kind": "sweep",
+        "hold_duration_sec": 3.8,
+        "in_bounds": true,
+        "opponent_locked_submission": true
+      },
+      "expected_points": 0,
+      "expected_advantages": 1,
+      "expected_article_substr": "5.2"
+    }
+  ]
+}

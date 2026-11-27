@@ -1,0 +1,239 @@
+{
+  "version": "v0.1.0",
+  "queries": [
+    {
+      "id": "cta-q01-cg-overhook-choke",
+      "position": "closed_guard",
+      "situation": "deep overhook cross collar choke thumb up back of gi",
+      "belt": "white",
+      "expected_doc_ids": [
+        "cta-cg-overhook-collar-choke",
+        "cta-study-reel-ch08"
+      ]
+    },
+    {
+      "id": "cta-q02-cg-overhook-triangle",
+      "position": "closed_guard",
+      "situation": "overhook triangle setup when opponent pushes elbow down",
+      "belt": "white",
+      "expected_doc_ids": [
+        "cta-cg-overhook-triangle",
+        "cta-sterling-u9wc0sjd8yk",
+        "cta-sterling-eibhbwsecaw"
+      ]
+    },
+    {
+      "id": "cta-q03-cg-armdrag-pendulum-mount",
+      "position": "closed_guard",
+      "situation": "two on one arm drag across centerline to back take or pendulum sweep to mount",
+      "belt": "white",
+      "expected_doc_ids": [
+        "cta-cg-armdrag-to-pendulum-and-back"
+      ]
+    },
+    {
+      "id": "cta-q04-cg-shoulder-clamp",
+      "position": "closed_guard",
+      "situation": "90 degree shoulder clamp guard anti stack against opponent tripod",
+      "belt": "white",
+      "expected_doc_ids": [
+        "cta-cg-shoulder-clamp-anti-stack"
+      ]
+    },
+    {
+      "id": "cta-q05-cg-double-ankle-sweep",
+      "position": "closed_guard",
+      "situation": "opponent stands up in closed guard grab both ankles dummy sweep",
+      "belt": "white",
+      "expected_doc_ids": [
+        "cta-cg-standing-double-ankle-sweep",
+        "cta-sterling--ths5rdgsk8",
+        "cta-study-reel-ch05"
+      ]
+    },
+    {
+      "id": "cta-q06-cg-underhook-leg-sweep",
+      "position": "closed_guard",
+      "situation": "standing opponent strip sleeve grip underhook leg waiter sweep to mount",
+      "belt": "white",
+      "expected_doc_ids": [
+        "cta-cg-standing-underhook-sweep-to-mount",
+        "cta-study-reel-ch06"
+      ]
+    },
+    {
+      "id": "cta-q07-cg-posture-break-kimura",
+      "position": "closed_guard",
+      "situation": "breaking posture opening elbows and kimura setup without sitting up",
+      "belt": "white",
+      "expected_doc_ids": [
+        "cta-cg-posture-breaks-and-kimura-no-situp",
+        "cta-sterling-32srjlx0byu"
+      ]
+    },
+    {
+      "id": "cta-q08-cg-armbar-inside-triangle",
+      "position": "closed_guard",
+      "situation": "highest percentage armbar thumb up and inside triangle straight armbar",
+      "belt": "white",
+      "expected_doc_ids": [
+        "cta-cg-highest-pct-armbar-and-inside-triangle-armbar",
+        "cta-study-reel-ch02"
+      ]
+    },
+    {
+      "id": "cta-q09-cg-triangle-mechanics-shin-pin",
+      "position": "closed_guard",
+      "situation": "triangle finishing mechanics hamstring bite shin pin vs belt grips",
+      "belt": "white",
+      "expected_doc_ids": [
+        "cta-cg-triangle-finishing-and-shin-pin",
+        "cta-study-reel-ch03",
+        "cta-study-reel-ch04"
+      ]
+    },
+    {
+      "id": "cta-q10-cg-double-under-counter",
+      "position": "closed_guard",
+      "situation": "early collar frame shoulder walk and triangle counter vs double under stack pass",
+      "belt": "white",
+      "expected_doc_ids": [
+        "cta-cg-double-under-stack-counter",
+        "cta-study-reel-ch01"
+      ]
+    },
+    {
+      "id": "cta-q11-cg-omoplata-overhook",
+      "position": "closed_guard",
+      "situation": "omoplata sweep and submission from modified overhook",
+      "belt": "white",
+      "expected_doc_ids": [
+        "cta-cg-omoplata-modified-overhook"
+      ]
+    },
+    {
+      "id": "cta-q12-hg-smash-pass-frames",
+      "position": "half_guard",
+      "situation": "defending leg hug and smash pass with early collar and bicep frames",
+      "belt": "white",
+      "expected_doc_ids": [
+        "cta-hg-beating-smash-pass-frames"
+      ]
+    },
+    {
+      "id": "cta-q13-hg-underhook-back-take",
+      "position": "half_guard",
+      "situation": "low underhook to dogfight sweep and taking the back from half guard",
+      "belt": "white",
+      "expected_doc_ids": [
+        "cta-hg-underhook-to-back-take",
+        "cta-sterling-93pvjltg8au"
+      ]
+    },
+    {
+      "id": "cta-q14-hg-loop-choke",
+      "position": "half_guard",
+      "situation": "knee shield thumb down loop choke against head down passer",
+      "belt": "white",
+      "expected_doc_ids": [
+        "cta-hg-thumb-down-loop-choke"
+      ]
+    },
+    {
+      "id": "cta-q15-sc-bottom-escape",
+      "position": "side_control",
+      "situation": "bottom side control forearm hip frame shrimp knee elbow guard recovery",
+      "belt": "white",
+      "expected_doc_ids": [
+        "cta-sc-bottom-hip-frame-knee-elbow-escape",
+        "cta-sc-bottom-north-south-retention-triangle"
+      ]
+    },
+    {
+      "id": "cta-q16-sc-top-kob-kimura",
+      "position": "side_control",
+      "situation": "top side control knee on belly transition kimura and armlock",
+      "belt": "white",
+      "expected_doc_ids": [
+        "cta-sc-top-kob-kimura-armlock",
+        "cta-sterling-iypwhq3i2g0",
+        "cta-sterling-dlo6fohyx_0"
+      ]
+    },
+    {
+      "id": "cta-q17-mount-bottom-escape",
+      "position": "mount",
+      "situation": "bottom mount hip frame snake and elbow knee escape to half guard",
+      "belt": "white",
+      "expected_doc_ids": [
+        "cta-mt-bottom-hip-frame-elbow-knee-escape",
+        "cta-mt-bottom-upa-and-submission-defense"
+      ]
+    },
+    {
+      "id": "cta-q18-mount-top-choke-armbar",
+      "position": "mount",
+      "situation": "walking to high mount cross collar choke and s-mount armbar",
+      "belt": "white",
+      "expected_doc_ids": [
+        "cta-mt-top-high-mount-choke-and-smount-armbar"
+      ]
+    },
+    {
+      "id": "cta-q19-turtle-bottom-recovery",
+      "position": "turtle",
+      "situation": "bottom turtle protect hooks hip roll back to closed guard or sit out reversal",
+      "belt": "white",
+      "expected_doc_ids": [
+        "cta-tr-bottom-turtle-guard-roll-and-sitout"
+      ]
+    },
+    {
+      "id": "cta-q20-turtle-top-breakdown",
+      "position": "turtle",
+      "situation": "top turtle front headlock hip pin seat belt hook insertion and darce choke",
+      "belt": "white",
+      "expected_doc_ids": [
+        "cta-tr-top-turtle-breakdown-hooks-and-chokes",
+        "cta-sterling-ruby8uvtgba"
+      ]
+    },
+    {
+      "id": "cta-q21-back-control-chokes-escape",
+      "position": "back_control",
+      "situation": "back control uncrossed hooks sliding collar bow and arrow choke",
+      "belt": "white",
+      "expected_doc_ids": [
+        "cta-bk-back-control-hooks-collar-and-rnc",
+        "cta-sterling-akod9hkzgc8"
+      ]
+    },
+    {
+      "id": "cta-q22-butterfly-sweeps",
+      "position": "butterfly_guard",
+      "situation": "butterfly guard posture hook sweep and collar drag",
+      "belt": "white",
+      "expected_doc_ids": [
+        "cta-bf-butterfly-sweeps-collar-drag-and-loop-choke"
+      ]
+    },
+    {
+      "id": "cta-q23-standing-pass-toreando-kneecut",
+      "position": "standing_pass",
+      "situation": "standing guard pass safe distance ankle collar toreando and knee cut",
+      "belt": "white",
+      "expected_doc_ids": [
+        "cta-sp-standing-passes-toreando-and-kneecut"
+      ]
+    },
+    {
+      "id": "cta-q24-takedowns-guard-pull-foot-on-hip",
+      "position": "takedowns",
+      "situation": "collar and four finger cuff guard pull with foot on sleeve controlled hip",
+      "belt": "white",
+      "expected_doc_ids": [
+        "cta-td-collar-sleeve-guard-pull-foot-on-hip"
+      ]
+    }
+  ]
+}

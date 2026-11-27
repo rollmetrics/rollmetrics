@@ -1,0 +1,101 @@
+"""Scoreboard-Grounded Video Scoring Benchmark (rollmetrics-scoreboard-v1)."""
+
+from __future__ import annotations
+
+from rollmetrics.evals.scoreboard_bench.labeler import (
+    compute_spot_check_report,
+    derive_events_from_readings,
+    extract_scoreboard_strip_sheets,
+    label_match_from_scoreboard_crops,
+    label_match_from_scoreboard_crops_local_ocr,
+)
+from rollmetrics.evals.scoreboard_bench.masking import (
+    assert_frame_leakage_free,
+    create_masked_video_clip,
+    crop_scoreboard_only,
+    mask_frame_scoreboard,
+    render_masked_video,
+)
+from rollmetrics.evals.scoreboard_bench.metrics import (
+    aggregate_split_metrics,
+    match_score_events_f1,
+    score_match_prediction,
+)
+from rollmetrics.evals.scoreboard_bench.runner import (
+    DEFAULT_SCOREBOARD_MODELS,
+    adjudicate_raw_events_to_prediction,
+    build_masked_storyboard_sheets,
+    load_labels_jsonl,
+    load_matches_jsonl,
+    run_scoreboard_bench,
+    score_masked_match_live,
+    score_masked_video_agentic,
+    write_labels_jsonl,
+    write_matches_jsonl,
+)
+from rollmetrics.evals.scoreboard_bench.schema import (
+    OVERLAY_PRESETS,
+    CompactScore,
+    GroundTruthMatchLabel,
+    HoldoutContaminationError,
+    MatchManifestEntry,
+    MatchPredictionRecord,
+    NormalizedBox,
+    OverlayPreset,
+    PredictedScoreEvent,
+    ScoreboardBenchMetrics,
+    ScoreboardLeakageError,
+    ScoreboardSplitManifest,
+    ScoreDeltaEvent,
+)
+from rollmetrics.evals.scoreboard_bench.splits import (
+    build_deterministic_splits,
+    compute_splits_content_hash,
+    enforce_split_discipline,
+    load_and_verify_splits,
+    write_splits_manifest,
+)
+
+__all__ = [
+    "DEFAULT_SCOREBOARD_MODELS",
+    "OVERLAY_PRESETS",
+    "CompactScore",
+    "GroundTruthMatchLabel",
+    "HoldoutContaminationError",
+    "MatchManifestEntry",
+    "MatchPredictionRecord",
+    "NormalizedBox",
+    "OverlayPreset",
+    "PredictedScoreEvent",
+    "ScoreDeltaEvent",
+    "ScoreboardBenchMetrics",
+    "ScoreboardLeakageError",
+    "ScoreboardSplitManifest",
+    "adjudicate_raw_events_to_prediction",
+    "aggregate_split_metrics",
+    "assert_frame_leakage_free",
+    "build_deterministic_splits",
+    "build_masked_storyboard_sheets",
+    "compute_splits_content_hash",
+    "compute_spot_check_report",
+    "create_masked_video_clip",
+    "crop_scoreboard_only",
+    "derive_events_from_readings",
+    "enforce_split_discipline",
+    "extract_scoreboard_strip_sheets",
+    "label_match_from_scoreboard_crops",
+    "label_match_from_scoreboard_crops_local_ocr",
+    "load_and_verify_splits",
+    "load_labels_jsonl",
+    "load_matches_jsonl",
+    "mask_frame_scoreboard",
+    "match_score_events_f1",
+    "render_masked_video",
+    "run_scoreboard_bench",
+    "score_masked_match_live",
+    "score_masked_video_agentic",
+    "score_match_prediction",
+    "write_labels_jsonl",
+    "write_matches_jsonl",
+    "write_splits_manifest",
+]

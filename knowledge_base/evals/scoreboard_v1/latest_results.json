@@ -1,0 +1,8202 @@
+{
+  "benchmark_id": "rollmetrics-scoreboard-v1",
+  "evaluated_at": "2026-11-27T15:13:33+00:00",
+  "split": "heldout",
+  "tuning_mode": false,
+  "corpus_total_matches": 122,
+  "labeled_matches": 122,
+  "evaluated_matches_in_split": 81,
+  "splits_content_sha256": "07c4febe68caa6af5a42d41b6c6450be99f7f2844041782c7dcbd67504f34036",
+  "leakage_control": "strict_blackout_drawbox_plus_pixel_edge_ocr_gate",
+  "spot_check_audit": {
+    "spot_checked_matches": 8,
+    "labeler_winner_accuracy": 0.75,
+    "labeler_final_score_exact_match": 0.75,
+    "labeler_mae_points": 0.625,
+    "labeler_mae_advantages": 0.0625,
+    "labeler_mae_penalties": 0.125,
+    "labeler_score_event_f1": 0.7059
+  },
+  "models": [
+    {
+      "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+      "split": "heldout",
+      "match_count": 81,
+      "winner_accuracy": 0.0247,
+      "final_score_exact_match": 0.0494,
+      "mae_points": 2.4012,
+      "mae_advantages": 1.1173,
+      "mae_penalties": 0.5679,
+      "score_event_precision": 0.0,
+      "score_event_recall": 0.0,
+      "score_event_f1": 0.0,
+      "event_tolerance_sec": 5.0,
+      "p50_latency_ms": 6282.5,
+      "p95_latency_ms": 7002.9,
+      "mean_latency_ms": 6252.1,
+      "mean_cost_per_match_usd": 0.0,
+      "total_cost_usd": 0.0,
+      "leakage_checks_passed": 81
+    },
+    {
+      "model_id": "ollama/gemma4:e2b-it-q4_K_M-agentic",
+      "split": "heldout",
+      "match_count": 9,
+      "winner_accuracy": 0.5556,
+      "final_score_exact_match": 0.0,
+      "mae_points": 1.9444,
+      "mae_advantages": 0.8889,
+      "mae_penalties": 0.1111,
+      "score_event_precision": 0.0417,
+      "score_event_recall": 0.0435,
+      "score_event_f1": 0.0426,
+      "event_tolerance_sec": 5.0,
+      "p50_latency_ms": 234169.7,
+      "p95_latency_ms": 273823.6,
+      "mean_latency_ms": 237651.8,
+      "mean_cost_per_match_usd": 0.0,
+      "total_cost_usd": 0.0,
+      "leakage_checks_passed": 9
+    },
+    {
+      "model_id": "gemma-4-26b-a4b-it",
+      "split": "heldout",
+      "match_count": 20,
+      "winner_accuracy": 0.55,
+      "final_score_exact_match": 0.0,
+      "mae_points": 10.325,
+      "mae_advantages": 0.775,
+      "mae_penalties": 0.525,
+      "score_event_precision": 0.0,
+      "score_event_recall": 0.0,
+      "score_event_f1": 0.0,
+      "event_tolerance_sec": 5.0,
+      "p50_latency_ms": 21669.8,
+      "p95_latency_ms": 43551.1,
+      "mean_latency_ms": 23972.4,
+      "mean_cost_per_match_usd": 0.00048,
+      "total_cost_usd": 0.00966,
+      "leakage_checks_passed": 20
+    },
+    {
+      "model_id": "gemini-4-hydrogen",
+      "split": "heldout",
+      "match_count": 20,
+      "winner_accuracy": 0.5,
+      "final_score_exact_match": 0.1,
+      "mae_points": 1.6,
+      "mae_advantages": 0.725,
+      "mae_penalties": 0.525,
+      "score_event_precision": 0.0667,
+      "score_event_recall": 0.0253,
+      "score_event_f1": 0.0367,
+      "event_tolerance_sec": 5.0,
+      "p50_latency_ms": 8103.1,
+      "p95_latency_ms": 9317.1,
+      "mean_latency_ms": 8095.4,
+      "mean_cost_per_match_usd": 0.00261,
+      "total_cost_usd": 0.05211,
+      "leakage_checks_passed": 20
+    },
+    {
+      "model_id": "gemini-4-hydrogen-agentic",
+      "split": "heldout",
+      "match_count": 10,
+      "winner_accuracy": 1.0,
+      "final_score_exact_match": 0.1,
+      "mae_points": 0.9,
+      "mae_advantages": 0.6,
+      "mae_penalties": 0.2,
+      "score_event_precision": 0.2632,
+      "score_event_recall": 0.1923,
+      "score_event_f1": 0.2222,
+      "event_tolerance_sec": 5.0,
+      "p50_latency_ms": 37543.6,
+      "p95_latency_ms": 76096.5,
+      "mean_latency_ms": 43331.8,
+      "mean_cost_per_match_usd": 0.00769,
+      "total_cost_usd": 0.07693,
+      "leakage_checks_passed": 10
+    },
+    {
+      "model_id": "gemini-4-neon-agentic",
+      "split": "heldout",
+      "match_count": 10,
+      "winner_accuracy": 0.9,
+      "final_score_exact_match": 0.3,
+      "mae_points": 1.2,
+      "mae_advantages": 0.45,
+      "mae_penalties": 0.1,
+      "score_event_precision": 0.2593,
+      "score_event_recall": 0.2692,
+      "score_event_f1": 0.2642,
+      "event_tolerance_sec": 5.0,
+      "p50_latency_ms": 283812.0,
+      "p95_latency_ms": 378267.7,
+      "mean_latency_ms": 263344.5,
+      "mean_cost_per_match_usd": 0.20783,
+      "total_cost_usd": 2.07829,
+      "leakage_checks_passed": 10
+    }
+  ],
+  "per_match_details": {
+    "ollama/gemma4:e2b-it-q4_K_M": [
+      {
+        "match_id": "flo-crown26-3mf7jDcht_8-m01",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "A",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 4,
+            "advantages": 2,
+            "penalties": 1
+          },
+          "B": {
+            "points": 2,
+            "advantages": 0,
+            "penalties": 1
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          4,
+          2
+        ],
+        "adv_abs_errors": [
+          2,
+          0
+        ],
+        "pen_abs_errors": [
+          1,
+          1
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 7,
+        "leakage_verified": true,
+        "latency_ms": 4594.7,
+        "input_tokens": 1317,
+        "output_tokens": 48,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-crown26-3mf7jDcht_8-m02",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "A",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 2,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 1,
+            "advantages": 1,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          2,
+          1
+        ],
+        "adv_abs_errors": [
+          0,
+          1
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 3,
+        "leakage_verified": true,
+        "latency_ms": 4532.5,
+        "input_tokens": 1317,
+        "output_tokens": 48,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-crown26-3mf7jDcht_8-m03",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "A",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 2,
+            "advantages": 2,
+            "penalties": 0
+          },
+          "B": {
+            "points": 2,
+            "advantages": 1,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          2,
+          2
+        ],
+        "adv_abs_errors": [
+          2,
+          1
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 5,
+        "leakage_verified": true,
+        "latency_ms": 4410.5,
+        "input_tokens": 1317,
+        "output_tokens": 46,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-pans26-GN774DWPK-0",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "A",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 2,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          2
+        ],
+        "adv_abs_errors": [
+          0,
+          0
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 1,
+        "leakage_verified": true,
+        "latency_ms": 4768.0,
+        "input_tokens": 1317,
+        "output_tokens": 61,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-pans26-OElTQxqVr_o",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "A",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 1,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          0
+        ],
+        "adv_abs_errors": [
+          1,
+          0
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 1,
+        "leakage_verified": true,
+        "latency_ms": 4654.2,
+        "input_tokens": 1317,
+        "output_tokens": 53,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-nogiw25-x9PuYEbtfLE",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "B",
+        "pred_winner": "referee_decision",
+        "final_score_exact": true,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          0
+        ],
+        "adv_abs_errors": [
+          0,
+          0
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 0,
+        "leakage_verified": true,
+        "latency_ms": 5025.7,
+        "input_tokens": 1323,
+        "output_tokens": 39,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-nogiw25-uNUo16LJ-UQ",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "A",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 1,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          0
+        ],
+        "adv_abs_errors": [
+          0,
+          1
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 1,
+        "leakage_verified": true,
+        "latency_ms": 5459.2,
+        "input_tokens": 1322,
+        "output_tokens": 39,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2026-pans-1AraE8uGHGE",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "B",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 1,
+            "penalties": 0
+          },
+          "B": {
+            "points": 9,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          9
+        ],
+        "adv_abs_errors": [
+          1,
+          0
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 3,
+        "leakage_verified": true,
+        "latency_ms": 6244.5,
+        "input_tokens": 1317,
+        "output_tokens": 53,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2025-pans-3rI5NZrELEI",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "B",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 6,
+            "advantages": 1,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          6
+        ],
+        "adv_abs_errors": [
+          0,
+          1
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 3,
+        "leakage_verified": true,
+        "latency_ms": 5767.0,
+        "input_tokens": 1317,
+        "output_tokens": 46,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2026-worlds-4oknOi3OFAw",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "A",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 1,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 1,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          0
+        ],
+        "adv_abs_errors": [
+          1,
+          1
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 2,
+        "leakage_verified": true,
+        "latency_ms": 6301.4,
+        "input_tokens": 1317,
+        "output_tokens": 48,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2025-worlds-69Gixyk3JSk",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "A",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 2,
+            "advantages": 0,
+            "penalties": 1
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 1
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          2,
+          0
+        ],
+        "adv_abs_errors": [
+          0,
+          0
+        ],
+        "pen_abs_errors": [
+          1,
+          1
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 3,
+        "leakage_verified": true,
+        "latency_ms": 6359.8,
+        "input_tokens": 1317,
+        "output_tokens": 48,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2025-euros-729k4AvpAL0",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "B",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 2,
+            "advantages": 2,
+            "penalties": 0
+          },
+          "B": {
+            "points": 11,
+            "advantages": 1,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          2,
+          11
+        ],
+        "adv_abs_errors": [
+          2,
+          1
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 6,
+        "leakage_verified": true,
+        "latency_ms": 6490.2,
+        "input_tokens": 1317,
+        "output_tokens": 48,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2025-pans-7hNCkgmSdbE",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "A",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 2,
+            "penalties": 1
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 1
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          0
+        ],
+        "adv_abs_errors": [
+          2,
+          0
+        ],
+        "pen_abs_errors": [
+          1,
+          1
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 4,
+        "leakage_verified": true,
+        "latency_ms": 6163.8,
+        "input_tokens": 1317,
+        "output_tokens": 41,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2025-worlds-BplNp1W3P2w",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "B",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 2,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 2,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          2,
+          2
+        ],
+        "adv_abs_errors": [
+          0,
+          0
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 3,
+        "leakage_verified": true,
+        "latency_ms": 6068.4,
+        "input_tokens": 1317,
+        "output_tokens": 50,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2026-pans-CFaVnKn9Wjk",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "B",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 1
+          },
+          "B": {
+            "points": 0,
+            "advantages": 3,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          0
+        ],
+        "adv_abs_errors": [
+          0,
+          3
+        ],
+        "pen_abs_errors": [
+          1,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 4,
+        "leakage_verified": true,
+        "latency_ms": 7140.1,
+        "input_tokens": 1317,
+        "output_tokens": 41,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2025-euros-D8FeAWzXUxU",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "A",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 6,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          6,
+          0
+        ],
+        "adv_abs_errors": [
+          0,
+          0
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 2,
+        "leakage_verified": true,
+        "latency_ms": 6488.0,
+        "input_tokens": 1317,
+        "output_tokens": 48,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2026-worlds-HFs52T0vuGI",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "A",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 9,
+            "advantages": 2,
+            "penalties": 2
+          },
+          "B": {
+            "points": 0,
+            "advantages": 1,
+            "penalties": 3
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          9,
+          0
+        ],
+        "adv_abs_errors": [
+          2,
+          1
+        ],
+        "pen_abs_errors": [
+          2,
+          3
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 9,
+        "leakage_verified": true,
+        "latency_ms": 6187.0,
+        "input_tokens": 1317,
+        "output_tokens": 55,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2026-pans-I6lfC1B9g84",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "A",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 2,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 2,
+            "penalties": 1
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          2,
+          0
+        ],
+        "adv_abs_errors": [
+          0,
+          2
+        ],
+        "pen_abs_errors": [
+          0,
+          1
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 4,
+        "leakage_verified": true,
+        "latency_ms": 6441.3,
+        "input_tokens": 1317,
+        "output_tokens": 53,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2026-euros-LaIHmr1VoGw",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "A",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 2,
+            "penalties": 1
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 1
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          0
+        ],
+        "adv_abs_errors": [
+          2,
+          0
+        ],
+        "pen_abs_errors": [
+          1,
+          1
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 4,
+        "leakage_verified": true,
+        "latency_ms": 6593.5,
+        "input_tokens": 1317,
+        "output_tokens": 53,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2026-euros-MUAMVq1nllw",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "B",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 2,
+            "advantages": 2,
+            "penalties": 3
+          },
+          "B": {
+            "points": 4,
+            "advantages": 2,
+            "penalties": 3
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          2,
+          4
+        ],
+        "adv_abs_errors": [
+          2,
+          2
+        ],
+        "pen_abs_errors": [
+          3,
+          3
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 14,
+        "leakage_verified": true,
+        "latency_ms": 6706.0,
+        "input_tokens": 1317,
+        "output_tokens": 57,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2026-worlds-NvHubMKgf1E-m01",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "B",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 3,
+            "advantages": 1,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          3
+        ],
+        "adv_abs_errors": [
+          0,
+          1
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 3,
+        "leakage_verified": true,
+        "latency_ms": 7412.6,
+        "input_tokens": 1317,
+        "output_tokens": 53,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2026-worlds-NvHubMKgf1E-m02",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "B",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 1
+          },
+          "B": {
+            "points": 0,
+            "advantages": 1,
+            "penalties": 1
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          0
+        ],
+        "adv_abs_errors": [
+          0,
+          1
+        ],
+        "pen_abs_errors": [
+          1,
+          1
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 3,
+        "leakage_verified": true,
+        "latency_ms": 6135.5,
+        "input_tokens": 1317,
+        "output_tokens": 41,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2026-worlds-NvHubMKgf1E-m03",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "A",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 10,
+            "advantages": 3,
+            "penalties": 1
+          },
+          "B": {
+            "points": 6,
+            "advantages": 2,
+            "penalties": 1
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          10,
+          6
+        ],
+        "adv_abs_errors": [
+          3,
+          2
+        ],
+        "pen_abs_errors": [
+          1,
+          1
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 16,
+        "leakage_verified": true,
+        "latency_ms": 6735.8,
+        "input_tokens": 1317,
+        "output_tokens": 55,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2026-worlds-NvHubMKgf1E-m04",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "A",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 9,
+            "advantages": 2,
+            "penalties": 2
+          },
+          "B": {
+            "points": 0,
+            "advantages": 1,
+            "penalties": 3
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          9,
+          0
+        ],
+        "adv_abs_errors": [
+          2,
+          1
+        ],
+        "pen_abs_errors": [
+          2,
+          3
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 9,
+        "leakage_verified": true,
+        "latency_ms": 6352.4,
+        "input_tokens": 1317,
+        "output_tokens": 45,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2026-worlds-OKbu_rJUY7A-m01",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "B",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 3,
+            "advantages": 0,
+            "penalties": 3
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          3
+        ],
+        "adv_abs_errors": [
+          0,
+          0
+        ],
+        "pen_abs_errors": [
+          0,
+          3
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 3,
+        "leakage_verified": true,
+        "latency_ms": 6463.9,
+        "input_tokens": 1317,
+        "output_tokens": 64,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2026-worlds-OKbu_rJUY7A-m02",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "A",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 1,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          0
+        ],
+        "adv_abs_errors": [
+          1,
+          0
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 1,
+        "leakage_verified": true,
+        "latency_ms": 7864.4,
+        "input_tokens": 1317,
+        "output_tokens": 48,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2026-worlds-OKbu_rJUY7A-m03",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "A",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 2,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          0
+        ],
+        "adv_abs_errors": [
+          2,
+          0
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 1,
+        "leakage_verified": true,
+        "latency_ms": 6952.4,
+        "input_tokens": 1316,
+        "output_tokens": 42,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2025-worlds-QeRM7SwYPzo",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "B",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 1,
+            "penalties": 2
+          },
+          "B": {
+            "points": 0,
+            "advantages": 3,
+            "penalties": 1
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          0
+        ],
+        "adv_abs_errors": [
+          1,
+          3
+        ],
+        "pen_abs_errors": [
+          2,
+          1
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 7,
+        "leakage_verified": true,
+        "latency_ms": 6428.8,
+        "input_tokens": 1317,
+        "output_tokens": 55,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2025-nogiworld-Qqa1MfhikuM",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "A",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 6,
+            "advantages": 2,
+            "penalties": 3
+          },
+          "B": {
+            "points": 2,
+            "advantages": 3,
+            "penalties": 3
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          6,
+          2
+        ],
+        "adv_abs_errors": [
+          2,
+          3
+        ],
+        "pen_abs_errors": [
+          3,
+          3
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 15,
+        "leakage_verified": true,
+        "latency_ms": 5113.2,
+        "input_tokens": 1331,
+        "output_tokens": 2,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2025-nogiworld-S5gt7WveN5U",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "B",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 1,
+            "penalties": 0
+          },
+          "B": {
+            "points": 6,
+            "advantages": 1,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          6
+        ],
+        "adv_abs_errors": [
+          1,
+          1
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 4,
+        "leakage_verified": true,
+        "latency_ms": 6388.8,
+        "input_tokens": 1331,
+        "output_tokens": 48,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2026-thecrown-TMbYq9048Nw",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "B",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 1,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          0
+        ],
+        "adv_abs_errors": [
+          1,
+          0
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 1,
+        "leakage_verified": true,
+        "latency_ms": 5451.3,
+        "input_tokens": 1317,
+        "output_tokens": 34,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2025-euros-TPXYm9Z1ebU",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "B",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 2,
+            "advantages": 5,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          2
+        ],
+        "adv_abs_errors": [
+          0,
+          5
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 2,
+        "leakage_verified": true,
+        "latency_ms": 6872.7,
+        "input_tokens": 1317,
+        "output_tokens": 55,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2026-nogieuros-TyjpaGJUzdk-m01",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "A",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 5,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          5,
+          0
+        ],
+        "adv_abs_errors": [
+          0,
+          0
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 1,
+        "leakage_verified": true,
+        "latency_ms": 6473.8,
+        "input_tokens": 1331,
+        "output_tokens": 44,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2026-nogieuros-TyjpaGJUzdk-m02",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "B",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 11,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          11
+        ],
+        "adv_abs_errors": [
+          0,
+          0
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 4,
+        "leakage_verified": true,
+        "latency_ms": 6111.8,
+        "input_tokens": 1331,
+        "output_tokens": 37,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2026-nogieuros-TyjpaGJUzdk-m03",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "A",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 7,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 11,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          7,
+          11
+        ],
+        "adv_abs_errors": [
+          0,
+          0
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 3,
+        "leakage_verified": true,
+        "latency_ms": 6586.2,
+        "input_tokens": 1331,
+        "output_tokens": 39,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2026-nogieuros-TyjpaGJUzdk-m04",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "B",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 2,
+            "penalties": 0
+          },
+          "B": {
+            "points": 11,
+            "advantages": 1,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          11
+        ],
+        "adv_abs_errors": [
+          2,
+          1
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 7,
+        "leakage_verified": true,
+        "latency_ms": 6227.3,
+        "input_tokens": 1331,
+        "output_tokens": 44,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2026-nogieuros-TyjpaGJUzdk-m05",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "B",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 11,
+            "advantages": 1,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          11
+        ],
+        "adv_abs_errors": [
+          0,
+          1
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 5,
+        "leakage_verified": true,
+        "latency_ms": 6965.7,
+        "input_tokens": 1331,
+        "output_tokens": 37,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2026-worlds-V4c_pfpjUZQ",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "A",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 4,
+            "advantages": 1,
+            "penalties": 1
+          },
+          "B": {
+            "points": 0,
+            "advantages": 1,
+            "penalties": 1
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          4,
+          0
+        ],
+        "adv_abs_errors": [
+          1,
+          1
+        ],
+        "pen_abs_errors": [
+          1,
+          1
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 5,
+        "leakage_verified": true,
+        "latency_ms": 6147.9,
+        "input_tokens": 1317,
+        "output_tokens": 45,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2025-pans-Vg1YF_aLyVk",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "B",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 2,
+            "penalties": 1
+          },
+          "B": {
+            "points": 4,
+            "advantages": 0,
+            "penalties": 1
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          4
+        ],
+        "adv_abs_errors": [
+          2,
+          0
+        ],
+        "pen_abs_errors": [
+          1,
+          1
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 6,
+        "leakage_verified": true,
+        "latency_ms": 6790.9,
+        "input_tokens": 1317,
+        "output_tokens": 55,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2026-nogipans-W7AsE2SdXPc",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "A",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 3,
+            "advantages": 1,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 1,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          3,
+          0
+        ],
+        "adv_abs_errors": [
+          1,
+          1
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 3,
+        "leakage_verified": true,
+        "latency_ms": 5969.3,
+        "input_tokens": 1331,
+        "output_tokens": 39,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2026-thecrown-XaJtZBxO4I4",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "B",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 3,
+            "penalties": 1
+          },
+          "B": {
+            "points": 2,
+            "advantages": 1,
+            "penalties": 2
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          2
+        ],
+        "adv_abs_errors": [
+          3,
+          1
+        ],
+        "pen_abs_errors": [
+          1,
+          2
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 8,
+        "leakage_verified": true,
+        "latency_ms": 6282.5,
+        "input_tokens": 1317,
+        "output_tokens": 53,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2025-pans-Yr2MDZcal9o",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "A",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 12,
+            "advantages": 1,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          12,
+          0
+        ],
+        "adv_abs_errors": [
+          1,
+          0
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 6,
+        "leakage_verified": true,
+        "latency_ms": 6869.2,
+        "input_tokens": 1317,
+        "output_tokens": 51,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2024-nogiworld-aMszi7XhsDw",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "B",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 2,
+            "advantages": 1,
+            "penalties": 0
+          },
+          "B": {
+            "points": 2,
+            "advantages": 2,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          2,
+          2
+        ],
+        "adv_abs_errors": [
+          1,
+          2
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 6,
+        "leakage_verified": true,
+        "latency_ms": 6445.4,
+        "input_tokens": 1331,
+        "output_tokens": 39,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2026-thecrown-b9IvD33EsSQ",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "B",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 4,
+            "advantages": 5,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          4
+        ],
+        "adv_abs_errors": [
+          0,
+          5
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 5,
+        "leakage_verified": true,
+        "latency_ms": 5995.9,
+        "input_tokens": 1317,
+        "output_tokens": 46,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2025-euros-cPR6S7LuyR8",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "A",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 2,
+            "advantages": 1,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 2,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          2,
+          0
+        ],
+        "adv_abs_errors": [
+          1,
+          2
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 4,
+        "leakage_verified": true,
+        "latency_ms": 6443.3,
+        "input_tokens": 1317,
+        "output_tokens": 51,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2026-euros-clbjP1h0TmI-m01",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "A",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 2,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 1,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          2,
+          0
+        ],
+        "adv_abs_errors": [
+          0,
+          1
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 2,
+        "leakage_verified": true,
+        "latency_ms": 6882.1,
+        "input_tokens": 1318,
+        "output_tokens": 67,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2026-euros-clbjP1h0TmI-m02",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "B",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 2,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 4,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          2,
+          4
+        ],
+        "adv_abs_errors": [
+          0,
+          0
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 3,
+        "leakage_verified": true,
+        "latency_ms": 6059.3,
+        "input_tokens": 1318,
+        "output_tokens": 39,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2026-euros-clbjP1h0TmI-m03",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "B",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 6,
+            "advantages": 1,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          6
+        ],
+        "adv_abs_errors": [
+          0,
+          1
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 3,
+        "leakage_verified": true,
+        "latency_ms": 6980.7,
+        "input_tokens": 1318,
+        "output_tokens": 53,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2026-euros-clbjP1h0TmI-m04",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "B",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 2,
+            "penalties": 3
+          },
+          "B": {
+            "points": 4,
+            "advantages": 0,
+            "penalties": 2
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          4
+        ],
+        "adv_abs_errors": [
+          2,
+          0
+        ],
+        "pen_abs_errors": [
+          3,
+          2
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 8,
+        "leakage_verified": true,
+        "latency_ms": 5947.7,
+        "input_tokens": 1318,
+        "output_tokens": 41,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2026-worlds-hd5EvoQ_DK0-m01",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "A",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 13,
+            "advantages": 3,
+            "penalties": 0
+          },
+          "B": {
+            "points": 2,
+            "advantages": 1,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          13,
+          2
+        ],
+        "adv_abs_errors": [
+          3,
+          1
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 10,
+        "leakage_verified": true,
+        "latency_ms": 6225.8,
+        "input_tokens": 1317,
+        "output_tokens": 46,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2026-worlds-hd5EvoQ_DK0-m02",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "A",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 13,
+            "advantages": 3,
+            "penalties": 0
+          },
+          "B": {
+            "points": 2,
+            "advantages": 1,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          13,
+          2
+        ],
+        "adv_abs_errors": [
+          3,
+          1
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 2,
+        "leakage_verified": true,
+        "latency_ms": 6014.5,
+        "input_tokens": 1317,
+        "output_tokens": 39,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2026-worlds-hd5EvoQ_DK0-m03",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "A",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 4,
+            "advantages": 3,
+            "penalties": 2
+          },
+          "B": {
+            "points": 2,
+            "advantages": 1,
+            "penalties": 2
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          4,
+          2
+        ],
+        "adv_abs_errors": [
+          3,
+          1
+        ],
+        "pen_abs_errors": [
+          2,
+          2
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 9,
+        "leakage_verified": true,
+        "latency_ms": 6132.5,
+        "input_tokens": 1317,
+        "output_tokens": 42,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2026-worlds-hd5EvoQ_DK0-m04",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "A",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 4,
+            "advantages": 8,
+            "penalties": 1
+          },
+          "B": {
+            "points": 4,
+            "advantages": 0,
+            "penalties": 1
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          4,
+          4
+        ],
+        "adv_abs_errors": [
+          8,
+          0
+        ],
+        "pen_abs_errors": [
+          1,
+          1
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 11,
+        "leakage_verified": true,
+        "latency_ms": 6560.6,
+        "input_tokens": 1317,
+        "output_tokens": 55,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2026-worlds-hd5EvoQ_DK0-m05",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "A",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 2,
+            "advantages": 3,
+            "penalties": 3
+          },
+          "B": {
+            "points": 2,
+            "advantages": 2,
+            "penalties": 3
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          2,
+          2
+        ],
+        "adv_abs_errors": [
+          3,
+          2
+        ],
+        "pen_abs_errors": [
+          3,
+          3
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 9,
+        "leakage_verified": true,
+        "latency_ms": 7039.5,
+        "input_tokens": 1317,
+        "output_tokens": 55,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2026-euros-imG7R5oURTY",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "A",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 3,
+            "penalties": 1
+          },
+          "B": {
+            "points": 2,
+            "advantages": 4,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          2
+        ],
+        "adv_abs_errors": [
+          3,
+          4
+        ],
+        "pen_abs_errors": [
+          1,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 6,
+        "leakage_verified": true,
+        "latency_ms": 6170.6,
+        "input_tokens": 1317,
+        "output_tokens": 46,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2025-euros-jROIXF3YmUg",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "B",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 2,
+            "advantages": 0,
+            "penalties": 2
+          },
+          "B": {
+            "points": 2,
+            "advantages": 2,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          2,
+          2
+        ],
+        "adv_abs_errors": [
+          0,
+          2
+        ],
+        "pen_abs_errors": [
+          2,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 6,
+        "leakage_verified": true,
+        "latency_ms": 6694.7,
+        "input_tokens": 1317,
+        "output_tokens": 64,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2025-pans-jbznucyvsRY",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "A",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 2,
+            "advantages": 1,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          2,
+          0
+        ],
+        "adv_abs_errors": [
+          1,
+          0
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 2,
+        "leakage_verified": true,
+        "latency_ms": 6940.5,
+        "input_tokens": 1317,
+        "output_tokens": 53,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2026-euros-lSPRiiEsihE",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "A",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 2,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 1,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          0
+        ],
+        "adv_abs_errors": [
+          2,
+          1
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 2,
+        "leakage_verified": true,
+        "latency_ms": 6706.7,
+        "input_tokens": 1317,
+        "output_tokens": 51,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2025-pans-oWVUjZm-ZUc",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "B",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 4,
+            "advantages": 5,
+            "penalties": 0
+          },
+          "B": {
+            "points": 16,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          4,
+          16
+        ],
+        "adv_abs_errors": [
+          5,
+          0
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 11,
+        "leakage_verified": true,
+        "latency_ms": 6830.6,
+        "input_tokens": 1317,
+        "output_tokens": 48,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2025-worlds-qLu_id2RKyE",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "B",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 2,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 3,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          2,
+          0
+        ],
+        "adv_abs_errors": [
+          0,
+          3
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 4,
+        "leakage_verified": true,
+        "latency_ms": 5800.2,
+        "input_tokens": 1317,
+        "output_tokens": 46,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2025-worlds-qQVToPK7vcc",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "A",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 5,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 1,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          0
+        ],
+        "adv_abs_errors": [
+          5,
+          1
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 5,
+        "leakage_verified": true,
+        "latency_ms": 6076.3,
+        "input_tokens": 1317,
+        "output_tokens": 48,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2026-pans-s18pfxJimpo",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "A",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 2,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          0
+        ],
+        "adv_abs_errors": [
+          2,
+          0
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 1,
+        "leakage_verified": true,
+        "latency_ms": 5744.4,
+        "input_tokens": 1317,
+        "output_tokens": 34,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2025-worlds-sFQNoy9utGA",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "A",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 5,
+            "advantages": 1,
+            "penalties": 1
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          5,
+          0
+        ],
+        "adv_abs_errors": [
+          1,
+          0
+        ],
+        "pen_abs_errors": [
+          1,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 4,
+        "leakage_verified": true,
+        "latency_ms": 6248.5,
+        "input_tokens": 1317,
+        "output_tokens": 39,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2026-worlds-ua9NzBhXjSw",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": true,
+        "gt_winner": "referee_decision",
+        "pred_winner": "referee_decision",
+        "final_score_exact": true,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          0
+        ],
+        "adv_abs_errors": [
+          0,
+          0
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 0,
+        "leakage_verified": true,
+        "latency_ms": 6211.8,
+        "input_tokens": 1317,
+        "output_tokens": 53,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2026-euros-uvqDePsY050-m01",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "A",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 4,
+            "advantages": 2,
+            "penalties": 1
+          },
+          "B": {
+            "points": 2,
+            "advantages": 0,
+            "penalties": 1
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          4,
+          2
+        ],
+        "adv_abs_errors": [
+          2,
+          0
+        ],
+        "pen_abs_errors": [
+          1,
+          1
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 7,
+        "leakage_verified": true,
+        "latency_ms": 6738.7,
+        "input_tokens": 1317,
+        "output_tokens": 50,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2026-euros-uvqDePsY050-m02",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "B",
+        "pred_winner": "referee_decision",
+        "final_score_exact": true,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          0
+        ],
+        "adv_abs_errors": [
+          0,
+          0
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 0,
+        "leakage_verified": true,
+        "latency_ms": 6198.5,
+        "input_tokens": 1317,
+        "output_tokens": 39,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2026-euros-uvqDePsY050-m03",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "A",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 11,
+            "advantages": 2,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          11,
+          0
+        ],
+        "adv_abs_errors": [
+          2,
+          0
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 7,
+        "leakage_verified": true,
+        "latency_ms": 6286.5,
+        "input_tokens": 1317,
+        "output_tokens": 43,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2026-worlds-xQr4puVVRVo",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "A",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 2,
+            "advantages": 1,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          2,
+          0
+        ],
+        "adv_abs_errors": [
+          1,
+          0
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 2,
+        "leakage_verified": true,
+        "latency_ms": 6703.8,
+        "input_tokens": 1317,
+        "output_tokens": 50,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2026-nogieuros-y6ZtTDocjus-m01",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": true,
+        "gt_winner": "referee_decision",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 1
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 1
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          0
+        ],
+        "adv_abs_errors": [
+          0,
+          0
+        ],
+        "pen_abs_errors": [
+          1,
+          1
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 2,
+        "leakage_verified": true,
+        "latency_ms": 6146.4,
+        "input_tokens": 1331,
+        "output_tokens": 39,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2026-nogieuros-y6ZtTDocjus-m02",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "A",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 1,
+            "penalties": 1
+          },
+          "B": {
+            "points": 2,
+            "advantages": 0,
+            "penalties": 1
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          2
+        ],
+        "adv_abs_errors": [
+          1,
+          0
+        ],
+        "pen_abs_errors": [
+          1,
+          1
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 4,
+        "leakage_verified": true,
+        "latency_ms": 6082.5,
+        "input_tokens": 1331,
+        "output_tokens": 42,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2026-nogieuros-y6ZtTDocjus-m03",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "A",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 1,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 2,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          0
+        ],
+        "adv_abs_errors": [
+          1,
+          2
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 2,
+        "leakage_verified": true,
+        "latency_ms": 6173.3,
+        "input_tokens": 1331,
+        "output_tokens": 39,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2026-nogieuros-y6ZtTDocjus-m04",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "B",
+        "pred_winner": "referee_decision",
+        "final_score_exact": true,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          0
+        ],
+        "adv_abs_errors": [
+          0,
+          0
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 0,
+        "leakage_verified": true,
+        "latency_ms": 6601.1,
+        "input_tokens": 1330,
+        "output_tokens": 39,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2026-nogieuros-y6ZtTDocjus-m05",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "A",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 2,
+            "advantages": 1,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 2,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          2,
+          0
+        ],
+        "adv_abs_errors": [
+          1,
+          2
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 3,
+        "leakage_verified": true,
+        "latency_ms": 6066.0,
+        "input_tokens": 1331,
+        "output_tokens": 39,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2026-nogieuros-y6ZtTDocjus-m06",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "A",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 4,
+            "penalties": 2
+          },
+          "B": {
+            "points": 0,
+            "advantages": 2,
+            "penalties": 2
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          0
+        ],
+        "adv_abs_errors": [
+          4,
+          2
+        ],
+        "pen_abs_errors": [
+          2,
+          2
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 9,
+        "leakage_verified": true,
+        "latency_ms": 5820.2,
+        "input_tokens": 1331,
+        "output_tokens": 39,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2025-worlds-z4A0Vfkn-cc-m01",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "B",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 4,
+            "advantages": 2,
+            "penalties": 3
+          },
+          "B": {
+            "points": 6,
+            "advantages": 2,
+            "penalties": 3
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          4,
+          6
+        ],
+        "adv_abs_errors": [
+          2,
+          2
+        ],
+        "pen_abs_errors": [
+          3,
+          3
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 14,
+        "leakage_verified": true,
+        "latency_ms": 6519.7,
+        "input_tokens": 1317,
+        "output_tokens": 48,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2025-worlds-z4A0Vfkn-cc-m02",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "A",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 6,
+            "advantages": 3,
+            "penalties": 1
+          },
+          "B": {
+            "points": 4,
+            "advantages": 0,
+            "penalties": 3
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          6,
+          4
+        ],
+        "adv_abs_errors": [
+          3,
+          0
+        ],
+        "pen_abs_errors": [
+          1,
+          3
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 11,
+        "leakage_verified": true,
+        "latency_ms": 6065.4,
+        "input_tokens": 1317,
+        "output_tokens": 42,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2025-worlds-z4A0Vfkn-cc-m03",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "B",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 2,
+            "advantages": 2,
+            "penalties": 0
+          },
+          "B": {
+            "points": 4,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          2,
+          4
+        ],
+        "adv_abs_errors": [
+          2,
+          0
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 5,
+        "leakage_verified": true,
+        "latency_ms": 6219.1,
+        "input_tokens": 1317,
+        "output_tokens": 34,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2025-worlds-z4A0Vfkn-cc-m04",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "A",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 2,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 2,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          2,
+          2
+        ],
+        "adv_abs_errors": [
+          0,
+          0
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 3,
+        "leakage_verified": true,
+        "latency_ms": 7002.9,
+        "input_tokens": 1317,
+        "output_tokens": 46,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2026-thecrown-zdxtFxqv3Hs-m01",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "A",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 1,
+            "penalties": 0
+          },
+          "B": {
+            "points": 10,
+            "advantages": 4,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          10
+        ],
+        "adv_abs_errors": [
+          1,
+          4
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 7,
+        "leakage_verified": true,
+        "latency_ms": 5850.1,
+        "input_tokens": 1317,
+        "output_tokens": 48,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2026-thecrown-zdxtFxqv3Hs-m02",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "B",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 2,
+            "advantages": 0,
+            "penalties": 1
+          },
+          "B": {
+            "points": 2,
+            "advantages": 1,
+            "penalties": 1
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          2,
+          2
+        ],
+        "adv_abs_errors": [
+          0,
+          1
+        ],
+        "pen_abs_errors": [
+          1,
+          1
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 5,
+        "leakage_verified": true,
+        "latency_ms": 6387.1,
+        "input_tokens": 1317,
+        "output_tokens": 48,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2026-thecrown-zdxtFxqv3Hs-m03",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "winner_ok": false,
+        "gt_winner": "B",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 2,
+            "advantages": 1,
+            "penalties": 0
+          },
+          "B": {
+            "points": 9,
+            "advantages": 1,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          2,
+          9
+        ],
+        "adv_abs_errors": [
+          1,
+          1
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 6,
+        "leakage_verified": true,
+        "latency_ms": 6413.8,
+        "input_tokens": 1317,
+        "output_tokens": 46,
+        "cost_usd": 0.0
+      }
+    ],
+    "ollama/gemma4:e2b-it-q4_K_M-agentic": [
+      {
+        "match_id": "flo-crown26-3mf7jDcht_8-m01",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M-agentic",
+        "winner_ok": false,
+        "gt_winner": "A",
+        "pred_winner": "B",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 4,
+            "advantages": 2,
+            "penalties": 1
+          },
+          "B": {
+            "points": 2,
+            "advantages": 0,
+            "penalties": 1
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 2,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 1,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          4,
+          2
+        ],
+        "adv_abs_errors": [
+          0,
+          1
+        ],
+        "pen_abs_errors": [
+          1,
+          1
+        ],
+        "event_tp": 0,
+        "event_fp": 3,
+        "event_fn": 7,
+        "leakage_verified": true,
+        "latency_ms": 239493.0,
+        "input_tokens": 8441,
+        "output_tokens": 9207,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-crown26-3mf7jDcht_8-m03",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M-agentic",
+        "winner_ok": true,
+        "gt_winner": "A",
+        "pred_winner": "A",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 2,
+            "advantages": 2,
+            "penalties": 0
+          },
+          "B": {
+            "points": 2,
+            "advantages": 1,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 4,
+            "advantages": 1,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          2,
+          2
+        ],
+        "adv_abs_errors": [
+          1,
+          1
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 2,
+        "event_fn": 5,
+        "leakage_verified": true,
+        "latency_ms": 256861.6,
+        "input_tokens": 8655,
+        "output_tokens": 9752,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-pans26-GN774DWPK-0",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M-agentic",
+        "winner_ok": false,
+        "gt_winner": "A",
+        "pred_winner": "B",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 2,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 1,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          2
+        ],
+        "adv_abs_errors": [
+          0,
+          1
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 1,
+        "event_fn": 1,
+        "leakage_verified": true,
+        "latency_ms": 275105.6,
+        "input_tokens": 8746,
+        "output_tokens": 9528,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-pans26-OElTQxqVr_o",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M-agentic",
+        "winner_ok": true,
+        "gt_winner": "A",
+        "pred_winner": "A",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 1,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 4,
+            "advantages": 1,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          4,
+          0
+        ],
+        "adv_abs_errors": [
+          0,
+          0
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 2,
+        "event_fn": 1,
+        "leakage_verified": true,
+        "latency_ms": 271900.7,
+        "input_tokens": 8449,
+        "output_tokens": 9525,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-nogiw25-x9PuYEbtfLE",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M-agentic",
+        "winner_ok": false,
+        "gt_winner": "B",
+        "pred_winner": "A",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 1,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 1,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          0
+        ],
+        "adv_abs_errors": [
+          1,
+          1
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 2,
+        "event_fn": 0,
+        "leakage_verified": true,
+        "latency_ms": 167971.8,
+        "input_tokens": 6493,
+        "output_tokens": 6296,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-nogiw25-uNUo16LJ-UQ",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M-agentic",
+        "winner_ok": true,
+        "gt_winner": "A",
+        "pred_winner": "A",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 1,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 1,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          0
+        ],
+        "adv_abs_errors": [
+          1,
+          1
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 1,
+        "event_fn": 1,
+        "leakage_verified": true,
+        "latency_ms": 231219.0,
+        "input_tokens": 8489,
+        "output_tokens": 8886,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2026-pans-1AraE8uGHGE",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M-agentic",
+        "winner_ok": true,
+        "gt_winner": "B",
+        "pred_winner": "B",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 1,
+            "penalties": 0
+          },
+          "B": {
+            "points": 9,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 3,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 1,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          9
+        ],
+        "adv_abs_errors": [
+          2,
+          1
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 4,
+        "event_fn": 3,
+        "leakage_verified": true,
+        "latency_ms": 229131.9,
+        "input_tokens": 6557,
+        "output_tokens": 9527,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2025-pans-3rI5NZrELEI",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M-agentic",
+        "winner_ok": false,
+        "gt_winner": "B",
+        "pred_winner": "A",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 6,
+            "advantages": 1,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 3,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 2,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          6
+        ],
+        "adv_abs_errors": [
+          3,
+          1
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 5,
+        "event_fn": 3,
+        "leakage_verified": true,
+        "latency_ms": 234169.7,
+        "input_tokens": 6360,
+        "output_tokens": 9020,
+        "cost_usd": 0.0
+      },
+      {
+        "match_id": "flo-2026-worlds-4oknOi3OFAw",
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M-agentic",
+        "winner_ok": true,
+        "gt_winner": "A",
+        "pred_winner": "A",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 1,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 1,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 4,
+            "advantages": 2,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 1,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          4,
+          0
+        ],
+        "adv_abs_errors": [
+          1,
+          0
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 1,
+        "event_fp": 3,
+        "event_fn": 1,
+        "leakage_verified": true,
+        "latency_ms": 233012.8,
+        "input_tokens": 6104,
+        "output_tokens": 8169,
+        "cost_usd": 0.0
+      }
+    ],
+    "gemma-4-26b-a4b-it": [
+      {
+        "match_id": "flo-crown26-3mf7jDcht_8-m01",
+        "model_id": "gemma-4-26b-a4b-it",
+        "winner_ok": false,
+        "gt_winner": "A",
+        "pred_winner": "B",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 4,
+            "advantages": 2,
+            "penalties": 1
+          },
+          "B": {
+            "points": 2,
+            "advantages": 0,
+            "penalties": 1
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 2,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 19,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          2,
+          17
+        ],
+        "adv_abs_errors": [
+          2,
+          0
+        ],
+        "pen_abs_errors": [
+          1,
+          1
+        ],
+        "event_tp": 0,
+        "event_fp": 7,
+        "event_fn": 7,
+        "leakage_verified": true,
+        "latency_ms": 16944.0,
+        "input_tokens": 2376,
+        "output_tokens": 657,
+        "cost_usd": 0.000435
+      },
+      {
+        "match_id": "flo-crown26-3mf7jDcht_8-m02",
+        "model_id": "gemma-4-26b-a4b-it",
+        "winner_ok": true,
+        "gt_winner": "A",
+        "pred_winner": "A",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 2,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 1,
+            "advantages": 1,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 19,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          17,
+          1
+        ],
+        "adv_abs_errors": [
+          0,
+          1
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 5,
+        "event_fn": 3,
+        "leakage_verified": true,
+        "latency_ms": 13066.8,
+        "input_tokens": 2376,
+        "output_tokens": 477,
+        "cost_usd": 0.000381
+      },
+      {
+        "match_id": "flo-crown26-3mf7jDcht_8-m03",
+        "model_id": "gemma-4-26b-a4b-it",
+        "winner_ok": false,
+        "gt_winner": "A",
+        "pred_winner": "B",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 2,
+            "advantages": 2,
+            "penalties": 0
+          },
+          "B": {
+            "points": 2,
+            "advantages": 1,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 28,
+            "advantages": 1,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          2,
+          26
+        ],
+        "adv_abs_errors": [
+          2,
+          0
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 8,
+        "event_fn": 5,
+        "leakage_verified": true,
+        "latency_ms": 21858.7,
+        "input_tokens": 2376,
+        "output_tokens": 872,
+        "cost_usd": 0.000499
+      },
+      {
+        "match_id": "flo-pans26-GN774DWPK-0",
+        "model_id": "gemma-4-26b-a4b-it",
+        "winner_ok": false,
+        "gt_winner": "A",
+        "pred_winner": "B",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 2,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 11,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          9
+        ],
+        "adv_abs_errors": [
+          0,
+          0
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 3,
+        "event_fn": 1,
+        "leakage_verified": true,
+        "latency_ms": 13687.3,
+        "input_tokens": 2376,
+        "output_tokens": 496,
+        "cost_usd": 0.000386
+      },
+      {
+        "match_id": "flo-pans26-OElTQxqVr_o",
+        "model_id": "gemma-4-26b-a4b-it",
+        "winner_ok": true,
+        "gt_winner": "A",
+        "pred_winner": "A",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 1,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 16,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          16,
+          0
+        ],
+        "adv_abs_errors": [
+          1,
+          0
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 5,
+        "event_fn": 1,
+        "leakage_verified": true,
+        "latency_ms": 11844.5,
+        "input_tokens": 2376,
+        "output_tokens": 409,
+        "cost_usd": 0.00036
+      },
+      {
+        "match_id": "flo-nogiw25-x9PuYEbtfLE",
+        "model_id": "gemma-4-26b-a4b-it",
+        "winner_ok": true,
+        "gt_winner": "B",
+        "pred_winner": "B",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 3,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          3
+        ],
+        "adv_abs_errors": [
+          0,
+          0
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 1,
+        "event_fn": 0,
+        "leakage_verified": true,
+        "latency_ms": 42569.4,
+        "input_tokens": 2382,
+        "output_tokens": 272,
+        "cost_usd": 0.00032
+      },
+      {
+        "match_id": "flo-nogiw25-uNUo16LJ-UQ",
+        "model_id": "gemma-4-26b-a4b-it",
+        "winner_ok": false,
+        "gt_winner": "A",
+        "pred_winner": "B",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 1,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 15,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          15,
+          0
+        ],
+        "adv_abs_errors": [
+          0,
+          1
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 4,
+        "event_fn": 1,
+        "leakage_verified": true,
+        "latency_ms": 15912.8,
+        "input_tokens": 2381,
+        "output_tokens": 580,
+        "cost_usd": 0.000412
+      },
+      {
+        "match_id": "flo-2026-pans-1AraE8uGHGE",
+        "model_id": "gemma-4-26b-a4b-it",
+        "winner_ok": true,
+        "gt_winner": "B",
+        "pred_winner": "B",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 1,
+            "penalties": 0
+          },
+          "B": {
+            "points": 9,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 35,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          26
+        ],
+        "adv_abs_errors": [
+          1,
+          0
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 9,
+        "event_fn": 3,
+        "leakage_verified": true,
+        "latency_ms": 19945.0,
+        "input_tokens": 2376,
+        "output_tokens": 801,
+        "cost_usd": 0.000478
+      },
+      {
+        "match_id": "flo-2025-pans-3rI5NZrELEI",
+        "model_id": "gemma-4-26b-a4b-it",
+        "winner_ok": true,
+        "gt_winner": "B",
+        "pred_winner": "B",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 6,
+            "advantages": 1,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          6
+        ],
+        "adv_abs_errors": [
+          0,
+          1
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 3,
+        "leakage_verified": true,
+        "latency_ms": 19412.9,
+        "input_tokens": 2376,
+        "output_tokens": 770,
+        "cost_usd": 0.000469
+      },
+      {
+        "match_id": "flo-2026-worlds-4oknOi3OFAw",
+        "model_id": "gemma-4-26b-a4b-it",
+        "winner_ok": true,
+        "gt_winner": "A",
+        "pred_winner": "A",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 1,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 1,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 27,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          27,
+          0
+        ],
+        "adv_abs_errors": [
+          1,
+          1
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 7,
+        "event_fn": 2,
+        "leakage_verified": true,
+        "latency_ms": 16322.3,
+        "input_tokens": 2376,
+        "output_tokens": 703,
+        "cost_usd": 0.000449
+      },
+      {
+        "match_id": "flo-2025-worlds-69Gixyk3JSk",
+        "model_id": "gemma-4-26b-a4b-it",
+        "winner_ok": false,
+        "gt_winner": "A",
+        "pred_winner": "B",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 2,
+            "advantages": 0,
+            "penalties": 1
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 1
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 24,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          2,
+          24
+        ],
+        "adv_abs_errors": [
+          0,
+          0
+        ],
+        "pen_abs_errors": [
+          1,
+          1
+        ],
+        "event_tp": 0,
+        "event_fp": 6,
+        "event_fn": 3,
+        "leakage_verified": true,
+        "latency_ms": 24064.2,
+        "input_tokens": 2376,
+        "output_tokens": 946,
+        "cost_usd": 0.000521
+      },
+      {
+        "match_id": "flo-2025-euros-729k4AvpAL0",
+        "model_id": "gemma-4-26b-a4b-it",
+        "winner_ok": true,
+        "gt_winner": "B",
+        "pred_winner": "B",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 2,
+            "advantages": 2,
+            "penalties": 0
+          },
+          "B": {
+            "points": 11,
+            "advantages": 1,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 40,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          2,
+          29
+        ],
+        "adv_abs_errors": [
+          2,
+          1
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 10,
+        "event_fn": 6,
+        "leakage_verified": true,
+        "latency_ms": 27607.8,
+        "input_tokens": 2376,
+        "output_tokens": 1166,
+        "cost_usd": 0.000587
+      },
+      {
+        "match_id": "flo-2025-pans-7hNCkgmSdbE",
+        "model_id": "gemma-4-26b-a4b-it",
+        "winner_ok": true,
+        "gt_winner": "A",
+        "pred_winner": "A",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 2,
+            "penalties": 1
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 1
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 17,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          17,
+          0
+        ],
+        "adv_abs_errors": [
+          2,
+          0
+        ],
+        "pen_abs_errors": [
+          1,
+          1
+        ],
+        "event_tp": 0,
+        "event_fp": 6,
+        "event_fn": 4,
+        "leakage_verified": true,
+        "latency_ms": 23346.4,
+        "input_tokens": 2376,
+        "output_tokens": 971,
+        "cost_usd": 0.000529
+      },
+      {
+        "match_id": "flo-2025-worlds-BplNp1W3P2w",
+        "model_id": "gemma-4-26b-a4b-it",
+        "winner_ok": false,
+        "gt_winner": "B",
+        "pred_winner": "A",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 2,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 2,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 19,
+            "advantages": 1,
+            "penalties": 0
+          },
+          "B": {
+            "points": 4,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          17,
+          2
+        ],
+        "adv_abs_errors": [
+          1,
+          0
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 8,
+        "event_fn": 3,
+        "leakage_verified": true,
+        "latency_ms": 21481.0,
+        "input_tokens": 2376,
+        "output_tokens": 876,
+        "cost_usd": 0.0005
+      },
+      {
+        "match_id": "flo-2026-pans-CFaVnKn9Wjk",
+        "model_id": "gemma-4-26b-a4b-it",
+        "winner_ok": true,
+        "gt_winner": "B",
+        "pred_winner": "B",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 1
+          },
+          "B": {
+            "points": 0,
+            "advantages": 3,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 26,
+            "advantages": 1,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          26
+        ],
+        "adv_abs_errors": [
+          0,
+          2
+        ],
+        "pen_abs_errors": [
+          1,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 10,
+        "event_fn": 4,
+        "leakage_verified": true,
+        "latency_ms": 62204.1,
+        "input_tokens": 2376,
+        "output_tokens": 1030,
+        "cost_usd": 0.000547
+      },
+      {
+        "match_id": "flo-2025-euros-D8FeAWzXUxU",
+        "model_id": "gemma-4-26b-a4b-it",
+        "winner_ok": false,
+        "gt_winner": "A",
+        "pred_winner": "B",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 6,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 22,
+            "advantages": 1,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          6,
+          22
+        ],
+        "adv_abs_errors": [
+          0,
+          1
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 7,
+        "event_fn": 2,
+        "leakage_verified": true,
+        "latency_ms": 22861.1,
+        "input_tokens": 2376,
+        "output_tokens": 929,
+        "cost_usd": 0.000516
+      },
+      {
+        "match_id": "flo-2026-worlds-HFs52T0vuGI",
+        "model_id": "gemma-4-26b-a4b-it",
+        "winner_ok": false,
+        "gt_winner": "A",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 9,
+            "advantages": 2,
+            "penalties": 2
+          },
+          "B": {
+            "points": 0,
+            "advantages": 1,
+            "penalties": 3
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          9,
+          0
+        ],
+        "adv_abs_errors": [
+          2,
+          1
+        ],
+        "pen_abs_errors": [
+          2,
+          3
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 9,
+        "leakage_verified": true,
+        "latency_ms": 41172.7,
+        "input_tokens": 2376,
+        "output_tokens": 1786,
+        "cost_usd": 0.000773
+      },
+      {
+        "match_id": "flo-2026-pans-I6lfC1B9g84",
+        "model_id": "gemma-4-26b-a4b-it",
+        "winner_ok": false,
+        "gt_winner": "A",
+        "pred_winner": "B",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 2,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 2,
+            "penalties": 1
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 64,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          2,
+          64
+        ],
+        "adv_abs_errors": [
+          0,
+          2
+        ],
+        "pen_abs_errors": [
+          0,
+          1
+        ],
+        "event_tp": 0,
+        "event_fp": 16,
+        "event_fn": 4,
+        "leakage_verified": true,
+        "latency_ms": 30675.6,
+        "input_tokens": 2376,
+        "output_tokens": 1301,
+        "cost_usd": 0.000628
+      },
+      {
+        "match_id": "flo-2026-euros-LaIHmr1VoGw",
+        "model_id": "gemma-4-26b-a4b-it",
+        "winner_ok": true,
+        "gt_winner": "A",
+        "pred_winner": "A",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 2,
+            "penalties": 1
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 1
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 19,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          19,
+          0
+        ],
+        "adv_abs_errors": [
+          2,
+          0
+        ],
+        "pen_abs_errors": [
+          1,
+          1
+        ],
+        "event_tp": 0,
+        "event_fp": 5,
+        "event_fn": 4,
+        "leakage_verified": true,
+        "latency_ms": 11974.1,
+        "input_tokens": 2376,
+        "output_tokens": 438,
+        "cost_usd": 0.000369
+      },
+      {
+        "match_id": "flo-2026-euros-MUAMVq1nllw",
+        "model_id": "gemma-4-26b-a4b-it",
+        "winner_ok": true,
+        "gt_winner": "B",
+        "pred_winner": "B",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 2,
+            "advantages": 2,
+            "penalties": 3
+          },
+          "B": {
+            "points": 4,
+            "advantages": 2,
+            "penalties": 3
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 3,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          1,
+          4
+        ],
+        "adv_abs_errors": [
+          2,
+          2
+        ],
+        "pen_abs_errors": [
+          3,
+          3
+        ],
+        "event_tp": 0,
+        "event_fp": 1,
+        "event_fn": 14,
+        "leakage_verified": true,
+        "latency_ms": 22497.5,
+        "input_tokens": 2376,
+        "output_tokens": 893,
+        "cost_usd": 0.000506
+      }
+    ],
+    "gemini-4-hydrogen": [
+      {
+        "match_id": "flo-crown26-3mf7jDcht_8-m01",
+        "model_id": "gemini-4-hydrogen",
+        "winner_ok": false,
+        "gt_winner": "A",
+        "pred_winner": "B",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 4,
+            "advantages": 2,
+            "penalties": 1
+          },
+          "B": {
+            "points": 2,
+            "advantages": 0,
+            "penalties": 1
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 3,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 5,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          1,
+          3
+        ],
+        "adv_abs_errors": [
+          2,
+          0
+        ],
+        "pen_abs_errors": [
+          1,
+          1
+        ],
+        "event_tp": 0,
+        "event_fp": 3,
+        "event_fn": 7,
+        "leakage_verified": true,
+        "latency_ms": 8651.6,
+        "input_tokens": 3081,
+        "output_tokens": 1437,
+        "cost_usd": 0.002926
+      },
+      {
+        "match_id": "flo-crown26-3mf7jDcht_8-m02",
+        "model_id": "gemini-4-hydrogen",
+        "winner_ok": true,
+        "gt_winner": "A",
+        "pred_winner": "A",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 2,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 1,
+            "advantages": 1,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 5,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          3,
+          1
+        ],
+        "adv_abs_errors": [
+          0,
+          1
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 1,
+        "event_fp": 1,
+        "event_fn": 2,
+        "leakage_verified": true,
+        "latency_ms": 8900.3,
+        "input_tokens": 3081,
+        "output_tokens": 1483,
+        "cost_usd": 0.002995
+      },
+      {
+        "match_id": "flo-crown26-3mf7jDcht_8-m03",
+        "model_id": "gemini-4-hydrogen",
+        "winner_ok": false,
+        "gt_winner": "A",
+        "pred_winner": "B",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 2,
+            "advantages": 2,
+            "penalties": 0
+          },
+          "B": {
+            "points": 2,
+            "advantages": 1,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 2,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 4,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          2
+        ],
+        "adv_abs_errors": [
+          2,
+          1
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 3,
+        "event_fn": 5,
+        "leakage_verified": true,
+        "latency_ms": 9249.2,
+        "input_tokens": 3081,
+        "output_tokens": 1546,
+        "cost_usd": 0.003089
+      },
+      {
+        "match_id": "flo-pans26-GN774DWPK-0",
+        "model_id": "gemini-4-hydrogen",
+        "winner_ok": false,
+        "gt_winner": "A",
+        "pred_winner": "B",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 2,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 3,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          1
+        ],
+        "adv_abs_errors": [
+          0,
+          0
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 1,
+        "event_fn": 1,
+        "leakage_verified": true,
+        "latency_ms": 7004.1,
+        "input_tokens": 3081,
+        "output_tokens": 1098,
+        "cost_usd": 0.002417
+      },
+      {
+        "match_id": "flo-pans26-OElTQxqVr_o",
+        "model_id": "gemini-4-hydrogen",
+        "winner_ok": true,
+        "gt_winner": "A",
+        "pred_winner": "A",
+        "final_score_exact": true,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 1,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 1,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          0
+        ],
+        "adv_abs_errors": [
+          0,
+          0
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 1,
+        "event_fp": 0,
+        "event_fn": 0,
+        "leakage_verified": true,
+        "latency_ms": 9023.2,
+        "input_tokens": 3081,
+        "output_tokens": 1289,
+        "cost_usd": 0.002704
+      },
+      {
+        "match_id": "flo-nogiw25-x9PuYEbtfLE",
+        "model_id": "gemini-4-hydrogen",
+        "winner_ok": false,
+        "gt_winner": "B",
+        "pred_winner": "referee_decision",
+        "final_score_exact": true,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          0
+        ],
+        "adv_abs_errors": [
+          0,
+          0
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 0,
+        "leakage_verified": true,
+        "latency_ms": 7025.0,
+        "input_tokens": 3087,
+        "output_tokens": 575,
+        "cost_usd": 0.001634
+      },
+      {
+        "match_id": "flo-nogiw25-uNUo16LJ-UQ",
+        "model_id": "gemini-4-hydrogen",
+        "winner_ok": false,
+        "gt_winner": "A",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 1,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          0
+        ],
+        "adv_abs_errors": [
+          0,
+          1
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 1,
+        "leakage_verified": true,
+        "latency_ms": 6696.7,
+        "input_tokens": 3086,
+        "output_tokens": 718,
+        "cost_usd": 0.001849
+      },
+      {
+        "match_id": "flo-2026-pans-1AraE8uGHGE",
+        "model_id": "gemini-4-hydrogen",
+        "winner_ok": true,
+        "gt_winner": "B",
+        "pred_winner": "B",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 1,
+            "penalties": 0
+          },
+          "B": {
+            "points": 9,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 6,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          3
+        ],
+        "adv_abs_errors": [
+          1,
+          0
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 2,
+        "event_fn": 3,
+        "leakage_verified": true,
+        "latency_ms": 8923.9,
+        "input_tokens": 3081,
+        "output_tokens": 1489,
+        "cost_usd": 0.003004
+      },
+      {
+        "match_id": "flo-2025-pans-3rI5NZrELEI",
+        "model_id": "gemini-4-hydrogen",
+        "winner_ok": true,
+        "gt_winner": "B",
+        "pred_winner": "B",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 6,
+            "advantages": 1,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 3,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          3
+        ],
+        "adv_abs_errors": [
+          0,
+          1
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 1,
+        "event_fn": 3,
+        "leakage_verified": true,
+        "latency_ms": 7192.3,
+        "input_tokens": 3081,
+        "output_tokens": 1126,
+        "cost_usd": 0.002459
+      },
+      {
+        "match_id": "flo-2026-worlds-4oknOi3OFAw",
+        "model_id": "gemini-4-hydrogen",
+        "winner_ok": true,
+        "gt_winner": "A",
+        "pred_winner": "A",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 1,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 1,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 4,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          4,
+          0
+        ],
+        "adv_abs_errors": [
+          1,
+          1
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 1,
+        "event_fn": 2,
+        "leakage_verified": true,
+        "latency_ms": 8109.6,
+        "input_tokens": 3081,
+        "output_tokens": 1290,
+        "cost_usd": 0.002705
+      },
+      {
+        "match_id": "flo-2025-worlds-69Gixyk3JSk",
+        "model_id": "gemini-4-hydrogen",
+        "winner_ok": false,
+        "gt_winner": "A",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 2,
+            "advantages": 0,
+            "penalties": 1
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 1
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 2,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 2,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          2
+        ],
+        "adv_abs_errors": [
+          0,
+          0
+        ],
+        "pen_abs_errors": [
+          1,
+          1
+        ],
+        "event_tp": 0,
+        "event_fp": 2,
+        "event_fn": 3,
+        "leakage_verified": true,
+        "latency_ms": 8273.8,
+        "input_tokens": 3081,
+        "output_tokens": 1461,
+        "cost_usd": 0.002962
+      },
+      {
+        "match_id": "flo-2025-euros-729k4AvpAL0",
+        "model_id": "gemini-4-hydrogen",
+        "winner_ok": true,
+        "gt_winner": "B",
+        "pred_winner": "B",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 2,
+            "advantages": 2,
+            "penalties": 0
+          },
+          "B": {
+            "points": 11,
+            "advantages": 1,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 2,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 3,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          8
+        ],
+        "adv_abs_errors": [
+          2,
+          1
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 2,
+        "event_fn": 6,
+        "leakage_verified": true,
+        "latency_ms": 7740.8,
+        "input_tokens": 3081,
+        "output_tokens": 1244,
+        "cost_usd": 0.002636
+      },
+      {
+        "match_id": "flo-2025-pans-7hNCkgmSdbE",
+        "model_id": "gemini-4-hydrogen",
+        "winner_ok": false,
+        "gt_winner": "A",
+        "pred_winner": "referee_decision",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 2,
+            "penalties": 1
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 1
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          0
+        ],
+        "adv_abs_errors": [
+          2,
+          0
+        ],
+        "pen_abs_errors": [
+          1,
+          1
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 4,
+        "leakage_verified": true,
+        "latency_ms": 6132.5,
+        "input_tokens": 3081,
+        "output_tokens": 714,
+        "cost_usd": 0.001841
+      },
+      {
+        "match_id": "flo-2025-worlds-BplNp1W3P2w",
+        "model_id": "gemini-4-hydrogen",
+        "winner_ok": false,
+        "gt_winner": "B",
+        "pred_winner": "A",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 2,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 2,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 2,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          2
+        ],
+        "adv_abs_errors": [
+          0,
+          0
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 1,
+        "event_fn": 3,
+        "leakage_verified": true,
+        "latency_ms": 7674.1,
+        "input_tokens": 3081,
+        "output_tokens": 1296,
+        "cost_usd": 0.002714
+      },
+      {
+        "match_id": "flo-2026-pans-CFaVnKn9Wjk",
+        "model_id": "gemini-4-hydrogen",
+        "winner_ok": true,
+        "gt_winner": "B",
+        "pred_winner": "B",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 1
+          },
+          "B": {
+            "points": 0,
+            "advantages": 3,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 6,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          6
+        ],
+        "adv_abs_errors": [
+          0,
+          3
+        ],
+        "pen_abs_errors": [
+          1,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 2,
+        "event_fn": 4,
+        "leakage_verified": true,
+        "latency_ms": 8096.6,
+        "input_tokens": 3081,
+        "output_tokens": 1302,
+        "cost_usd": 0.002723
+      },
+      {
+        "match_id": "flo-2025-euros-D8FeAWzXUxU",
+        "model_id": "gemini-4-hydrogen",
+        "winner_ok": true,
+        "gt_winner": "A",
+        "pred_winner": "A",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 6,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 9,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          3,
+          0
+        ],
+        "adv_abs_errors": [
+          0,
+          0
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 3,
+        "event_fn": 2,
+        "leakage_verified": true,
+        "latency_ms": 8458.4,
+        "input_tokens": 3081,
+        "output_tokens": 1443,
+        "cost_usd": 0.002935
+      },
+      {
+        "match_id": "flo-2026-worlds-HFs52T0vuGI",
+        "model_id": "gemini-4-hydrogen",
+        "winner_ok": true,
+        "gt_winner": "A",
+        "pred_winner": "A",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 9,
+            "advantages": 2,
+            "penalties": 2
+          },
+          "B": {
+            "points": 0,
+            "advantages": 1,
+            "penalties": 3
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 3,
+            "advantages": 1,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          6,
+          0
+        ],
+        "adv_abs_errors": [
+          1,
+          1
+        ],
+        "pen_abs_errors": [
+          2,
+          3
+        ],
+        "event_tp": 0,
+        "event_fp": 2,
+        "event_fn": 9,
+        "leakage_verified": true,
+        "latency_ms": 8421.3,
+        "input_tokens": 3081,
+        "output_tokens": 1361,
+        "cost_usd": 0.002812
+      },
+      {
+        "match_id": "flo-2026-pans-I6lfC1B9g84",
+        "model_id": "gemini-4-hydrogen",
+        "winner_ok": false,
+        "gt_winner": "A",
+        "pred_winner": "B",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 2,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 2,
+            "penalties": 1
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 6,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          2,
+          6
+        ],
+        "adv_abs_errors": [
+          0,
+          2
+        ],
+        "pen_abs_errors": [
+          0,
+          1
+        ],
+        "event_tp": 0,
+        "event_fp": 2,
+        "event_fn": 4,
+        "leakage_verified": true,
+        "latency_ms": 8059.8,
+        "input_tokens": 3081,
+        "output_tokens": 1175,
+        "cost_usd": 0.002533
+      },
+      {
+        "match_id": "flo-2026-euros-LaIHmr1VoGw",
+        "model_id": "gemini-4-hydrogen",
+        "winner_ok": true,
+        "gt_winner": "A",
+        "pred_winner": "A",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 2,
+            "penalties": 1
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 1
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 3,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          3,
+          0
+        ],
+        "adv_abs_errors": [
+          2,
+          0
+        ],
+        "pen_abs_errors": [
+          1,
+          1
+        ],
+        "event_tp": 0,
+        "event_fp": 1,
+        "event_fn": 4,
+        "leakage_verified": true,
+        "latency_ms": 7668.2,
+        "input_tokens": 3081,
+        "output_tokens": 1026,
+        "cost_usd": 0.002309
+      },
+      {
+        "match_id": "flo-2026-euros-MUAMVq1nllw",
+        "model_id": "gemini-4-hydrogen",
+        "winner_ok": false,
+        "gt_winner": "B",
+        "pred_winner": "A",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 2,
+            "advantages": 2,
+            "penalties": 3
+          },
+          "B": {
+            "points": 4,
+            "advantages": 2,
+            "penalties": 3
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 3,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          1,
+          4
+        ],
+        "adv_abs_errors": [
+          2,
+          2
+        ],
+        "pen_abs_errors": [
+          3,
+          3
+        ],
+        "event_tp": 0,
+        "event_fp": 1,
+        "event_fn": 14,
+        "leakage_verified": true,
+        "latency_ms": 10606.9,
+        "input_tokens": 3081,
+        "output_tokens": 1393,
+        "cost_usd": 0.00286
+      }
+    ],
+    "gemini-4-hydrogen-agentic": [
+      {
+        "match_id": "flo-crown26-3mf7jDcht_8-m01",
+        "model_id": "gemini-4-hydrogen-agentic",
+        "winner_ok": true,
+        "gt_winner": "A",
+        "pred_winner": "A",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 4,
+            "advantages": 2,
+            "penalties": 1
+          },
+          "B": {
+            "points": 2,
+            "advantages": 0,
+            "penalties": 1
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 5,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          1,
+          2
+        ],
+        "adv_abs_errors": [
+          2,
+          0
+        ],
+        "pen_abs_errors": [
+          1,
+          1
+        ],
+        "event_tp": 0,
+        "event_fp": 2,
+        "event_fn": 7,
+        "leakage_verified": true,
+        "latency_ms": 85644.9,
+        "input_tokens": 2918,
+        "output_tokens": 5349,
+        "cost_usd": 0.008753
+      },
+      {
+        "match_id": "flo-crown26-3mf7jDcht_8-m02",
+        "model_id": "gemini-4-hydrogen-agentic",
+        "winner_ok": true,
+        "gt_winner": "A",
+        "pred_winner": "A",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 2,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 1,
+            "advantages": 1,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 3,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          1,
+          1
+        ],
+        "adv_abs_errors": [
+          0,
+          1
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 1,
+        "event_fn": 3,
+        "leakage_verified": true,
+        "latency_ms": 44125.3,
+        "input_tokens": 2922,
+        "output_tokens": 7165,
+        "cost_usd": 0.011478
+      },
+      {
+        "match_id": "flo-crown26-3mf7jDcht_8-m03",
+        "model_id": "gemini-4-hydrogen-agentic",
+        "winner_ok": true,
+        "gt_winner": "A",
+        "pred_winner": "A",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 2,
+            "advantages": 2,
+            "penalties": 0
+          },
+          "B": {
+            "points": 2,
+            "advantages": 1,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 2,
+            "advantages": 3,
+            "penalties": 0
+          },
+          "B": {
+            "points": 2,
+            "advantages": 1,
+            "penalties": 2
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          0
+        ],
+        "adv_abs_errors": [
+          1,
+          0
+        ],
+        "pen_abs_errors": [
+          0,
+          2
+        ],
+        "event_tp": 3,
+        "event_fp": 5,
+        "event_fn": 2,
+        "leakage_verified": true,
+        "latency_ms": 64426.2,
+        "input_tokens": 2922,
+        "output_tokens": 5953,
+        "cost_usd": 0.00966
+      },
+      {
+        "match_id": "flo-pans26-GN774DWPK-0",
+        "model_id": "gemini-4-hydrogen-agentic",
+        "winner_ok": true,
+        "gt_winner": "A",
+        "pred_winner": "A",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 2,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 2,
+            "advantages": 1,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          0
+        ],
+        "adv_abs_errors": [
+          0,
+          1
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 2,
+        "event_fn": 1,
+        "leakage_verified": true,
+        "latency_ms": 35655.6,
+        "input_tokens": 2922,
+        "output_tokens": 4296,
+        "cost_usd": 0.007175
+      },
+      {
+        "match_id": "flo-pans26-OElTQxqVr_o",
+        "model_id": "gemini-4-hydrogen-agentic",
+        "winner_ok": true,
+        "gt_winner": "A",
+        "pred_winner": "A",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 1,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          0
+        ],
+        "adv_abs_errors": [
+          1,
+          0
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 1,
+        "leakage_verified": true,
+        "latency_ms": 23858.5,
+        "input_tokens": 2922,
+        "output_tokens": 2399,
+        "cost_usd": 0.004329
+      },
+      {
+        "match_id": "flo-nogiw25-x9PuYEbtfLE",
+        "model_id": "gemini-4-hydrogen-agentic",
+        "winner_ok": true,
+        "gt_winner": "B",
+        "pred_winner": "B",
+        "final_score_exact": true,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          0
+        ],
+        "adv_abs_errors": [
+          0,
+          0
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 0,
+        "leakage_verified": true,
+        "latency_ms": 22557.4,
+        "input_tokens": 2927,
+        "output_tokens": 2896,
+        "cost_usd": 0.005076
+      },
+      {
+        "match_id": "flo-nogiw25-uNUo16LJ-UQ",
+        "model_id": "gemini-4-hydrogen-agentic",
+        "winner_ok": true,
+        "gt_winner": "A",
+        "pred_winner": "A",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 1,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          0
+        ],
+        "adv_abs_errors": [
+          0,
+          1
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 1,
+        "leakage_verified": true,
+        "latency_ms": 23168.0,
+        "input_tokens": 2926,
+        "output_tokens": 2128,
+        "cost_usd": 0.003924
+      },
+      {
+        "match_id": "flo-2026-pans-1AraE8uGHGE",
+        "model_id": "gemini-4-hydrogen-agentic",
+        "winner_ok": true,
+        "gt_winner": "B",
+        "pred_winner": "B",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 1,
+            "penalties": 0
+          },
+          "B": {
+            "points": 9,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 3,
+            "advantages": 1,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          6
+        ],
+        "adv_abs_errors": [
+          1,
+          1
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 1,
+        "event_fp": 1,
+        "event_fn": 2,
+        "leakage_verified": true,
+        "latency_ms": 37006.7,
+        "input_tokens": 2922,
+        "output_tokens": 6592,
+        "cost_usd": 0.010618
+      },
+      {
+        "match_id": "flo-2025-pans-3rI5NZrELEI",
+        "model_id": "gemini-4-hydrogen-agentic",
+        "winner_ok": true,
+        "gt_winner": "B",
+        "pred_winner": "B",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 6,
+            "advantages": 1,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 1,
+            "penalties": 0
+          },
+          "B": {
+            "points": 3,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          3
+        ],
+        "adv_abs_errors": [
+          1,
+          1
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 1,
+        "event_fp": 1,
+        "event_fn": 2,
+        "leakage_verified": true,
+        "latency_ms": 38080.6,
+        "input_tokens": 2918,
+        "output_tokens": 3848,
+        "cost_usd": 0.006501
+      },
+      {
+        "match_id": "flo-2026-worlds-4oknOi3OFAw",
+        "model_id": "gemini-4-hydrogen-agentic",
+        "winner_ok": true,
+        "gt_winner": "A",
+        "pred_winner": "A",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 1,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 1,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 4,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 1,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          4,
+          0
+        ],
+        "adv_abs_errors": [
+          1,
+          0
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 2,
+        "event_fn": 2,
+        "leakage_verified": true,
+        "latency_ms": 58795.1,
+        "input_tokens": 2922,
+        "output_tokens": 5789,
+        "cost_usd": 0.009414
+      }
+    ],
+    "gemini-4-neon-agentic": [
+      {
+        "match_id": "flo-crown26-3mf7jDcht_8-m01",
+        "model_id": "gemini-4-neon-agentic",
+        "winner_ok": false,
+        "gt_winner": "A",
+        "pred_winner": "B",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 4,
+            "advantages": 2,
+            "penalties": 1
+          },
+          "B": {
+            "points": 2,
+            "advantages": 0,
+            "penalties": 1
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 2,
+            "advantages": 0,
+            "penalties": 1
+          },
+          "B": {
+            "points": 2,
+            "advantages": 1,
+            "penalties": 1
+          }
+        },
+        "pts_abs_errors": [
+          2,
+          0
+        ],
+        "adv_abs_errors": [
+          2,
+          1
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 4,
+        "event_fn": 7,
+        "leakage_verified": true,
+        "latency_ms": 311182.2,
+        "input_tokens": 2921,
+        "output_tokens": 22949,
+        "cost_usd": 0.233872
+      },
+      {
+        "match_id": "flo-crown26-3mf7jDcht_8-m02",
+        "model_id": "gemini-4-neon-agentic",
+        "winner_ok": true,
+        "gt_winner": "A",
+        "pred_winner": "A",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 2,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 1,
+            "advantages": 1,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 9,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          7,
+          1
+        ],
+        "adv_abs_errors": [
+          0,
+          1
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 1,
+        "event_fp": 2,
+        "event_fn": 2,
+        "leakage_verified": true,
+        "latency_ms": 421886.7,
+        "input_tokens": 2925,
+        "output_tokens": 39948,
+        "cost_usd": 0.403867
+      },
+      {
+        "match_id": "flo-crown26-3mf7jDcht_8-m03",
+        "model_id": "gemini-4-neon-agentic",
+        "winner_ok": true,
+        "gt_winner": "A",
+        "pred_winner": "A",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 2,
+            "advantages": 2,
+            "penalties": 0
+          },
+          "B": {
+            "points": 2,
+            "advantages": 1,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 2,
+            "advantages": 2,
+            "penalties": 0
+          },
+          "B": {
+            "points": 2,
+            "advantages": 1,
+            "penalties": 2
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          0
+        ],
+        "adv_abs_errors": [
+          0,
+          0
+        ],
+        "pen_abs_errors": [
+          0,
+          2
+        ],
+        "event_tp": 3,
+        "event_fp": 4,
+        "event_fn": 2,
+        "leakage_verified": true,
+        "latency_ms": 290153.5,
+        "input_tokens": 2925,
+        "output_tokens": 27114,
+        "cost_usd": 0.275527
+      },
+      {
+        "match_id": "flo-pans26-GN774DWPK-0",
+        "model_id": "gemini-4-neon-agentic",
+        "winner_ok": true,
+        "gt_winner": "A",
+        "pred_winner": "A",
+        "final_score_exact": true,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 2,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 2,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          0
+        ],
+        "adv_abs_errors": [
+          0,
+          0
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 1,
+        "event_fn": 1,
+        "leakage_verified": true,
+        "latency_ms": 225234.6,
+        "input_tokens": 2925,
+        "output_tokens": 8644,
+        "cost_usd": 0.090828
+      },
+      {
+        "match_id": "flo-pans26-OElTQxqVr_o",
+        "model_id": "gemini-4-neon-agentic",
+        "winner_ok": true,
+        "gt_winner": "A",
+        "pred_winner": "A",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 1,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 3,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          3,
+          0
+        ],
+        "adv_abs_errors": [
+          1,
+          0
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 1,
+        "event_fn": 1,
+        "leakage_verified": true,
+        "latency_ms": 217269.5,
+        "input_tokens": 2925,
+        "output_tokens": 13192,
+        "cost_usd": 0.136307
+      },
+      {
+        "match_id": "flo-nogiw25-x9PuYEbtfLE",
+        "model_id": "gemini-4-neon-agentic",
+        "winner_ok": true,
+        "gt_winner": "B",
+        "pred_winner": "B",
+        "final_score_exact": true,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          0
+        ],
+        "adv_abs_errors": [
+          0,
+          0
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 0,
+        "event_fn": 0,
+        "leakage_verified": true,
+        "latency_ms": 93267.5,
+        "input_tokens": 2930,
+        "output_tokens": 5295,
+        "cost_usd": 0.057345
+      },
+      {
+        "match_id": "flo-nogiw25-uNUo16LJ-UQ",
+        "model_id": "gemini-4-neon-agentic",
+        "winner_ok": true,
+        "gt_winner": "A",
+        "pred_winner": "A",
+        "final_score_exact": true,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 1,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 1,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          0
+        ],
+        "adv_abs_errors": [
+          0,
+          0
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 0,
+        "event_fp": 1,
+        "event_fn": 1,
+        "leakage_verified": true,
+        "latency_ms": 181871.4,
+        "input_tokens": 2929,
+        "output_tokens": 16071,
+        "cost_usd": 0.165103
+      },
+      {
+        "match_id": "flo-2026-pans-1AraE8uGHGE",
+        "model_id": "gemini-4-neon-agentic",
+        "winner_ok": true,
+        "gt_winner": "B",
+        "pred_winner": "B",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 1,
+            "penalties": 0
+          },
+          "B": {
+            "points": 9,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 5,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          4
+        ],
+        "adv_abs_errors": [
+          1,
+          0
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 1,
+        "event_fp": 1,
+        "event_fn": 2,
+        "leakage_verified": true,
+        "latency_ms": 280057.5,
+        "input_tokens": 2925,
+        "output_tokens": 15422,
+        "cost_usd": 0.158607
+      },
+      {
+        "match_id": "flo-2025-pans-3rI5NZrELEI",
+        "model_id": "gemini-4-neon-agentic",
+        "winner_ok": true,
+        "gt_winner": "B",
+        "pred_winner": "B",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 0,
+            "penalties": 0
+          },
+          "B": {
+            "points": 6,
+            "advantages": 1,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 0,
+            "advantages": 1,
+            "penalties": 0
+          },
+          "B": {
+            "points": 9,
+            "advantages": 0,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          0,
+          3
+        ],
+        "adv_abs_errors": [
+          1,
+          1
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 1,
+        "event_fp": 3,
+        "event_fn": 2,
+        "leakage_verified": true,
+        "latency_ms": 287566.6,
+        "input_tokens": 2921,
+        "output_tokens": 25245,
+        "cost_usd": 0.256831
+      },
+      {
+        "match_id": "flo-2026-worlds-4oknOi3OFAw",
+        "model_id": "gemini-4-neon-agentic",
+        "winner_ok": true,
+        "gt_winner": "A",
+        "pred_winner": "A",
+        "final_score_exact": false,
+        "gt_score": {
+          "A": {
+            "points": 0,
+            "advantages": 1,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 1,
+            "penalties": 0
+          }
+        },
+        "pred_score": {
+          "A": {
+            "points": 4,
+            "advantages": 2,
+            "penalties": 0
+          },
+          "B": {
+            "points": 0,
+            "advantages": 1,
+            "penalties": 0
+          }
+        },
+        "pts_abs_errors": [
+          4,
+          0
+        ],
+        "adv_abs_errors": [
+          1,
+          0
+        ],
+        "pen_abs_errors": [
+          0,
+          0
+        ],
+        "event_tp": 1,
+        "event_fp": 3,
+        "event_fn": 1,
+        "leakage_verified": true,
+        "latency_ms": 324955.5,
+        "input_tokens": 2925,
+        "output_tokens": 29562,
+        "cost_usd": 0.300007
+      }
+    ]
+  },
+  "splits_summary": {
+    "calibration": [
+      {
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "split": "calibration",
+        "match_count": 41,
+        "winner_accuracy": 0.0732,
+        "final_score_exact_match": 0.0976,
+        "mae_points": 2.6463,
+        "mae_advantages": 0.6098,
+        "mae_penalties": 0.2561,
+        "score_event_precision": 0.0,
+        "score_event_recall": 0.0,
+        "score_event_f1": 0.0,
+        "event_tolerance_sec": 5.0,
+        "p50_latency_ms": 4738.5,
+        "p95_latency_ms": 7412.5,
+        "mean_latency_ms": 5445.5,
+        "mean_cost_per_match_usd": 0.0,
+        "total_cost_usd": 0.0,
+        "leakage_checks_passed": 41
+      },
+      {
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M-agentic",
+        "split": "calibration",
+        "match_count": 10,
+        "winner_accuracy": 0.4,
+        "final_score_exact_match": 0.0,
+        "mae_points": 3.1,
+        "mae_advantages": 1.25,
+        "mae_penalties": 0.25,
+        "score_event_precision": 0.0,
+        "score_event_recall": 0.0,
+        "score_event_f1": 0.0,
+        "event_tolerance_sec": 5.0,
+        "p50_latency_ms": 228955.5,
+        "p95_latency_ms": 269430.5,
+        "mean_latency_ms": 236257.3,
+        "mean_cost_per_match_usd": 0.0,
+        "total_cost_usd": 0.0,
+        "leakage_checks_passed": 10
+      },
+      {
+        "model_id": "gemma-4-26b-a4b-it",
+        "split": "calibration",
+        "match_count": 20,
+        "winner_accuracy": 0.65,
+        "final_score_exact_match": 0.1,
+        "mae_points": 7.275,
+        "mae_advantages": 0.675,
+        "mae_penalties": 0.125,
+        "score_event_precision": 0.0099,
+        "score_event_recall": 0.0145,
+        "score_event_f1": 0.0118,
+        "event_tolerance_sec": 5.0,
+        "p50_latency_ms": 19111.7,
+        "p95_latency_ms": 63889.7,
+        "mean_latency_ms": 27025.8,
+        "mean_cost_per_match_usd": 0.00048,
+        "total_cost_usd": 0.00951,
+        "leakage_checks_passed": 20
+      },
+      {
+        "model_id": "gemini-4-hydrogen",
+        "split": "calibration",
+        "match_count": 20,
+        "winner_accuracy": 0.6,
+        "final_score_exact_match": 0.0,
+        "mae_points": 3.05,
+        "mae_advantages": 0.725,
+        "mae_penalties": 0.125,
+        "score_event_precision": 0.0571,
+        "score_event_recall": 0.029,
+        "score_event_f1": 0.0385,
+        "event_tolerance_sec": 5.0,
+        "p50_latency_ms": 8944.5,
+        "p95_latency_ms": 10527.8,
+        "mean_latency_ms": 8777.3,
+        "mean_cost_per_match_usd": 0.00279,
+        "total_cost_usd": 0.05575,
+        "leakage_checks_passed": 20
+      },
+      {
+        "model_id": "gemini-4-hydrogen-agentic",
+        "split": "calibration",
+        "match_count": 10,
+        "winner_accuracy": 1.0,
+        "final_score_exact_match": 0.1,
+        "mae_points": 1.45,
+        "mae_advantages": 0.4,
+        "mae_penalties": 0.05,
+        "score_event_precision": 0.1212,
+        "score_event_recall": 0.1176,
+        "score_event_f1": 0.1194,
+        "event_tolerance_sec": 5.0,
+        "p50_latency_ms": 64196.7,
+        "p95_latency_ms": 140005.5,
+        "mean_latency_ms": 79815.0,
+        "mean_cost_per_match_usd": 0.01061,
+        "total_cost_usd": 0.10607,
+        "leakage_checks_passed": 10
+      },
+      {
+        "model_id": "gemini-4-neon-agentic",
+        "split": "calibration",
+        "match_count": 10,
+        "winner_accuracy": 1.0,
+        "final_score_exact_match": 0.4,
+        "mae_points": 1.3,
+        "mae_advantages": 0.25,
+        "mae_penalties": 0.05,
+        "score_event_precision": 0.3333,
+        "score_event_recall": 0.2941,
+        "score_event_f1": 0.3125,
+        "event_tolerance_sec": 5.0,
+        "p50_latency_ms": 219279.8,
+        "p95_latency_ms": 283021.6,
+        "mean_latency_ms": 217201.3,
+        "mean_cost_per_match_usd": 0.16646,
+        "total_cost_usd": 1.66462,
+        "leakage_checks_passed": 10
+      }
+    ],
+    "heldout": [
+      {
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M",
+        "split": "heldout",
+        "match_count": 81,
+        "winner_accuracy": 0.0247,
+        "final_score_exact_match": 0.0494,
+        "mae_points": 2.4012,
+        "mae_advantages": 1.1173,
+        "mae_penalties": 0.5679,
+        "score_event_precision": 0.0,
+        "score_event_recall": 0.0,
+        "score_event_f1": 0.0,
+        "event_tolerance_sec": 5.0,
+        "p50_latency_ms": 6282.5,
+        "p95_latency_ms": 7002.9,
+        "mean_latency_ms": 6252.1,
+        "mean_cost_per_match_usd": 0.0,
+        "total_cost_usd": 0.0,
+        "leakage_checks_passed": 81
+      },
+      {
+        "model_id": "ollama/gemma4:e2b-it-q4_K_M-agentic",
+        "split": "heldout",
+        "match_count": 9,
+        "winner_accuracy": 0.5556,
+        "final_score_exact_match": 0.0,
+        "mae_points": 1.9444,
+        "mae_advantages": 0.8889,
+        "mae_penalties": 0.1111,
+        "score_event_precision": 0.0417,
+        "score_event_recall": 0.0435,
+        "score_event_f1": 0.0426,
+        "event_tolerance_sec": 5.0,
+        "p50_latency_ms": 234169.7,
+        "p95_latency_ms": 273823.6,
+        "mean_latency_ms": 237651.8,
+        "mean_cost_per_match_usd": 0.0,
+        "total_cost_usd": 0.0,
+        "leakage_checks_passed": 9
+      },
+      {
+        "model_id": "gemma-4-26b-a4b-it",
+        "split": "heldout",
+        "match_count": 20,
+        "winner_accuracy": 0.55,
+        "final_score_exact_match": 0.0,
+        "mae_points": 10.325,
+        "mae_advantages": 0.775,
+        "mae_penalties": 0.525,
+        "score_event_precision": 0.0,
+        "score_event_recall": 0.0,
+        "score_event_f1": 0.0,
+        "event_tolerance_sec": 5.0,
+        "p50_latency_ms": 21669.8,
+        "p95_latency_ms": 43551.1,
+        "mean_latency_ms": 23972.4,
+        "mean_cost_per_match_usd": 0.00048,
+        "total_cost_usd": 0.00966,
+        "leakage_checks_passed": 20
+      },
+      {
+        "model_id": "gemini-4-hydrogen",
+        "split": "heldout",
+        "match_count": 20,
+        "winner_accuracy": 0.5,
+        "final_score_exact_match": 0.1,
+        "mae_points": 1.6,
+        "mae_advantages": 0.725,
+        "mae_penalties": 0.525,
+        "score_event_precision": 0.0667,
+        "score_event_recall": 0.0253,
+        "score_event_f1": 0.0367,
+        "event_tolerance_sec": 5.0,
+        "p50_latency_ms": 8103.1,
+        "p95_latency_ms": 9317.1,
+        "mean_latency_ms": 8095.4,
+        "mean_cost_per_match_usd": 0.00261,
+        "total_cost_usd": 0.05211,
+        "leakage_checks_passed": 20
+      },
+      {
+        "model_id": "gemini-4-hydrogen-agentic",
+        "split": "heldout",
+        "match_count": 10,
+        "winner_accuracy": 1.0,
+        "final_score_exact_match": 0.1,
+        "mae_points": 0.9,
+        "mae_advantages": 0.6,
+        "mae_penalties": 0.2,
+        "score_event_precision": 0.2632,
+        "score_event_recall": 0.1923,
+        "score_event_f1": 0.2222,
+        "event_tolerance_sec": 5.0,
+        "p50_latency_ms": 37543.6,
+        "p95_latency_ms": 76096.5,
+        "mean_latency_ms": 43331.8,
+        "mean_cost_per_match_usd": 0.00769,
+        "total_cost_usd": 0.07693,
+        "leakage_checks_passed": 10
+      },
+      {
+        "model_id": "gemini-4-neon-agentic",
+        "split": "heldout",
+        "match_count": 10,
+        "winner_accuracy": 0.9,
+        "final_score_exact_match": 0.3,
+        "mae_points": 1.2,
+        "mae_advantages": 0.45,
+        "mae_penalties": 0.1,
+        "score_event_precision": 0.2593,
+        "score_event_recall": 0.2692,
+        "score_event_f1": 0.2642,
+        "event_tolerance_sec": 5.0,
+        "p50_latency_ms": 283812.0,
+        "p95_latency_ms": 378267.7,
+        "mean_latency_ms": 263344.5,
+        "mean_cost_per_match_usd": 0.20783,
+        "total_cost_usd": 2.07829,
+        "leakage_checks_passed": 10
+      }
+    ]
+  }
+}

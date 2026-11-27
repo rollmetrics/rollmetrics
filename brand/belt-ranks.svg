@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 852 124" fill="none" role="img" aria-label="RollMetrics Jiu-Jitsu 5-Belt Rank System">
+  <title>RollMetrics 5-Belt Jiu-Jitsu Progression</title>
+  <rect width="852" height="124" rx="14" fill="#0B0E13" stroke="#1E2633" stroke-width="1.5"/>
+  <g transform="translate(24 28)">
+    <rect x="0" y="0" width="148" height="44" rx="6" fill="#F8FAFC" stroke="#1E2633" stroke-width="1.5"/>
+    <line x1="8" y1="11" x2="140" y2="11" stroke="#CBD5E1" stroke-width="1"/>
+    <line x1="8" y1="22" x2="140" y2="22" stroke="#CBD5E1" stroke-width="1"/>
+    <line x1="8" y1="33" x2="140" y2="33" stroke="#CBD5E1" stroke-width="1"/>
+    <rect x="98" y="0.75" width="34" height="42.5" fill="#11151C"/>
+    <text x="0" y="68" fill="#F8FAFC" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="700" letter-spacing="0.8">WHITE</text>
+    <text x="148" y="68" text-anchor="end" fill="#94A3B8" font-family="'JetBrains Mono', monospace" font-size="11">#F8FAFC</text>
+  </g>
+  <g transform="translate(188 28)">
+    <rect x="0" y="0" width="148" height="44" rx="6" fill="#2563EB" stroke="#1E2633" stroke-width="1.5"/>
+    <line x1="8" y1="11" x2="140" y2="11" stroke="#1D4ED8" stroke-width="1"/>
+    <line x1="8" y1="22" x2="140" y2="22" stroke="#1D4ED8" stroke-width="1"/>
+    <line x1="8" y1="33" x2="140" y2="33" stroke="#1D4ED8" stroke-width="1"/>
+    <rect x="98" y="0.75" width="34" height="42.5" fill="#11151C"/>
+    <text x="0" y="68" fill="#F8FAFC" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="700" letter-spacing="0.8">BLUE</text>
+    <text x="148" y="68" text-anchor="end" fill="#94A3B8" font-family="'JetBrains Mono', monospace" font-size="11">#2563EB</text>
+  </g>
+  <g transform="translate(352 28)">
+    <rect x="0" y="0" width="148" height="44" rx="6" fill="#7C3AED" stroke="#1E2633" stroke-width="1.5"/>
+    <line x1="8" y1="11" x2="140" y2="11" stroke="#6D28D9" stroke-width="1"/>
+    <line x1="8" y1="22" x2="140" y2="22" stroke="#6D28D9" stroke-width="1"/>
+    <line x1="8" y1="33" x2="140" y2="33" stroke="#6D28D9" stroke-width="1"/>
+    <rect x="98" y="0.75" width="34" height="42.5" fill="#11151C"/>
+    <text x="0" y="68" fill="#F8FAFC" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="700" letter-spacing="0.8">PURPLE</text>
+    <text x="148" y="68" text-anchor="end" fill="#94A3B8" font-family="'JetBrains Mono', monospace" font-size="11">#7C3AED</text>
+  </g>
+  <g transform="translate(516 28)">
+    <rect x="0" y="0" width="148" height="44" rx="6" fill="#854D0E" stroke="#1E2633" stroke-width="1.5"/>
+    <line x1="8" y1="11" x2="140" y2="11" stroke="#713F12" stroke-width="1"/>
+    <line x1="8" y1="22" x2="140" y2="22" stroke="#713F12" stroke-width="1"/>
+    <line x1="8" y1="33" x2="140" y2="33" stroke="#713F12" stroke-width="1"/>
+    <rect x="98" y="0.75" width="34" height="42.5" fill="#11151C"/>
+    <text x="0" y="68" fill="#F8FAFC" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="700" letter-spacing="0.8">BROWN</text>
+    <text x="148" y="68" text-anchor="end" fill="#94A3B8" font-family="'JetBrains Mono', monospace" font-size="11">#854D0E</text>
+  </g>
+  <g transform="translate(680 28)">
+    <rect x="0" y="0" width="148" height="44" rx="6" fill="#11151C" stroke="#334155" stroke-width="1.5"/>
+    <line x1="8" y1="11" x2="140" y2="11" stroke="#27303F" stroke-width="1"/>
+    <line x1="8" y1="22" x2="140" y2="22" stroke="#27303F" stroke-width="1"/>
+    <line x1="8" y1="33" x2="140" y2="33" stroke="#27303F" stroke-width="1"/>
+    <rect x="98" y="0.75" width="34" height="42.5" fill="#DC2626"/>
+    <rect x="98" y="0.75" width="3" height="42.5" fill="#F8FAFC"/>
+    <rect x="129" y="0.75" width="3" height="42.5" fill="#F8FAFC"/>
+    <text x="0" y="68" fill="#F8FAFC" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="700" letter-spacing="0.8">BLACK</text>
+    <text x="148" y="68" text-anchor="end" fill="#94A3B8" font-family="'JetBrains Mono', monospace" font-size="11">#11151C</text>
+  </g>
+</svg>

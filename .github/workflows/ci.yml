@@ -1,0 +1,135 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend-and-evals:
+    name: Backend Lint, Tests & Knowledge Evals
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install ffmpeg
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends ffmpeg
+
+      - name: Install uv and Python 3.12
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.12"
+          enable-cache: false
+
+      - name: Install RollMetrics and dev dependencies
+        run: |
+          uv venv .venv --python 3.12 --clear
+          uv pip install --python .venv/bin/python -e ".[dev]"
+
+      - name: PII & Deployment Secret Hygiene Gate
+        run: |
+          python3 - <<'PY'
+          import re, subprocess, sys
+          tracked = subprocess.check_output(["git", "ls-files"], text=True).splitlines()
+          skip_files = {".github/workflows/ci.yml", "scripts/export_public_oss_repo.sh"}
+          patterns = [
+              ("personal-email", re.compile(r"korymath" + r"@gmail\.com", re.I)),
+              ("gcp-project-number", re.compile(r"83719080" + r"4774")),
+              ("gcp-billing-id", re.compile(r"(018CC6-28519" + r"7|01459F-000A4" + r"8)")),
+              ("oauth-client-id", re.compile(r"4910799780" + r"0-1ku6csls")),
+              ("cloud-run-hash", re.compile(r"cyey7gz" + r"fsq")),
+              ("google-api-key", re.compile(r"AIza[0-9A-Za-z_-]{30,}")),
+              ("google-oauth-secret", re.compile(r"GOCSPX-[0-9A-Za-z_-]{20,}")),
+          ]
+          hits = []
+          for rel in tracked:
+              if rel in skip_files or rel.endswith((".sqlite", ".png", ".jpg", ".jpeg", ".mp4", ".mov")):
+                  continue
+              try:
+                  text = open(rel, encoding="utf-8").read()
+              except Exception:
+                  continue
+              for label, rx in patterns:
+                  if rx.search(text):
+                      hits.append(f"{label}: {rel}")
+          if hits:
+              print("PII/secret hygiene gate FAILED:\n" + "\n".join(hits))
+              sys.exit(1)
+          print("PII/secret hygiene gate PASSED.")
+          PY
+
+      - name: Lint backend with Ruff
+        run: .venv/bin/ruff check backend
+
+      - name: Run unit and integration test suite with coverage
+        env:
+          ROLLMETRICS_ENVIRONMENT: test
+          ROLLMETRICS_ALLOW_LOCAL_DEV_BYPASS: "true"
+        run: .venv/bin/pytest -v --cov=rollmetrics --cov-report=term-missing --cov-fail-under=92
+
+      - name: Run Knowledge Base v0.1.0 benchmark suite
+        env:
+          ROLLMETRICS_ENVIRONMENT: test
+        run: .venv/bin/rollmetrics eval --version v0.1.0
+
+      - name: Run Scoreboard-Grounded Video Benchmark (rollmetrics-scoreboard-v1 subset)
+        env:
+          ROLLMETRICS_ENVIRONMENT: test
+        run: .venv/bin/rollmetrics eval scoreboard --split calibration --max-matches 10 --models ollama/gemma4:e2b-it-q4_K_M
+
+  frontend-and-docker:
+    name: Frontend Build & Multi-Stage Docker Smoke Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install frontend dependencies, run Vitest coverage suite, and build SPA
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run test:coverage
+          npm run build
+          test -f dist/index.html
+
+      - name: Build multi-stage Docker image
+        run: docker build -t rollmetrics:ci .
+
+      - name: Container health and production auth-gate smoke test
+        run: |
+          docker run -d --name rollmetrics-ci \
+            -p 8080:8080 \
+            -e ROLLMETRICS_ENVIRONMENT=cloud \
+            -e ROLLMETRICS_ALLOW_LOCAL_DEV_BYPASS=false \
+            -e ROLLMETRICS_ALLOWLIST_EMAILS=admin@example.com \
+            rollmetrics:ci
+          for i in $(seq 1 25); do
+            if curl -fsS http://127.0.0.1:8080/healthz >/dev/null 2>&1; then
+              curl -fsS http://127.0.0.1:8080/healthz
+              break
+            fi
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:8080/healthz
+          STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8080/api/system/status)
+          echo "Unauthenticated /api/system/status HTTP code: ${STATUS_CODE}"
+          if [ "${STATUS_CODE}" != "401" ] && [ "${STATUS_CODE}" != "403" ]; then
+            echo "Expected 401 or 403 in cloud mode, got ${STATUS_CODE}"
+            docker logs rollmetrics-ci
+            exit 1
+          fi
+          docker rm -f rollmetrics-ci

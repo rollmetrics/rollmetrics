@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 128" fill="none" role="img" aria-label="RollMetrics">
+  <title>RollMetrics</title>
+  <rect width="520" height="128" rx="16" fill="#F8FAFC"/>
+  <path fill="#0B0E13" fill-rule="evenodd" d="M 72.0 20.8 L 115.2 64.0 L 72.0 107.2 L 28.8 64.0 Z M 72.0 34.77 L 42.77 64.0 L 72.0 93.23 L 101.23 64.0 Z"/>
+  <path fill="#0B0E13" d="M 72.0 42.12 L 93.88 64.0 L 81.1 76.78 L 74.11 69.79 L 79.9 64.0 L 65.01 49.11 Z"/>
+  <path fill="#0B0E13" d="M 72.0 85.88 L 50.12 64.0 L 62.9 51.22 L 69.89 58.21 L 64.1 64.0 L 78.99 78.89 Z"/>
+  <text x="136" y="81" fill="#0B0E13" font-family="'Space Grotesk', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="54" font-weight="700" letter-spacing="-1.8">RollMetrics</text>
+</svg>
