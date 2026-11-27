@@ -2697,12 +2697,20 @@ body:has(.landing-page) {
   font-weight: 600;
   text-decoration: none;
   white-space: nowrap;
-  transition: background 140ms ease, border-color 140ms ease;
+  cursor: pointer;
+  transition: background 140ms ease, border-color 140ms ease, color 140ms ease;
 }
 
 .landing-secondary-btn:hover {
   background: var(--bg-elevated);
-  border-color: var(--text-secondary);
+  border-color: var(--text-primary);
+  color: #ffffff;
+}
+
+.landing-secondary-btn[aria-disabled="true"] {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
 }
 
 .landing-cta-note {
@@ -2785,25 +2793,41 @@ body:has(.landing-page) {
 }
 
 .landing-scrubber {
-  height: 5px;
+  height: 6px;
+  margin: 4px 0;
   background: var(--bg-elevated);
   border-radius: 3px;
   position: relative;
 }
 
 .landing-scrubber-fill {
-  width: 64%;
+  width: 65%;
   height: 100%;
   background: var(--text-primary);
   border-radius: 3px;
+  transition: width 180ms ease;
 }
 
 .landing-pin {
   position: absolute;
-  top: -3px;
-  width: 4px;
-  height: 11px;
+  top: 50%;
+  width: 12px;
+  height: 12px;
+  padding: 0;
+  border: 1.5px solid rgba(11, 14, 19, 0.92);
   border-radius: 2px;
+  transform: translate(-50%, -50%) rotate(45deg);
+  cursor: pointer;
+  transition: transform 140ms ease, box-shadow 140ms ease;
+}
+
+.landing-pin:hover {
+  transform: translate(-50%, -50%) rotate(45deg) scale(1.2);
+}
+
+.landing-pin.active {
+  transform: translate(-50%, -50%) rotate(45deg) scale(1.28);
+  box-shadow: 0 0 0 3px rgba(248, 250, 252, 0.28);
 }
 
 .landing-pin.win { background: var(--signal-control); }
@@ -2824,6 +2848,19 @@ body:has(.landing-page) {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+  text-align: left;
+  width: 100%;
+  color: inherit;
+}
+
+.landing-output-item.interactive {
+  cursor: pointer;
+  transition: border-color 140ms ease, background 140ms ease;
+}
+
+.landing-output-item.interactive:hover {
+  border-color: var(--border-focus);
+  background: var(--bg-card);
 }
 
 .landing-output-tag {
@@ -3167,6 +3204,18 @@ body:has(.landing-page) {
   font-family: var(--font-mono);
   font-size: 0.78rem;
   font-weight: 600;
+  cursor: pointer;
+  transition: background 140ms ease, border-color 140ms ease, color 140ms ease;
+}
+
+.landing-play-badge:hover {
+  background: rgba(16, 22, 30, 0.96);
+  border-color: var(--text-primary);
+}
+
+.landing-play-badge.active {
+  border-color: var(--signal-control);
+  color: var(--signal-control);
 }
 
 .athlete-profile-strip {

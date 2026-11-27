@@ -188,7 +188,7 @@ async function main() {
     await desk.waitForSelector('[data-testid="open-admin-btn"]');
     await desk.locator('[data-testid="open-admin-btn"]').click();
     await desk.waitForSelector('[data-testid="admin-dashboard"]');
-    await desk.waitForSelector('[data-testid="admin-users-table"]');
+    await desk.waitForSelector('[data-testid="admin-users-table"] tbody tr td');
     await desk.waitForSelector('[data-testid="admin-jobs-table"]');
     const adminText = await desk.locator('[data-testid="admin-dashboard"]').textContent();
     assert((adminText || "").includes("@"), "Admin dashboard missing user email");

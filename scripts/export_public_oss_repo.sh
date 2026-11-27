@@ -83,7 +83,7 @@ check_pattern "unicode-em-dash" "${EM_DASH}"
 
 rm -f /tmp/oss_leak_hits.txt
 
-if find "${OUTPUT_DIR}" -type f \( -name "*.mp4" -o -name "*.mov" -o -name "*.mkv" -o -name ".env" \) | grep -q .; then
+if find "${OUTPUT_DIR}" -type f \( -name "*.mp4" -o -name "*.mov" -o -name "*.mkv" -o -name ".env" \) ! -path "${OUTPUT_DIR}/frontend/public/landing-preview.mp4" | grep -q .; then
   echo "FAIL [media-or-env]: Found raw media or .env file in export"
   LEAK_FOUND=1
 fi

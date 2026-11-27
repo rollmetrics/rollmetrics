@@ -20,6 +20,7 @@ data/renders/
 data/eval_media/
 *.tsbuildinfo
 *.mp4
+!frontend/public/landing-preview.mp4
 *.mov
 *.webm
 *.wav

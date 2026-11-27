@@ -381,6 +381,109 @@ def _cmd_media_slowmo(args: argparse.Namespace) -> int:
     return 0
 
 
+def _encyclopedia_db_path(args: argparse.Namespace) -> Path:
+    if getattr(args, "db", None):
+        return Path(args.db)
+    settings = get_settings()
+    return settings.runtime_dir / "encyclopedia" / "catalog.sqlite"
+
+
+def _cmd_encyclopedia_harvest(args: argparse.Namespace) -> int:
+    from rollmetrics.encyclopedia.harvester import harvest_sources
+    from rollmetrics.encyclopedia.store import EncyclopediaStore
+
+    settings = get_settings()
+    sources = [s.strip() for s in str(args.sources).split(",") if s.strip()]
+    with EncyclopediaStore(_encyclopedia_db_path(args)) as store:
+        report = harvest_sources(
+            store,
+            sources=sources,
+            knowledge_dir=settings.knowledge_dir,
+            max_per_feed=args.max_per_feed,
+        )
+    _print_json(report, args.output)
+    return 0
+
+
+def _cmd_encyclopedia_stats(args: argparse.Namespace) -> int:
+    from rollmetrics.encyclopedia.store import EncyclopediaStore
+
+    with EncyclopediaStore(_encyclopedia_db_path(args)) as store:
+        report = store.stats()
+    _print_json(report, args.output)
+    return 0
+
+
+def _cmd_encyclopedia_search(args: argparse.Namespace) -> int:
+    from rollmetrics.encyclopedia.store import EncyclopediaStore
+
+    with EncyclopediaStore(_encyclopedia_db_path(args)) as store:
+        matches = store.search(
+            args.query,
+            belt=args.belt,
+            uniform=args.uniform,
+            footage_type=args.footage_type,
+            source=args.source,
+            event_year=args.year,
+            limit=int(args.limit),
+        )
+    _print_json([m.model_dump() for m in matches], args.output)
+    return 0
+
+
+def _cmd_encyclopedia_ingest(args: argparse.Namespace) -> int:
+    from rollmetrics.encyclopedia.gcs_vault import GCSVault
+    from rollmetrics.encyclopedia.ingestor import ingest_match_to_gcs
+    from rollmetrics.encyclopedia.store import EncyclopediaStore
+
+    settings = get_settings()
+    db_path = _encyclopedia_db_path(args)
+    scratch_root = settings.runtime_dir / "encyclopedia" / "tmp"
+    vault = GCSVault(bucket=args.bucket)
+    vault.ensure_bucket()
+
+    results: list[dict[str, Any]] = []
+    with EncyclopediaStore(db_path) as store:
+        cohort = store.select_cohort(
+            limit=int(args.limit),
+            footage_type=args.footage_type,
+            belt=args.belt,
+            uniform=args.uniform,
+            source=args.source,
+            exclude_ingested=True,
+        )
+        for match in cohort:
+            try:
+                res = ingest_match_to_gcs(
+                    match,
+                    store=store,
+                    vault=vault,
+                    scratch_root=scratch_root,
+                    render_masked=not bool(args.no_mask),
+                )
+            except Exception as exc:  # noqa: BLE001
+                res = {"match_id": match.match_id, "video_id": match.video_id, "status": "error", "error": str(exc)}
+            results.append(res)
+        backup_info: dict[str, Any] | None = None
+        if args.backup_catalog:
+            uri, size_b, sha = vault.backup_catalog(db_path)
+            backup_info = {"uri": uri, "size_bytes": size_b, "sha256": sha}
+        stats = store.stats()
+
+    _print_json(
+        {
+            "bucket": vault.bucket,
+            "requested": int(args.limit),
+            "processed": len(results),
+            "results": results,
+            "catalog_backup": backup_info,
+            "stats": stats,
+        },
+        args.output,
+    )
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="rollmetrics",
@@ -524,6 +627,47 @@ def build_parser() -> argparse.ArgumentParser:
     p_slow.add_argument("--caption", default="")
     p_slow.add_argument("--output", default="slowmo.mp4", help="Output MP4 path.")
     p_slow.set_defaults(func=_cmd_media_slowmo)
+
+    # encyclopedia
+    p_enc = sub.add_parser("encyclopedia", help="Harvest, search, and GCS-ingest the IBJJF Match Encyclopedia.")
+    enc_sub = p_enc.add_subparsers(dest="encyclopedia_command", required=True)
+
+    p_enc_harvest = enc_sub.add_parser("harvest", help="Run Tier 0 YouTube mega-catalog harvest.")
+    p_enc_harvest.add_argument("--sources", default="ibjjf,flograppling,colored_belts")
+    p_enc_harvest.add_argument("--max-per-feed", type=int, default=None)
+    p_enc_harvest.add_argument("--db", default=None)
+    p_enc_harvest.add_argument("--output", default=None)
+    p_enc_harvest.set_defaults(func=_cmd_encyclopedia_harvest)
+
+    p_enc_stats = enc_sub.add_parser("stats", help="Show IBJJF Match Encyclopedia catalog statistics.")
+    p_enc_stats.add_argument("--db", default=None)
+    p_enc_stats.add_argument("--output", default=None)
+    p_enc_stats.set_defaults(func=_cmd_encyclopedia_stats)
+
+    p_enc_search = enc_sub.add_parser("search", help="Search the IBJJF Match Encyclopedia via FTS5 + facets.")
+    p_enc_search.add_argument("query", nargs="?", default="")
+    p_enc_search.add_argument("--belt", default=None)
+    p_enc_search.add_argument("--uniform", default=None)
+    p_enc_search.add_argument("--footage-type", default=None)
+    p_enc_search.add_argument("--source", default=None)
+    p_enc_search.add_argument("--year", type=int, default=None)
+    p_enc_search.add_argument("--limit", type=int, default=20)
+    p_enc_search.add_argument("--db", default=None)
+    p_enc_search.add_argument("--output", default=None)
+    p_enc_search.set_defaults(func=_cmd_encyclopedia_search)
+
+    p_enc_ingest = enc_sub.add_parser("ingest", help="Stream-download, mask, upload to GCS, and purge local temp.")
+    p_enc_ingest.add_argument("--bucket", default="gs://rollmetrics-ibjjf-vault")
+    p_enc_ingest.add_argument("--limit", type=int, default=3)
+    p_enc_ingest.add_argument("--footage-type", default=None)
+    p_enc_ingest.add_argument("--belt", default=None)
+    p_enc_ingest.add_argument("--uniform", default=None)
+    p_enc_ingest.add_argument("--source", default=None)
+    p_enc_ingest.add_argument("--no-mask", action="store_true")
+    p_enc_ingest.add_argument("--backup-catalog", action="store_true")
+    p_enc_ingest.add_argument("--db", default=None)
+    p_enc_ingest.add_argument("--output", default=None)
+    p_enc_ingest.set_defaults(func=_cmd_encyclopedia_ingest)
 
     return parser
 

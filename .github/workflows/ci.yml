@@ -74,7 +74,7 @@ jobs:
         env:
           ROLLMETRICS_ENVIRONMENT: test
           ROLLMETRICS_ALLOW_LOCAL_DEV_BYPASS: "true"
-        run: .venv/bin/pytest -v --cov=rollmetrics --cov-report=term-missing --cov-fail-under=92
+        run: .venv/bin/pytest -v --cov=rollmetrics --cov-report=term-missing --cov-fail-under=100
 
       - name: Run Knowledge Base v0.1.0 benchmark suite
         env:

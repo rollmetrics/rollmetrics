@@ -166,16 +166,18 @@ function interpolateRemainingClock(currentTime: number, match: ShowcaseMatch): n
   const last = anchors[anchors.length - 1];
   if (currentTime >= last[0]) return last[1];
 
+  let result = last[1];
   for (let i = 0; i < anchors.length - 1; i += 1) {
     const [t0, c0] = anchors[i];
     const [t1, c1] = anchors[i + 1];
     if (currentTime >= t0 && currentTime <= t1) {
       if (t1 <= t0) return c1;
       const ratio = (currentTime - t0) / (t1 - t0);
-      return Math.max(0, c0 + ratio * (c1 - c0));
+      result = Math.max(0, c0 + ratio * (c1 - c0));
+      break;
     }
   }
-  return last[1];
+  return result;
 }
 
 function formatCountdown(seconds: number): string {
@@ -547,7 +549,6 @@ export function App() {
     position: "Standing",
   });
 
-  const [mediaModal, setMediaModal] = useState<{ url: string; label: string } | null>(null);
   const [mediaBusy, setMediaBusy] = useState<boolean>(false);
 
   const videoFrameRef = useRef<HTMLDivElement | null>(null);
@@ -1233,10 +1234,8 @@ export function App() {
     try {
       const res = await api.createShareLink(activeMatch.id);
       setLastShareToken(res.token);
-      const urlToCopy =
-        typeof window !== "undefined" && window.location.origin.startsWith("http")
-          ? `${window.location.origin}${res.share_path}`
-          : res.share_url;
+      const origin = typeof window !== "undefined" ? window.location.origin : "";
+      const urlToCopy = origin.startsWith("http") ? `${origin}${res.share_path}` : res.share_url;
       await navigator.clipboard?.writeText?.(urlToCopy).catch(() => {});
       setShareCopiedMsg("Link copied");
       window.setTimeout(() => setShareCopiedMsg(""), 2500);
@@ -1683,7 +1682,7 @@ export function App() {
       if (v) {
         v.currentTime = 0;
         v.playbackRate = 1.0;
-        void v.play?.().catch(() => {});
+        void Promise.resolve(v.play?.()).catch(() => {});
       }
     }, 80);
 
@@ -1757,7 +1756,6 @@ export function App() {
     setUser(null);
     setSettingsOpen(false);
     setUploadModalOpen(false);
-    setMediaModal(null);
     setAuthError("");
     window.google?.accounts?.id?.disableAutoSelect?.();
   };
@@ -2226,7 +2224,7 @@ export function App() {
             </div>
             <div className="athlete-profile-stats">
               <span>Matches: <strong>{matches.filter((m) => m.bucket === "my_matches").length}</strong></span>
-              {personalSummary && <span>Record: <strong>{personalSummary.record.label}</strong></span>}
+              {personalSummary?.record?.label && <span>Record: <strong>{personalSummary.record.label}</strong></span>}
               <span>Film Study: <strong>{filmStudyMatches.length}</strong></span>
               <button
                 type="button"
@@ -4290,41 +4288,6 @@ export function App() {
               startSec={referenceModal.startSec}
               resolveVideoUrl={(u) => (shareToken ? u : withAuthUrl(u))}
               testId="reference-modal-video"
-            />
-          </div>
-        </div>
-      )}
-
-      {/* Clean Lightbox for Looping 0.4x Slow-Mo Highlight (#145) */}
-      {mediaModal && (
-        <div className="overlay-backdrop" onClick={() => setMediaModal(null)}>
-          <div className="lightbox-card" data-testid="highlight-lightbox" onClick={(e) => e.stopPropagation()}>
-            <div className="lightbox-header">
-              <span className="lightbox-title">{mediaModal.label}</span>
-              <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", flexShrink: 0 }}>
-                <a
-                  href={mediaModal.url}
-                  download
-                  className="mini-btn"
-                  data-testid="highlight-download-link"
-                  style={{ textDecoration: "none" }}
-                >
-                  Download
-                </a>
-                <button type="button" className="mini-btn" onClick={() => setMediaModal(null)}>
-                  Close
-                </button>
-              </div>
-            </div>
-            <video
-              src={mediaModal.url}
-              data-testid="highlight-video"
-              controls
-              autoPlay
-              loop
-              muted
-              playsInline
-              {...({ "webkit-playsinline": "true" } as Record<string, string>)}
             />
           </div>
         </div>
