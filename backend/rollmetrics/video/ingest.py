@@ -186,53 +186,81 @@ def download_video_url(url: str, output_dir: Path | None = None) -> Path:
     return video_matches[0]
 
 
+def transcode_to_720p_h264(
+    src: Path | str,
+    dst: Path | str | None = None,
+    start_sec: float | None = None,
+    end_sec: float | None = None,
+    target_fps: int = 30,
+) -> Path:
+    """Transcode any MP4/MOV/HEVC video into universal <=720p H.264/AAC MP4 with optional trim."""
+    src_path = Path(src).expanduser().resolve()
+    validate_video_file(src_path)
+
+    if start_sec is not None and start_sec < 0:
+        raise ValueError(f"start_sec must be >= 0, got {start_sec}")
+    if end_sec is not None:
+        if end_sec <= 0:
+            raise ValueError(f"end_sec must be > 0, got {end_sec}")
+        if start_sec is not None and end_sec <= start_sec:
+            raise ValueError(f"end_sec ({end_sec}) must be greater than start_sec ({start_sec})")
+
+    if dst is None:
+        out_dir = Path(tempfile.mkdtemp(prefix="rollmetrics_norm_"))
+        dst_path = out_dir / f"{src_path.stem}_720p.mp4"
+    else:
+        dst_path = Path(dst).expanduser().resolve()
+        dst_path.parent.mkdir(parents=True, exist_ok=True)
+
+    ffmpeg_bin = resolve_binary("ffmpeg")
+    vf = "scale='min(1280,iw)':-2,setsar=1"
+    cmd: list[str] = [ffmpeg_bin, "-y"]
+    if start_sec is not None and start_sec > 0:
+        cmd.extend(["-ss", f"{start_sec:.3f}"])
+    cmd.extend(["-i", str(src_path)])
+    if end_sec is not None:
+        clip_duration = end_sec - (start_sec or 0.0)
+        cmd.extend(["-t", f"{clip_duration:.3f}"])
+    cmd.extend(
+        [
+            "-vf",
+            vf,
+            "-r",
+            str(target_fps),
+            "-c:v",
+            "libx264",
+            "-preset",
+            "veryfast",
+            "-crf",
+            "23",
+            "-pix_fmt",
+            "yuv420p",
+            "-movflags",
+            "+faststart",
+            "-c:a",
+            "aac",
+            "-b:a",
+            "128k",
+            str(dst_path),
+        ]
+    )
+    proc = subprocess.run(cmd, capture_output=True, text=True, check=False)
+    if proc.returncode != 0 or not dst_path.is_file():
+        raise RuntimeError(f"ffmpeg 720p H.264 transcode failed: {proc.stderr.strip()}")
+    return dst_path
+
+
 def normalize_video_720p(
     input_path: Path | str,
     output_path: Path | None = None,
     target_fps: int = 30,
 ) -> Path:
     """Normalizes any input MP4/MOV video into web-ready 720p H.264 MP4."""
-    src = Path(input_path).expanduser().resolve()
-    validate_video_file(src)
-
-    if output_path is None:
-        out_dir = Path(tempfile.mkdtemp(prefix="rollmetrics_norm_"))
-        dst = out_dir / f"{src.stem}_720p.mp4"
-    else:
-        dst = Path(output_path).expanduser().resolve()
-        dst.parent.mkdir(parents=True, exist_ok=True)
-
-    ffmpeg_bin = resolve_binary("ffmpeg")
-    vf = "scale='min(1280,iw)':-2,setsar=1"
-    cmd = [
-        ffmpeg_bin,
-        "-y",
-        "-i",
-        str(src),
-        "-vf",
-        vf,
-        "-r",
-        str(target_fps),
-        "-c:v",
-        "libx264",
-        "-preset",
-        "veryfast",
-        "-crf",
-        "23",
-        "-pix_fmt",
-        "yuv420p",
-        "-movflags",
-        "+faststart",
-        "-c:a",
-        "aac",
-        "-b:a",
-        "128k",
-        str(dst),
-    ]
-    proc = subprocess.run(cmd, capture_output=True, text=True, check=False)
-    if proc.returncode != 0 or not dst.is_file():
-        raise RuntimeError(f"ffmpeg 720p normalization failed: {proc.stderr.strip()}")
-    return dst
+    return transcode_to_720p_h264(
+        src=input_path,
+        dst=output_path,
+        target_fps=target_fps,
+    )
 
 
 def extract_frame_burst(

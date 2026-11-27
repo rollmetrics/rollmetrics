@@ -1,5 +1,7 @@
-"""IBJJF rules engine, technique legality matrix, and scoreboard schemas."""
+"""IBJJF, ADCC, and Sparring rules engines, technique legality matrix, and scoreboard schemas."""
 
+from rollmetrics.rules.adcc import ADCCRefereeEngine, SparringRoundEngine
+from rollmetrics.rules.base import RULESET_CATALOG, RulesetEngine, get_ruleset_engine
 from rollmetrics.rules.legality_matrix import (
     FOUL_CATALOG,
     FoulVerdict,
@@ -29,6 +31,8 @@ __all__ = [
     "FOUL_CATALOG",
     "MIN_STABILIZATION_SEC",
     "POINT_VALUES",
+    "RULESET_CATALOG",
+    "ADCCRefereeEngine",
     "AdjudicatedEvent",
     "AgeDivision",
     "AthleteId",
@@ -39,7 +43,10 @@ __all__ = [
     "IBJJFRefereeEngine",
     "MatchDivisionConfig",
     "RawObservedEvent",
+    "RulesetEngine",
     "ScoreboardSnapshot",
+    "SparringRoundEngine",
     "UniformType",
     "check_technique_legality",
+    "get_ruleset_engine",
 ]

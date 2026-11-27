@@ -196,9 +196,115 @@ describe("RollMetrics Single-Screen Video Telemetry MVP", () => {
               name: "Kory Mathewson",
               picture: "",
               auth_mode: "local_bypass",
+              role: "admin",
+              is_admin: true,
             }),
             { status: 200 },
           );
+        }
+        if (url.includes("/api/rules/ibjjf-v6-1")) {
+          return new Response(
+            JSON.stringify({
+              version: "v6.1",
+              title: "IBJJF Rulebook v6.1 (Plaintext Reference)",
+              count: 2,
+              articles: [
+                {
+                  id: "ibjjf-1",
+                  article: "IBJJF Art. 6.3.2 (F)",
+                  title: "Fingers Inside Sleeve or Pant Cuff",
+                  text: "Placing fingers inside the opponent's sleeve or pant cuff is a technical penalty.",
+                  source_url: "https://ibjjf.com/books-videos",
+                },
+                {
+                  id: "ibjjf-2",
+                  article: "IBJJF Art. 4.4",
+                  title: "Guard Pass (3 Points)",
+                  text: "Stabilize past the guard for 3.0 seconds.",
+                  source_url: "https://ibjjf.com/books-videos",
+                },
+              ],
+            }),
+            { status: 200 },
+          );
+        }
+        if (url.includes("/api/me/profile") && init?.method === "PUT") {
+          const body = JSON.parse(String(init.body || "{}")) as Record<string, unknown>;
+          return new Response(
+            JSON.stringify({
+              email: "coach@example.com",
+              name: body.name || "Kory Mathewson",
+              picture: body.picture || "",
+              belt: body.belt || "blue",
+              academy: body.academy || "Plateau BJJ",
+              coach: body.coach || "Chris B",
+              academy_id: body.academy_id || "osjj-roadmap",
+              academy_name: body.academy_name || "Open Source Curriculum",
+              auth_mode: "local_bypass",
+              role: "admin",
+              is_admin: true,
+            }),
+            { status: 200 },
+          );
+        }
+        if (url.includes("/api/team/roster")) {
+          return new Response(
+            JSON.stringify({
+              roster: [
+                {
+                  match_id: "mc9_semifinal",
+                  title: "Mastermind Cup 9 · Semifinal",
+                  owner_email: "coach@example.com",
+                  athlete_name: "Kory Mathewson",
+                  belt_label: "White Belt · Gi · Master",
+                  ruleset: "ibjjf_v6",
+                  review_status: "needs_review",
+                  pinned_drills: [],
+                  created_at: "2026-11-27 12:00 UTC",
+                },
+              ],
+            }),
+            { status: 200 },
+          );
+        }
+        if (url.includes("/review") && init?.method === "POST") {
+          const body = JSON.parse(String(init.body || "{}")) as Record<string, unknown>;
+          return new Response(
+            JSON.stringify({
+              match_id: "mc9_semifinal",
+              review_status: body.review_status || "reviewed",
+              pinned_drills: body.pin_drill ? [body.pin_drill] : [],
+            }),
+            { status: 200 },
+          );
+        }
+        if (url.includes("/moments") && init?.method === "PUT") {
+          const body = JSON.parse(String(init.body || "{}")) as { events?: unknown[] };
+          return new Response(
+            JSON.stringify({
+              match: { ...MOCK_MATCHES[0], events: body.events || MOCK_MATCHES[0].events },
+              feedback_logged: true,
+            }),
+            { status: 200 },
+          );
+        }
+        if (url.includes("/api/academies/me/references/auto-tag")) {
+          return new Response(
+            JSON.stringify({
+              title: "Knee Cut Pass Details",
+              position: "guard_passing",
+              belt: "blue",
+              tags: ["guard_passing"],
+              summary: "Auto-tagged guard passing study reference.",
+            }),
+            { status: 200 },
+          );
+        }
+        if (url.includes("/api/share/") && init?.method === "DELETE") {
+          return new Response(JSON.stringify({ ok: true, token: "tok_share_abc" }), { status: 200 });
+        }
+        if (url.includes("/api/matches/") && init?.method === "DELETE") {
+          return new Response(JSON.stringify({ ok: true, match_id: "custom_1" }), { status: 200 });
         }
         if (url.includes("/api/me/coaching-summary")) {
           return new Response(
@@ -500,6 +606,10 @@ describe("RollMetrics Single-Screen Video Telemetry MVP", () => {
               users_and_usage: [
                 {
                   email: "coach@example.com",
+                  name: "Kory Mathewson",
+                  role: "admin",
+                  teams: ["Plateau BJJ"],
+                  academy_name: "Open Source Jiu-Jitsu & Roadmap",
                   my_matches: 2,
                   film_study: 6,
                   uploaded_videos: 1,
@@ -508,6 +618,91 @@ describe("RollMetrics Single-Screen Video Telemetry MVP", () => {
                   last_seen: "2026-11-26T20:00:00Z",
                 },
               ],
+              teams: [
+                {
+                  id: "plateau-bjj",
+                  name: "Plateau BJJ",
+                  member_count: 12,
+                  default_curriculum: "Open Source Jiu-Jitsu & Roadmap",
+                  default_ruleset: "IBJJF v6.1",
+                },
+              ],
+              curricula: [
+                {
+                  id: "osjj-roadmap",
+                  name: "Open Source Jiu-Jitsu & Roadmap",
+                  visibility: "public",
+                  doc_count: 18,
+                  video_backed_count: 18,
+                  text_only_count: 0,
+                  status: "active",
+                },
+              ],
+              rulesets: [
+                {
+                  id: "ibjjf_v6",
+                  name: "IBJJF v6.1",
+                  status: "active",
+                  legality_cases: 38,
+                  rule_docs: 56,
+                  official_videos: 24,
+                  notes: "Full Gi & No-Gi scoring",
+                },
+                {
+                  id: "adcc",
+                  name: "ADCC",
+                  status: "active",
+                  legality_cases: 12,
+                  rule_docs: 10,
+                  official_videos: 4,
+                  notes: "No-points first half, -1 guard pull",
+                },
+              ],
+              upload_jobs: [
+                {
+                  job_id: "upl_demo123",
+                  filename: "match.mov",
+                  owner_email: "coach@example.com",
+                  status: "completed",
+                  ruleset: "adcc",
+                  created_at: "2026-11-27 12:00 UTC",
+                },
+              ],
+              engine_versions: [
+                {
+                  version: "v0.3.0",
+                  name: "Hydrogen Agentic Mat-Crop",
+                  harness: "480p dynamic crop + anchor",
+                  heldout_winner: "100.0%",
+                  notes: "Zero A/B swaps",
+                },
+              ],
+              experiments: [
+                {
+                  id: "exp-1",
+                  title: "Dynamic Mat Crop + Anchor",
+                  delta: "+20.0% heldout winner",
+                  status: "shipped",
+                },
+              ],
+              dataset_details: {
+                benchmark_id: "rollmetrics-scoreboard-v1",
+                total_matches: 122,
+                calibration_matches: 41,
+                heldout_matches: 81,
+                cross_split_video_overlap: 0,
+                leakage_control: "strict_blackout_drawbox",
+                early_stoppage_audit: "78 bouts audited",
+                vicos_adapter: "research-only CC BY-NC-SA 4.0",
+              },
+              id_lock_eval: {
+                id_lock_pct: 1.0,
+                evaluated_bouts: 20,
+                swap_count: 0,
+                matching_gi_bouts: 6,
+              },
+              daily_cloud_spend_usd: 0.42,
+              max_daily_cloud_usd: 10.0,
             }),
             { status: 200 },
           );
@@ -632,7 +827,13 @@ describe("RollMetrics Single-Screen Video Telemetry MVP", () => {
     expect(screen.getByTestId("overview-home")).toHaveTextContent("My Game Plan");
     expect(screen.getByTestId("overview-home")).not.toHaveTextContent("Local or Cloud");
     expect(screen.getByTestId("my-game-plan")).toHaveTextContent("2-0 (1 SUB, 1 DEC)");
-    expect(screen.getByTestId("my-game-plan")).toHaveTextContent("0 pts allowed");
+    expect(screen.getByTestId("my-game-plan")).toHaveTextContent("0 points allowed");
+    expect(screen.getByTestId("my-game-plan")).not.toHaveTextContent("Recurring Positions");
+    expect(screen.getByTestId("athlete-profile-strip")).toBeInTheDocument();
+    expect(screen.getByTestId("home-github-issues-link")).toHaveAttribute(
+      "href",
+      "https://github.com/rollmetrics/rollmetrics/issues",
+    );
     expect(screen.getByTestId("home-my-matches")).toHaveTextContent("Mathewson vs. Dube");
     expect(screen.getByTestId("home-film-study")).toHaveTextContent("Terra vs. Oliveira");
 
@@ -687,10 +888,16 @@ describe("RollMetrics Single-Screen Video Telemetry MVP", () => {
     expect(screen.getByTestId("rule-peek-box")).toHaveTextContent(
       "Placing fingers inside the opponent's sleeve or pant cuff is a technical penalty.",
     );
-    expect(screen.getByTestId("rulebook-link")).toHaveAttribute(
-      "href",
-      "https://ibjjf.com/books-videos",
-    );
+    expect(screen.getByTestId("rulebook-link")).toHaveTextContent("IBJJF Rulebook v6.1 ->");
+    fireEvent.click(screen.getByTestId("rulebook-link"));
+    await waitFor(() => {
+      expect(screen.getByTestId("rulebook-page")).toBeInTheDocument();
+      expect(screen.getByTestId("rulebook-article-highlighted")).toHaveTextContent("6.3.2");
+    });
+    fireEvent.click(screen.getByTestId("rulebook-back-btn"));
+    await waitFor(() => {
+      expect(screen.getByTestId("rule-peek-box")).toBeInTheDocument();
+    });
     // Click Official IBJJF Video toggle -> embeds youtube-nocookie iframe inline (#215)
     fireEvent.click(screen.getByTestId("ibjjf-video-link"));
     expect(screen.getByTestId("ibjjf-rule-video").querySelector("iframe")).toHaveAttribute(
@@ -786,15 +993,23 @@ describe("RollMetrics Single-Screen Video Telemetry MVP", () => {
     fireEvent.click(screen.getByTestId("highlight-btn"));
 
     fireEvent.click(screen.getByRole("button", { name: /Analyze or Live Camera/i }));
-    expect(screen.getByText("Analyze Video or Live Mat")).toBeInTheDocument();
-    expect(screen.getByText("Use Physical Camera")).toBeInTheDocument();
+    expect(screen.getByTestId("upload-match-modal")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("tab", { name: "Live Camera" }));
+    expect(screen.getByText("Use Live Camera")).toBeInTheDocument();
     expect(screen.getByText("Simulate Live from Match Video")).toBeInTheDocument();
     fireEvent.click(screen.getByText("Close"));
 
-    // Open Connection & Model Config modal from top-right User Profile / Settings trigger (#55, #118)
+    // Open Profile, Connection & Model Config modal from top-right User Profile / Settings trigger (#55, #118, #232)
     fireEvent.click(screen.getByTestId("user-profile"));
     await waitFor(() => {
-      expect(screen.getByText("Connection & Model Config")).toBeInTheDocument();
+      expect(screen.getByText("Profile, Connection & Model Config")).toBeInTheDocument();
+    });
+    expect(screen.getByTestId("athlete-profile-section")).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText("Athlete Academy"), { target: { value: "Plateau BJJ" } });
+    fireEvent.change(screen.getByLabelText("Athlete Coach"), { target: { value: "Chris B" } });
+    fireEvent.click(screen.getByTestId("save-athlete-profile-btn"));
+    await waitFor(() => {
+      expect(screen.getByTestId("profile-save-msg")).toHaveTextContent("Profile saved.");
     });
     expect(screen.getByText("Local (Ollama Gemma 4)")).toBeInTheDocument();
     expect(screen.getByText("Cloud (Gemini 4 Tiered)")).toBeInTheDocument();
@@ -900,7 +1115,7 @@ describe("RollMetrics Single-Screen Video Telemetry MVP", () => {
     });
     fireEvent.click(screen.getByTestId("brand-home-btn"));
     fireEvent.click(screen.getByTestId("open-upload-modal-btn"));
-    fireEvent.click(screen.getByRole("tab", { name: "Google Drive" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Link (Drive / URL)" }));
     fireEvent.change(screen.getByLabelText("Google Drive Video URL"), {
       target: { value: "https://drive.google.com/file/d/1AbCdEfGhIjKlMnOpQrSt/view" },
     });
@@ -1049,31 +1264,22 @@ describe("RollMetrics Single-Screen Video Telemetry MVP", () => {
     fireEvent(scrubber, pm);
     fireEvent(scrubber, pu);
 
-    // + Analyze / Live drawer: URL analysis, bucket toggle, Upload MP4, and Physical Camera
+    // Unified + Add Match modal: Link tab URL analysis, bucket toggle, and Live Camera
     fireEvent.click(screen.getByRole("button", { name: /Analyze or Live Camera/i }));
     fireEvent.click(screen.getByRole("button", { name: "Film Study" }));
-    fireEvent.click(screen.getByRole("button", { name: "My Match" }));
-    fireEvent.change(screen.getByPlaceholderText("Paste YouTube or video URL"), {
+    fireEvent.click(screen.getByRole("button", { name: "My Matches" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Link (Drive / URL)" }));
+    fireEvent.change(screen.getByLabelText("Google Drive Video URL"), {
       target: { value: "https://youtu.be/test123" },
     });
-    fireEvent.click(screen.getByRole("button", { name: "Run" }));
+    fireEvent.click(screen.getByTestId("import-drive-btn"));
     await waitFor(() => {
-      expect(screen.queryByText("Analyze Video or Live Mat")).not.toBeInTheDocument();
+      expect(screen.queryByTestId("upload-match-modal")).not.toBeInTheDocument();
     });
 
     fireEvent.click(screen.getByRole("button", { name: /Analyze or Live Camera/i }));
-    const drawerFileInput = document.querySelector(
-      '.drawer-sheet input[type="file"]',
-    ) as HTMLInputElement;
-    fireEvent.change(drawerFileInput, {
-      target: { files: [new File(["abc"], "drawer.mp4", { type: "video/mp4" })] },
-    });
-    await waitFor(() => {
-      expect(screen.queryByText("Analyze Video or Live Mat")).not.toBeInTheDocument();
-    });
-
-    fireEvent.click(screen.getByRole("button", { name: /Analyze or Live Camera/i }));
-    fireEvent.click(screen.getByText("Use Physical Camera"));
+    fireEvent.click(screen.getByRole("tab", { name: "Live Camera" }));
+    fireEvent.click(screen.getByText("Use Live Camera"));
     await waitFor(() => {
       expect(screen.getByTestId("live-sim-badge")).toHaveTextContent("LIVE CAM");
     });
@@ -1334,8 +1540,9 @@ describe("RollMetrics Single-Screen Video Telemetry MVP", () => {
     expect(webkitFsSpy).toHaveBeenCalledTimes(1);
     delete videoEl.webkitEnterFullscreen;
 
-    // Open + Analyze / Live drawer and launch Simulate Live from Match Video (#106)
+    // Open unified + Add Match modal -> Live Camera tab -> launch Simulate Live from Match Video (#106, #232)
     fireEvent.click(screen.getByRole("button", { name: /Analyze or Live Camera/i }));
+    fireEvent.click(screen.getByRole("tab", { name: "Live Camera" }));
     fireEvent.click(screen.getByText("Simulate Live from Match Video"));
 
     await waitFor(() => {
@@ -1485,4 +1692,95 @@ describe("RollMetrics Single-Screen Video Telemetry MVP", () => {
     fireEvent.click(screen.getByTestId("close-reference-modal-btn"));
     expect(screen.queryByTestId("reference-video-modal")).not.toBeInTheDocument();
   });
+
+  it("exercises v0.3.0 inline moment editing, share revoke, upload ruleset/trim/tap-to-identify, auto-tag, export zip, and team coach roster", async () => {
+    render(<App />);
+    await waitFor(() => {
+      expect(screen.getByTestId("row-athlete-a")).toHaveTextContent("Kory Mathewson");
+    });
+
+    // 1. Share + Revoke Share link
+    fireEvent.click(screen.getByTestId("share-match-btn"));
+    await waitFor(() => {
+      expect(screen.getByTestId("revoke-share-btn")).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByTestId("revoke-share-btn"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("revoke-share-btn")).not.toBeInTheDocument();
+    });
+
+    // 2. Inline Human-in-the-Loop Moment Editing (+ Moment -> Edit -> Save -> Delete)
+    fireEvent.click(screen.getByTestId("add-moment-btn"));
+    await waitFor(() => {
+      expect(screen.getByTestId("moment-editor-form")).toBeInTheDocument();
+    });
+    fireEvent.change(screen.getByLabelText("Edit Moment Actor"), { target: { value: "B" } });
+    fireEvent.change(screen.getByLabelText("Edit Moment Call"), { target: { value: "+3 PTS" } });
+    fireEvent.change(screen.getByLabelText("Edit Moment Detail"), { target: { value: "Guard Pass" } });
+    fireEvent.change(screen.getByLabelText("Edit Coach Note"), { target: { value: "Pin far hip" } });
+    fireEvent.click(screen.getByTestId("save-moment-btn"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("moment-editor-form")).not.toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByTestId("edit-moment-btn"));
+    fireEvent.click(screen.getByTestId("delete-moment-btn"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("moment-editor-form")).not.toBeInTheDocument();
+    });
+
+    // 3. Settings modal -> Auto-Tag Academy Reference & Export Data (.zip) link
+    fireEvent.click(screen.getByTestId("user-profile"));
+    await waitFor(() => {
+      expect(screen.getByTestId("export-data-zip-link")).toHaveAttribute("href", "/api/me/export.zip");
+    });
+    fireEvent.change(screen.getByLabelText("Reference Video URL"), {
+      target: { value: "https://youtu.be/dQw4w9WgXcQ" },
+    });
+    fireEvent.click(screen.getByTestId("auto-tag-ref-btn"));
+    await waitFor(() => {
+      expect(screen.getByTestId("academy-msg")).toHaveTextContent("Auto-tagged: guard_passing");
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Close" }));
+
+    // 4. Overview Home -> Longitudinal Progress Strip + Team Coach Roster + Upload Modal (Ruleset + Trim + Tap-to-Identify)
+    fireEvent.click(screen.getByTestId("brand-home-btn"));
+    await waitFor(() => {
+      expect(screen.getByTestId("longitudinal-progress-strip")).toBeInTheDocument();
+      expect(screen.getByTestId("team-coach-roster")).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByTestId("toggle-review-mc9_semifinal"));
+    await waitFor(() => {
+      expect(screen.getByTestId("toggle-review-mc9_semifinal")).toHaveTextContent("Mark Needs Review");
+    });
+    fireEvent.click(screen.getByTestId("pin-drill-mc9_semifinal"));
+    await waitFor(() => {
+      expect(screen.getByTestId("pin-drill-mc9_semifinal")).toHaveTextContent("Pin Drill (1)");
+    });
+
+    fireEvent.click(screen.getByTestId("open-upload-modal-btn"));
+    fireEvent.change(screen.getByTestId("upload-ruleset-select"), { target: { value: "adcc" } });
+    fireEvent.change(screen.getByLabelText("Trim Start Seconds"), { target: { value: "5" } });
+    fireEvent.change(screen.getByLabelText("Trim End Seconds"), { target: { value: "120" } });
+    const tapCanvas = screen.getByTestId("tap-to-identify-canvas");
+    fireEvent.click(tapCanvas, { clientX: 40, clientY: 30 });
+    expect(screen.getByTestId("tap-pin-a")).toBeInTheDocument();
+    fireEvent.click(tapCanvas, { clientX: 80, clientY: 30 });
+    expect(screen.getByTestId("tap-pin-b")).toBeInTheDocument();
+    // Third click resets A and clears B
+    fireEvent.click(tapCanvas, { clientX: 50, clientY: 40 });
+    expect(screen.queryByTestId("tap-pin-b")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Reset Pins" }));
+    expect(screen.queryByTestId("tap-pin-a")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Close" }));
+
+    // Resizable right-hand Moments panel handle on desktop (#233)
+    fireEvent.click(screen.getByTestId("home-match-mc9_semifinal"));
+    await waitFor(() => {
+      expect(screen.getByTestId("rail-resize-handle")).toBeInTheDocument();
+    });
+    const resizeHandle = screen.getByTestId("rail-resize-handle");
+    fireEvent.pointerDown(resizeHandle, { clientX: 800 });
+    fireEvent(window, new MouseEvent("pointermove", { clientX: 740 }));
+    fireEvent(window, new MouseEvent("pointerup"));
+  }, 15000);
 });

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import contextlib
 import json
+import os
 import time
 from typing import Annotated, Any
 
@@ -150,6 +151,8 @@ def upsert_user_profile(settings: Settings, user: dict[str, Any]) -> dict[str, A
     with contextlib.suppress(OSError):
         profiles = load_user_profiles(settings)
         existing = profiles.get(email, {})
+        if role == "member" and (user.get("role") == "coach" or existing.get("role") == "coach"):
+            role = "coach"
         resolved_acad_id = str(
             user.get("academy_id") or existing.get("academy_id") or default_acad_id
         ).strip()
@@ -167,6 +170,9 @@ def upsert_user_profile(settings: Settings, user: dict[str, Any]) -> dict[str, A
             "email": email,
             "name": str(user.get("name") or existing.get("name") or email.split("@")[0]),
             "picture": str(user.get("picture") or existing.get("picture") or ""),
+            "belt": str(user.get("belt") or existing.get("belt") or "white"),
+            "academy": str(user.get("academy") or existing.get("academy") or (default_teams[0] if default_teams else "")),
+            "coach": str(user.get("coach") or existing.get("coach") or ""),
             "role": role,
             "teams": resolved_teams,
             "academy_id": resolved_acad_id,
@@ -179,12 +185,57 @@ def upsert_user_profile(settings: Settings, user: dict[str, Any]) -> dict[str, A
         out_path.write_text(json.dumps(profiles, indent=2), encoding="utf-8")
     return {
         **user,
+        "name": str(profiles.get(email, {}).get("name") or user.get("name") or email.split("@")[0]),
+        "picture": str(profiles.get(email, {}).get("picture") or user.get("picture") or ""),
+        "belt": str(profiles.get(email, {}).get("belt") or user.get("belt") or "white"),
+        "academy": str(profiles.get(email, {}).get("academy") or user.get("academy") or ""),
+        "coach": str(profiles.get(email, {}).get("coach") or user.get("coach") or ""),
         "role": role,
         "teams": resolved_teams,
         "academy_id": resolved_acad_id,
         "academy_name": resolved_acad_name,
         "is_admin": is_admin_flag,
     }
+
+
+def update_user_profile(
+    settings: Settings,
+    email: str,
+    *,
+    name: str | None = None,
+    picture: str | None = None,
+    belt: str | None = None,
+    academy: str | None = None,
+    coach: str | None = None,
+    academy_id: str | None = None,
+    academy_name: str | None = None,
+) -> dict[str, Any]:
+    """Update an athlete's editable profile fields in users.json and RuntimeStateStore."""
+    clean_email = (email or "").strip().lower()
+    profiles = load_user_profiles(settings)
+    existing = profiles.get(clean_email, {"email": clean_email, "name": clean_email.split("@")[0]})
+    now_str = time.strftime("%Y-%m-%d %H:%M UTC", time.gmtime())
+    updated = {
+        **existing,
+        "email": clean_email,
+        "name": (name.strip() if isinstance(name, str) and name.strip() else str(existing.get("name") or clean_email.split("@")[0])),
+        "picture": (picture.strip() if isinstance(picture, str) else str(existing.get("picture") or "")),
+        "belt": (belt.strip().lower() if isinstance(belt, str) and belt.strip() else str(existing.get("belt") or "white")),
+        "academy": (academy.strip() if isinstance(academy, str) else str(existing.get("academy") or "")),
+        "coach": (coach.strip() if isinstance(coach, str) else str(existing.get("coach") or "")),
+        "academy_id": (academy_id.strip() if isinstance(academy_id, str) and academy_id.strip() else str(existing.get("academy_id") or "osjj-roadmap")),
+        "academy_name": (academy_name.strip() if isinstance(academy_name, str) and academy_name.strip() else str(existing.get("academy_name") or "Open Source Curriculum")),
+        "created_at": str(existing.get("created_at") or now_str),
+        "last_seen": now_str,
+    }
+    profiles[clean_email] = updated
+    out_path = settings.runtime_dir / "users.json"
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(json.dumps(profiles, indent=2), encoding="utf-8")
+    from rollmetrics.storage import RuntimeStateStore
+
+    RuntimeStateStore(settings).put_record("users", clean_email, updated)
+    return updated
 
 
 def update_user_academy(
@@ -272,3 +323,81 @@ async def authenticate_websocket(websocket: WebSocket, settings: Settings) -> di
         websocket.query_params.get("token"),
     )
     return authenticate_token_or_bypass(token, settings)
+
+
+def has_unlimited_quota(user: dict[str, Any], settings: Settings) -> bool:
+    """Return True for admins, coaches, team members, or local dev bypass sessions."""
+    if is_admin_user(user, settings):
+        return True
+    role = str(user.get("role") or "").strip().lower()
+    if role == "coach":
+        return True
+    teams = user.get("teams")
+    return isinstance(teams, list) and len(teams) > 0
+
+
+def get_daily_cloud_budget_status(settings: Settings) -> dict[str, float]:
+    """Return today's tracked cloud spend and configured ROLLMETRICS_MAX_DAILY_CLOUD_USD cap."""
+    from rollmetrics.storage import RuntimeStateStore
+
+    day_key = time.strftime("%Y-%m-%d", time.gmtime())
+    try:
+        max_usd = max(0.0, float(os.getenv("ROLLMETRICS_MAX_DAILY_CLOUD_USD", "10.0")))
+    except ValueError:
+        max_usd = 10.0
+    store = RuntimeStateStore(settings)
+    record = store.get_record("quotas", day_key) or {}
+    spend_usd = float(record.get("cloud_spend_usd") or 0.0)
+    return {"daily_cloud_spend_usd": round(spend_usd, 4), "max_daily_cloud_usd": round(max_usd, 4)}
+
+
+def check_and_record_daily_quota(
+    settings: Settings,
+    user: dict[str, Any],
+    *,
+    estimated_cost_usd: float = 0.02,
+    max_daily_uploads: int = 5,
+) -> dict[str, Any]:
+    """Enforce per-user open-signup daily quota (5/day) and global daily cloud spend cap."""
+    from rollmetrics.storage import RuntimeStateStore
+
+    day_key = time.strftime("%Y-%m-%d", time.gmtime())
+    email = str(user.get("email") or "anonymous").strip().lower()
+    unlimited = has_unlimited_quota(user, settings)
+    budget = get_daily_cloud_budget_status(settings)
+    max_usd = budget["max_daily_cloud_usd"]
+
+    store = RuntimeStateStore(settings)
+    record = store.get_record("quotas", day_key) or {
+        "date": day_key,
+        "cloud_spend_usd": 0.0,
+        "user_counts": {},
+    }
+    user_counts = dict(record.get("user_counts") or {})
+    current_count = int(user_counts.get(email, 0))
+    current_spend = float(record.get("cloud_spend_usd") or 0.0)
+
+    if not unlimited and current_count >= max_daily_uploads:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail=f"Daily open-signup upload quota reached ({max_daily_uploads}/day). Join a team or self-host for unlimited analyses.",
+        )
+
+    if max_usd > 0 and (current_spend + max(0.0, estimated_cost_usd)) > max_usd:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail=f"Daily cloud analysis budget cap (${max_usd:.2f}/day) reached. Switch to Local Ollama or try again tomorrow.",
+        )
+
+    user_counts[email] = current_count + 1
+    next_spend = round(current_spend + max(0.0, estimated_cost_usd), 4)
+    record["user_counts"] = user_counts
+    record["cloud_spend_usd"] = next_spend
+    store.put_record("quotas", day_key, record)
+    return {
+        "date": day_key,
+        "user_count": user_counts[email],
+        "user_limit": None if unlimited else max_daily_uploads,
+        "daily_cloud_spend_usd": next_spend,
+        "max_daily_cloud_usd": max_usd,
+    }

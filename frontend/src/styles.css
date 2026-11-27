@@ -3060,3 +3060,243 @@ body:has(.landing-page) {
     padding: 0 0.45rem;
   }
 }
+
+/* v0.3.0 Pilot Features: Longitudinal Strip, Tap-to-Identify, Inline Moment Editor */
+.longitudinal-strip {
+  margin-top: 0.7rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--border-hairline);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+
+.tap-identify-box {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.tap-identify-canvas {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  max-height: 140px;
+  border-radius: 8px;
+  border: 1px dashed var(--border-focus);
+  background: radial-gradient(circle at 50% 50%, #161d29 0%, #0b0e13 100%);
+  cursor: crosshair;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.tap-identify-hint {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.tap-pin {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.tap-pin-a {
+  background: #10b981;
+  color: #06120e;
+  border: 2px solid #f8fafc;
+}
+
+.tap-pin-b {
+  background: #2563eb;
+  color: #f8fafc;
+  border: 2px solid #f8fafc;
+}
+
+.moment-editor-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.55rem;
+  border-radius: 8px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-hairline);
+}
+
+/* #232 Usability Polish: Landing Video Preview, Athlete Profile Strip, Readable Typography */
+.landing-video-preview {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--border-hairline);
+  background: #06080b;
+}
+
+.landing-video-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.landing-play-badge {
+  position: absolute;
+  left: 0.65rem;
+  bottom: 0.65rem;
+  padding: 0.3rem 0.65rem;
+  border-radius: 999px;
+  background: rgba(11, 14, 19, 0.88);
+  border: 1px solid var(--border-focus);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.athlete-profile-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.85rem;
+  padding: 0.95rem 1.15rem;
+  border-radius: 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-hairline);
+}
+
+.athlete-profile-id {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.athlete-profile-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem 0.9rem;
+  font-size: 0.84rem;
+  color: var(--text-secondary);
+}
+
+.athlete-profile-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  font-size: 0.84rem;
+  color: var(--text-secondary);
+}
+
+.upload-bg-banner {
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #a7f3d0;
+  font-size: 0.82rem;
+}
+
+/* Minimum readable font scale (>= 0.78rem labels, >= 0.90rem body) */
+body {
+  font-size: 0.92rem;
+}
+
+.coach-section-label,
+.admin-kpi-label,
+.admin-meta-line,
+.gameplan-stat-muted,
+.library-card-sub,
+.embed-video-caption,
+.legal-link-btn {
+  font-size: max(0.78rem, 12.5px);
+}
+
+/* #233 Surgical Polish: Coach Spacing, Mobile GIF Hide, Resizable Rail, Button Font, On-Site Rulebook */
+.coach-summary-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  margin-bottom: 0.85rem;
+}
+
+.coach-overview-block {
+  margin-bottom: 0.15rem;
+}
+
+.rule-cite-btn,
+.cta-inline-btn {
+  font-family: var(--font-sans);
+  font-size: 0.82rem;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.rail-resize-handle {
+  display: none;
+}
+
+@media (min-width: 960px) {
+  .arena-stage.resizable-stage {
+    grid-template-columns: minmax(0, 1fr) 8px var(--rail-width, 420px);
+    gap: 0.5rem;
+  }
+
+  .rail-resize-handle {
+    display: block;
+    width: 8px;
+    cursor: col-resize;
+    border-radius: 4px;
+    background: transparent;
+    transition: background 140ms ease;
+    align-self: stretch;
+  }
+
+  .rail-resize-handle:hover,
+  .rail-resize-handle:active {
+    background: rgba(148, 163, 184, 0.35);
+  }
+}
+
+@media (max-width: 760px) {
+  .gif-desktop-only {
+    display: none !important;
+  }
+}
+
+.rulebook-article {
+  padding: 0.9rem 1rem;
+  border-radius: 10px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-hairline);
+  margin-bottom: 0.75rem;
+}
+
+.rulebook-article.highlighted {
+  border-color: #10b981;
+  background: rgba(16, 185, 129, 0.12);
+  box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.35);
+}
+
+.rulebook-article-code {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: #10b981;
+  margin-bottom: 0.25rem;
+}

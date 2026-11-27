@@ -32,6 +32,57 @@ def _print_json(payload: Any, output_path: str | None = None) -> None:
     print(rendered)
 
 
+def _cmd_doctor(args: argparse.Namespace) -> int:
+    """Check local runtime dependencies (ffmpeg, Ollama, gemma4:e2b, RAM, disk, cloud key)."""
+    import shutil
+
+    from rollmetrics.desktop import get_local_hardware_status
+    from rollmetrics.video.ingest import resolve_binary
+
+    settings = get_settings()
+    settings.runtime_dir.mkdir(parents=True, exist_ok=True)
+
+    binaries: dict[str, str | None] = {}
+    for tool in ("ffmpeg", "ffprobe", "yt-dlp"):
+        try:
+            binaries[tool] = resolve_binary(tool)
+        except FileNotFoundError:
+            binaries[tool] = None
+
+    hw = get_local_hardware_status(settings=settings)
+    usage = shutil.disk_usage(settings.runtime_dir)
+    disk_free_gb = round(usage.free / (1024**3), 2)
+    disk_total_gb = round(usage.total / (1024**3), 2)
+
+    ollama_models = list(hw.get("ollama_models") or [])
+    gemma_ready = any("gemma4" in m.lower() for m in ollama_models)
+    core_ok = bool(binaries["ffmpeg"] and binaries["ffprobe"])
+
+    report = {
+        "healthy": core_ok,
+        "binaries": binaries,
+        "ollama": {
+            "base_url": settings.ollama_base_url,
+            "reachable": bool(hw.get("ollama_reachable", False)),
+            "models": ollama_models,
+            "gemma4_e2b_ready": gemma_ready,
+            "recommended_model": settings.ollama_vision_model,
+        },
+        "system": {
+            "ram_gb": hw.get("ram_gb"),
+            "disk_free_gb": disk_free_gb,
+            "disk_total_gb": disk_total_gb,
+            "runtime_dir": str(settings.runtime_dir),
+        },
+        "cloud": {
+            "gemini_api_key_configured": bool(settings.gemini_api_key.strip()),
+            "gcs_bucket_configured": bool(settings.gcs_bucket.strip()),
+        },
+    }
+    _print_json(report, getattr(args, "output", None))
+    return 0 if core_ok else 1
+
+
 def _cmd_serve(args: argparse.Namespace) -> int:
     settings = get_settings()
     host = args.host or settings.host
@@ -335,6 +386,14 @@ def build_parser() -> argparse.ArgumentParser:
         description="RollMetrics CLI: IBJJF refereeing, match film analysis, CTA index, and media studio.",
     )
     sub = parser.add_subparsers(dest="command", required=True)
+
+    # doctor
+    p_doctor = sub.add_parser(
+        "doctor",
+        help="Verify local runtime health (ffmpeg, Ollama, gemma4:e2b, RAM, disk, cloud config).",
+    )
+    p_doctor.add_argument("--output", default=None, help="Optional JSON output file path.")
+    p_doctor.set_defaults(func=_cmd_doctor)
 
     # serve
     p_serve = sub.add_parser("serve", help="Start the FastAPI + WebSocket + SPA server.")

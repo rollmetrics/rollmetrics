@@ -2,6 +2,7 @@ import type {
   AcademyProfile,
   AcademyReference,
   AdminOverviewResponse,
+  AthleteAnchorPoint,
   AuthConfig,
   AuthUser,
   ConnectionTestResult,
@@ -12,11 +13,14 @@ import type {
   MatchBucket,
   ModelProfile,
   PersonalCoachingSummary,
+  PinnedDrill,
+  RulesetId,
   SharedMatchPayload,
   ShareLinkResponse,
   ShowcaseEvent,
   ShowcaseMatch,
   SystemStatusResponse,
+  TeamRosterItem,
   UploadInitResponse,
 } from "./types";
 
@@ -211,7 +215,27 @@ export function mapAdjudicatedSnapshotToMatch(
 
 export const api = {
   getAuthConfig: () => apiFetch<AuthConfig>("/api/auth/config"),
+  getIbjjfRulebook: () =>
+    apiFetch<{
+      version: string;
+      title: string;
+      count: number;
+      articles: Array<{ id: string; article: string; title: string; text: string; source_url: string }>;
+    }>("/api/rules/ibjjf-v6-1"),
   getMe: () => apiFetch<AuthUser>("/api/auth/me"),
+  updateMyProfile: (payload: {
+    name?: string;
+    picture?: string;
+    belt?: string;
+    academy?: string;
+    coach?: string;
+    academy_id?: string;
+    academy_name?: string;
+  }) =>
+    apiFetch<AuthUser>("/api/me/profile", {
+      method: "PUT",
+      body: JSON.stringify(payload),
+    }),
   demoLogin: () =>
     apiFetch<{ token: string; user: AuthUser }>("/api/auth/demo-login", {
       method: "POST",
@@ -266,6 +290,11 @@ export const api = {
     athlete_a_gi: "white" | "blue" | "black";
     athlete_b_gi: "white" | "blue" | "black";
     title?: string;
+    ruleset?: RulesetId;
+    trim_start_sec?: number;
+    trim_end_sec?: number;
+    athlete_a_anchor?: AthleteAnchorPoint;
+    athlete_b_anchor?: AthleteAnchorPoint;
   }) =>
     apiFetch<UploadInitResponse>("/api/uploads/init", {
       method: "POST",
@@ -287,6 +316,11 @@ export const api = {
     athlete_a_gi: "white" | "blue" | "black";
     athlete_b_gi: "white" | "blue" | "black";
     profile?: ModelProfile;
+    ruleset?: RulesetId;
+    trim_start_sec?: number;
+    trim_end_sec?: number;
+    athlete_a_anchor?: AthleteAnchorPoint;
+    athlete_b_anchor?: AthleteAnchorPoint;
   }) =>
     apiFetch<{ match: ShowcaseMatch; snapshot: Record<string, unknown> }>(
       "/api/uploads/google-drive",
@@ -299,6 +333,54 @@ export const api = {
     apiFetch<ShareLinkResponse>(`/api/matches/${encodeURIComponent(matchId)}/share`, {
       method: "POST",
     }),
+  revokeShareLink: (token: string) =>
+    apiFetch<{ ok: boolean; token: string }>(`/api/share/${encodeURIComponent(token)}`, {
+      method: "DELETE",
+    }),
+  deleteMatch: (matchId: string) =>
+    apiFetch<{ ok: boolean; match_id: string }>(`/api/matches/${encodeURIComponent(matchId)}`, {
+      method: "DELETE",
+    }),
+  updateMatchMoments: (
+    matchId: string,
+    payload: {
+      events: ShowcaseEvent[];
+      ruleset?: RulesetId;
+      opt_in_feedback?: boolean;
+    },
+  ) =>
+    apiFetch<{ match: ShowcaseMatch; feedback_logged?: boolean }>(
+      `/api/matches/${encodeURIComponent(matchId)}/moments`,
+      {
+        method: "PUT",
+        body: JSON.stringify(payload),
+      },
+    ),
+  getTeamRoster: () => apiFetch<{ roster: TeamRosterItem[] }>("/api/team/roster"),
+  updateMatchReview: (
+    matchId: string,
+    payload: {
+      review_status?: "needs_review" | "reviewed";
+      pin_drill?: PinnedDrill;
+    },
+  ) =>
+    apiFetch<{
+      match_id: string;
+      review_status: "needs_review" | "reviewed";
+      pinned_drills: PinnedDrill[];
+    }>(`/api/matches/${encodeURIComponent(matchId)}/review`, {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
+  autoTagAcademyReference: (payload: { url?: string; title?: string; notes?: string }) =>
+    apiFetch<{ title: string; position: string; belt: string; tags: string[]; summary: string }>(
+      "/api/academies/me/references/auto-tag",
+      {
+        method: "POST",
+        body: JSON.stringify(payload),
+      },
+    ),
+  getExportDataUrl: () => withAuthUrl("/api/me/export.zip"),
   getSharedMatch: (token: string) =>
     apiFetch<SharedMatchPayload>(`/api/share/${encodeURIComponent(token)}`),
   generateSharedHighlight: (

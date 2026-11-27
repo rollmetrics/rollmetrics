@@ -2,10 +2,13 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { api, getStoredToken, mapAdjudicatedSnapshotToMatch, setStoredToken, withAuthUrl } from "./api";
 import { EmbeddedReferenceVideo } from "./components/EmbeddedReferenceVideo";
 import { LandingPage } from "./components/LandingPage";
+import { AppAdminView } from "./views/AppAdminView";
+import { MlAdminView } from "./views/MlAdminView";
 import type {
   AcademyProfile,
   AcademyReference,
   AdminOverviewResponse,
+  AthleteAnchorPoint,
   AuthConfig,
   AuthUser,
   BeltRank,
@@ -16,9 +19,11 @@ import type {
   MatchBucket,
   ModelProfile,
   PersonalCoachingSummary,
+  RulesetId,
   ShowcaseEvent,
   ShowcaseMatch,
   SystemStatusResponse,
+  TeamRosterItem,
 } from "./types";
 
 declare global {
@@ -361,23 +366,6 @@ function slugifyName(name: string): string {
     .replace(/^-|-$/g, "");
 }
 
-function formatPct(val: number): string {
-  return `${Math.round((Number(val) || 0) * 100)}%`;
-}
-
-function formatLatencyMs(ms: number): string {
-  const n = Number(ms) || 0;
-  if (n <= 0) return "-";
-  if (n >= 1000) return `${(n / 1000).toFixed(1)}s`;
-  return `${Math.round(n)}ms`;
-}
-
-function formatCostUsd(cost: number): string {
-  const n = Number(cost) || 0;
-  if (n <= 0) return "$0.00";
-  return `$${n.toFixed(4)}`;
-}
-
 function extractShareTokenFromPath(pathname: string): string {
   const m = pathname.match(/^\/share\/([^/]+)\/?$/);
   return m ? decodeURIComponent(m[1]) : "";
@@ -397,7 +385,14 @@ export function App() {
   const [shareCopiedMsg, setShareCopiedMsg] = useState<string>("");
 
   const [uploadModalOpen, setUploadModalOpen] = useState<boolean>(false);
-  const [uploadTab, setUploadTab] = useState<"file" | "drive">("file");
+  const [uploadTab, setUploadTab] = useState<"file" | "link" | "live">("file");
+  const [profileNameInput, setProfileNameInput] = useState<string>("");
+  const [profilePictureInput, setProfilePictureInput] = useState<string>("");
+  const [profileBeltInput, setProfileBeltInput] = useState<BeltRank>("white");
+  const [profileAcademyInput, setProfileAcademyInput] = useState<string>("");
+  const [profileCoachInput, setProfileCoachInput] = useState<string>("");
+  const [profileCurriculumInput, setProfileCurriculumInput] = useState<string>("osjj-roadmap");
+  const [profileSaveMsg, setProfileSaveMsg] = useState<string>("");
   const [uploadUniform, setUploadUniform] = useState<"gi" | "nogi">("gi");
   const [uploadBelt, setUploadBelt] = useState<BeltRank>("white");
   const [uploadAthleteA, setUploadAthleteA] = useState<string>("");
@@ -405,9 +400,23 @@ export function App() {
   const [uploadGiA, setUploadGiA] = useState<"white" | "blue" | "black">("white");
   const [uploadGiB, setUploadGiB] = useState<"white" | "blue" | "black">("blue");
   const [uploadTitle, setUploadTitle] = useState<string>("");
+  const [uploadRuleset, setUploadRuleset] = useState<RulesetId>("ibjjf_v6");
+  const [uploadTrimStart, setUploadTrimStart] = useState<string>("");
+  const [uploadTrimEnd, setUploadTrimEnd] = useState<string>("");
+  const [uploadAnchorA, setUploadAnchorA] = useState<AthleteAnchorPoint | null>(null);
+  const [uploadAnchorB, setUploadAnchorB] = useState<AthleteAnchorPoint | null>(null);
   const [driveUrlInput, setDriveUrlInput] = useState<string>("");
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [uploadError, setUploadError] = useState<string>("");
+  const [lastShareToken, setLastShareToken] = useState<string>("");
+  const [teamRoster, setTeamRoster] = useState<TeamRosterItem[]>([]);
+  const [editingEventId, setEditingEventId] = useState<string | null>(null);
+  const [editActor, setEditActor] = useState<"A" | "B">("A");
+  const [editCall, setEditCall] = useState<string>("+2 PTS");
+  const [editDetail, setEditDetail] = useState<string>("");
+  const [editCoachNote, setEditCoachNote] = useState<string>("");
+  const [momentEditBusy, setMomentEditBusy] = useState<boolean>(false);
+  const [autoTagBusy, setAutoTagBusy] = useState<boolean>(false);
 
   const [matches, setMatches] = useState<ShowcaseMatch[]>([FALLBACK_SEMIFINAL]);
   const [activeMatchId, setActiveMatchId] = useState<string>("mc9_semifinal");
@@ -432,7 +441,6 @@ export function App() {
   } | null>(null);
   const [profile, setProfile] = useState<ModelProfile>("local");
 
-  const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
   const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
   const [coachExpanded, setCoachExpanded] = useState<boolean>(false);
   const [inlineGifByEvent, setInlineGifByEvent] = useState<
@@ -442,7 +450,7 @@ export function App() {
   const [demoLoginBusy, setDemoLoginBusy] = useState<boolean>(false);
   const [previewAsUser, setPreviewAsUser] = useState<boolean>(false);
   const [viewMode, setViewMode] = useState<
-    "player" | "home" | "admin" | "ml-admin" | "privacy" | "terms"
+    "player" | "home" | "admin" | "ml-admin" | "privacy" | "terms" | "rulebook"
   >(() => {
     if (typeof window === "undefined") return "player";
     const p = window.location.pathname;
@@ -450,7 +458,23 @@ export function App() {
     if (p === "/ml" || p === "/ml-admin") return "ml-admin";
     if (p === "/privacy") return "privacy";
     if (p === "/terms") return "terms";
+    if (p === "/rules/ibjjf-v6-1") return "rulebook";
     return "player";
+  });
+  const [rulebookArticle, setRulebookArticle] = useState<string>(() =>
+    typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("article") || "" : "",
+  );
+  const [rulebookArticles, setRulebookArticles] = useState<
+    Array<{ id: string; article: string; title: string; text: string; source_url: string }>
+  >([]);
+  const [railWidth, setRailWidth] = useState<number>(() => {
+    try {
+      const saved = Number(localStorage.getItem("rollmetrics_rail_width"));
+      if (Number.isFinite(saved) && saved >= 320 && saved <= 680) return saved;
+    } catch {
+      // Ignore storage errors
+    }
+    return 420;
   });
   const [filmStudyAthlete, setFilmStudyAthlete] = useState<string>("");
   const [filmStudySummary, setFilmStudySummary] = useState<FilmStudySummary | null>(null);
@@ -544,6 +568,12 @@ export function App() {
       const me = await api.getMe();
       const catalog = await api.getMatches();
       setUser(me);
+      setProfileNameInput(me.name || "");
+      setProfilePictureInput(me.picture || "");
+      setProfileBeltInput((me.belt as BeltRank) || "white");
+      setProfileAcademyInput(me.academy || (me.teams?.[0] ?? ""));
+      setProfileCoachInput(me.coach || "");
+      setProfileCurriculumInput(me.academy_id === "cta" ? "cta" : "osjj-roadmap");
       if (catalog.matches.length > 0) {
         setMatches(catalog.matches);
         const defId = catalog.default_match_id || catalog.matches[0].id;
@@ -557,6 +587,10 @@ export function App() {
         .getPersonalCoachingSummary()
         .then((gp) => setPersonalSummary(gp))
         .catch(() => {});
+      api
+        .getTeamRoster()
+        .then((res) => setTeamRoster(res.roster || []))
+        .catch(() => setTeamRoster([]));
       api
         .getMyAcademy()
         .then((ac) => {
@@ -1153,15 +1187,15 @@ export function App() {
       const actorName = ev.actor === "B" ? labelB : labelA;
       const res = shareToken
         ? await api.generateSharedHighlight(shareToken, {
-            start_sec: Math.max(0, ev.video_sec - 3.0),
-            duration_sec: 5.0,
+            start_sec: Math.max(0, ev.video_sec - 5.5),
+            duration_sec: 7.5,
             speed: 0.4,
           })
         : await api.generateSlowmo({
             match_id: activeMatch.video_path ? undefined : activeMatch.id,
             video_path: activeMatch.video_path,
-            start_sec: Math.max(0, ev.video_sec - 3.0),
-            duration_sec: 5.0,
+            start_sec: Math.max(0, ev.video_sec - 5.5),
+            duration_sec: 7.5,
             speed: 0.4,
           });
       const clip = {
@@ -1197,6 +1231,7 @@ export function App() {
   const handleShareMatch = async () => {
     try {
       const res = await api.createShareLink(activeMatch.id);
+      setLastShareToken(res.token);
       const urlToCopy =
         typeof window !== "undefined" && window.location.origin.startsWith("http")
           ? `${window.location.origin}${res.share_path}`
@@ -1210,6 +1245,174 @@ export function App() {
     }
   };
 
+  const handleRevokeShare = async () => {
+    if (!lastShareToken) return;
+    try {
+      await api.revokeShareLink(lastShareToken);
+      setLastShareToken("");
+      setShareCopiedMsg("Share revoked");
+      window.setTimeout(() => setShareCopiedMsg(""), 2500);
+    } catch {
+      setShareCopiedMsg("Revoke failed");
+      window.setTimeout(() => setShareCopiedMsg(""), 2500);
+    }
+  };
+
+  const handleDeleteMatch = async (matchId: string) => {
+    try {
+      await api.deleteMatch(matchId);
+      setMatches((prev) => {
+        const remaining = prev.filter((m) => m.id !== matchId);
+        if (activeMatchId === matchId && remaining.length > 0) {
+          setActiveMatchId(remaining[0].id);
+        }
+        return remaining.length > 0 ? remaining : [FALLBACK_SEMIFINAL];
+      });
+    } catch {
+      // Ignore delete error if match is built-in
+    }
+  };
+
+  const handleStartEditMoment = (ev: ShowcaseEvent) => {
+    setEditingEventId(ev.id);
+    setEditActor(ev.actor);
+    setEditCall(ev.call);
+    setEditDetail(ev.detail);
+    setEditCoachNote(ev.coach_note || "");
+  };
+
+  const persistMatchMoments = async (nextEvents: ShowcaseEvent[]) => {
+    setMomentEditBusy(true);
+    try {
+      const res = await api.updateMatchMoments(activeMatch.id, {
+        events: nextEvents,
+        ruleset: activeMatch.ruleset || "ibjjf_v6",
+        opt_in_feedback: true,
+      });
+      if (res?.match) {
+        setMatches((prev) => prev.map((m) => (m.id === activeMatch.id ? res.match : m)));
+      } else {
+        setMatches((prev) =>
+          prev.map((m) => (m.id === activeMatch.id ? { ...m, events: nextEvents } : m)),
+        );
+      }
+    } catch {
+      setMatches((prev) =>
+        prev.map((m) => (m.id === activeMatch.id ? { ...m, events: nextEvents } : m)),
+      );
+    } finally {
+      setMomentEditBusy(false);
+      setEditingEventId(null);
+    }
+  };
+
+  const handleSaveMomentEdit = async (eventId: string) => {
+    const nextEvents = activeMatch.events.map((ev) =>
+      ev.id === eventId
+        ? {
+            ...ev,
+            actor: editActor,
+            call: editCall,
+            detail: editDetail.trim() || ev.detail,
+            coach_note: editCoachNote.trim() || undefined,
+            edited_by: user?.email || "coach",
+          }
+        : ev,
+    );
+    await persistMatchMoments(nextEvents);
+  };
+
+  const handleDeleteMoment = async (eventId: string) => {
+    const nextEvents = activeMatch.events.filter((ev) => ev.id !== eventId);
+    await persistMatchMoments(nextEvents);
+  };
+
+  const handleAddMoment = async () => {
+    const sec = Math.max(0, Math.round(currentTime));
+    const fmt = (s: number) =>
+      `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+    const lastEv = activeMatch.events[activeMatch.events.length - 1];
+    const newEv: ShowcaseEvent = {
+      id: `manual-${Date.now()}`,
+      video_sec: sec,
+      time_str: fmt(sec),
+      clock_str: fmt(Math.max(0, (activeMatch.regulation_sec || 300) - sec)),
+      actor: "A",
+      call: "+2 PTS",
+      detail: "Coach Moment",
+      rule: activeMatch.ruleset === "adcc" ? "ADCC Rules" : "IBJJF Art. 4",
+      cta_url: "https://www.youtube.com/watch?v=4-7AYrBCOvQ",
+      pts_a: (lastEv?.pts_a || 0) + 2,
+      adv_a: lastEv?.adv_a || 0,
+      pen_a: lastEv?.pen_a || 0,
+      pts_b: lastEv?.pts_b || 0,
+      adv_b: lastEv?.adv_b || 0,
+      pen_b: lastEv?.pen_b || 0,
+      coach_note: "Added during film review",
+    };
+    const nextEvents = [...activeMatch.events, newEv].sort((a, b) => a.video_sec - b.video_sec);
+    await persistMatchMoments(nextEvents);
+    setSelectedEventId(newEv.id);
+    handleStartEditMoment(newEv);
+  };
+
+  const handleAutoTagAcademyRef = async () => {
+    if (!refUrlInput.trim() && !refTitleInput.trim() && !refNotesInput.trim()) return;
+    setAutoTagBusy(true);
+    try {
+      const tagged = await api.autoTagAcademyReference({
+        url: refUrlInput.trim() || undefined,
+        title: refTitleInput.trim() || undefined,
+        notes: refNotesInput.trim() || undefined,
+      });
+      if (tagged.title && !refTitleInput.trim()) setRefTitleInput(tagged.title);
+      if (tagged.position) setRefPositionInput(tagged.position);
+      if (tagged.summary && !refNotesInput.trim()) setRefNotesInput(tagged.summary);
+      setAcademyMsg(`Auto-tagged: ${tagged.position} (${tagged.belt} belt)`);
+    } catch {
+      setAcademyMsg("Auto-tag unavailable.");
+    } finally {
+      setAutoTagBusy(false);
+    }
+  };
+
+  const handleToggleRosterReview = async (item: TeamRosterItem) => {
+    const nextStatus = item.review_status === "reviewed" ? "needs_review" : "reviewed";
+    try {
+      const updated = await api.updateMatchReview(item.match_id, { review_status: nextStatus });
+      setTeamRoster((prev) =>
+        prev.map((r) =>
+          r.match_id === item.match_id
+            ? { ...r, review_status: updated.review_status, pinned_drills: updated.pinned_drills }
+            : r,
+        ),
+      );
+    } catch {
+      // Ignore review toggle error
+    }
+  };
+
+  const handlePinRosterDrill = async (item: TeamRosterItem) => {
+    try {
+      const updated = await api.updateMatchReview(item.match_id, {
+        pin_drill: {
+          title: `Drill for ${item.title}`,
+          url: "https://www.youtube.com/watch?v=4-7AYrBCOvQ",
+          note: "Pinned by team coach",
+        },
+      });
+      setTeamRoster((prev) =>
+        prev.map((r) =>
+          r.match_id === item.match_id
+            ? { ...r, review_status: updated.review_status, pinned_drills: updated.pinned_drills }
+            : r,
+        ),
+      );
+    } catch {
+      // Ignore pin error
+    }
+  };
+
   const handleDirectUploadFile = async (file: File | null) => {
     if (!file) return;
     setIngestBusy(true);
@@ -1218,6 +1421,8 @@ export function App() {
     try {
       const athA = uploadAthleteA.trim() || user?.name || "Athlete A";
       const athB = uploadAthleteB.trim() || "Opponent";
+      const trimStart = uploadTrimStart.trim() ? Number(uploadTrimStart) : undefined;
+      const trimEnd = uploadTrimEnd.trim() ? Number(uploadTrimEnd) : undefined;
       const init = await api.initUpload({
         filename: file.name,
         content_type: file.type || "video/mp4",
@@ -1230,6 +1435,11 @@ export function App() {
         athlete_a_gi: uploadGiA,
         athlete_b_gi: uploadGiB,
         title: uploadTitle.trim() || file.name.replace(/\.[^.]+$/, ""),
+        ruleset: uploadRuleset,
+        trim_start_sec: Number.isFinite(trimStart) ? trimStart : undefined,
+        trim_end_sec: Number.isFinite(trimEnd) ? trimEnd : undefined,
+        athlete_a_anchor: uploadAnchorA || undefined,
+        athlete_b_anchor: uploadAnchorB || undefined,
       });
       setUploadProgress(45);
       let newMatch: ShowcaseMatch;
@@ -1273,6 +1483,8 @@ export function App() {
     try {
       const athA = uploadAthleteA.trim() || user?.name || "Athlete A";
       const athB = uploadAthleteB.trim() || "Opponent";
+      const trimStart = uploadTrimStart.trim() ? Number(uploadTrimStart) : undefined;
+      const trimEnd = uploadTrimEnd.trim() ? Number(uploadTrimEnd) : undefined;
       const done = await api.uploadGoogleDrive({
         drive_url: driveUrlInput.trim(),
         title: uploadTitle.trim() || `${athA} vs. ${athB}`,
@@ -1284,6 +1496,11 @@ export function App() {
         athlete_a_gi: uploadGiA,
         athlete_b_gi: uploadGiB,
         profile,
+        ruleset: uploadRuleset,
+        trim_start_sec: Number.isFinite(trimStart) ? trimStart : undefined,
+        trim_end_sec: Number.isFinite(trimEnd) ? trimEnd : undefined,
+        athlete_a_anchor: uploadAnchorA || undefined,
+        athlete_b_anchor: uploadAnchorB || undefined,
       });
       setUploadProgress(100);
       setMatches((prev) => [done.match, ...prev]);
@@ -1300,25 +1517,6 @@ export function App() {
     }
   };
 
-  const handleUploadVideo = async (file: File | null) => {
-    if (!file) return;
-    setIngestBusy(true);
-    try {
-      const res = await api.analyzeUpload(file, profile);
-      const customMatch: ShowcaseMatch = {
-        ...mapAdjudicatedSnapshotToMatch(res, file.name.replace(/\.[^.]+$/, "")),
-        bucket: uploadBucket,
-        owner_email: uploadBucket === "my_matches" ? user?.email || "" : "",
-      };
-      setMatches((prev) => [...prev, customMatch]);
-      setActiveMatchId(customMatch.id);
-      setViewMode("player");
-      setDrawerOpen(false);
-    } finally {
-      setIngestBusy(false);
-    }
-  };
-
   const handleAnalyzeUrl = async () => {
     if (!urlInput.trim()) return;
     setIngestBusy(true);
@@ -1331,16 +1529,47 @@ export function App() {
       };
       setMatches((prev) => [...prev, customMatch]);
       setActiveMatchId(customMatch.id);
-      setViewMode("player");
+      navigateViewMode("player");
       setUrlInput("");
-      setDrawerOpen(false);
+      setUploadModalOpen(false);
     } finally {
       setIngestBusy(false);
     }
   };
 
+  const handleSaveAthleteProfile = async () => {
+    try {
+      const acadName =
+        profileCurriculumInput === "cta" ? "Caio Terra Association" : "Open Source Curriculum";
+      const updated = await api.updateMyProfile({
+        name: profileNameInput.trim() || user?.name || "Athlete",
+        picture: profilePictureInput.trim(),
+        belt: profileBeltInput,
+        academy: profileAcademyInput.trim(),
+        coach: profileCoachInput.trim(),
+        academy_id: profileCurriculumInput,
+        academy_name: acadName,
+      });
+      setUser((prev) => ({ ...(prev || updated), ...updated }));
+      setAcademy({ academy_id: profileCurriculumInput, academy_name: acadName });
+      setAcademyNameInput(acadName);
+      setProfileSaveMsg("Profile saved.");
+    } catch {
+      setProfileSaveMsg("Could not save profile.");
+    }
+  };
+
+  useEffect(() => {
+    if (liveCameraActive && viewMode === "player" && videoRef.current && liveStreamRef.current) {
+      videoRef.current.srcObject = liveStreamRef.current;
+      Promise.resolve(videoRef.current.play()).catch(() => {});
+    }
+  }, [liveCameraActive, viewMode]);
+
   const startLiveSim = (targetMatchId: string, localFile?: File | null) => {
     stopLiveSession();
+    navigateViewMode("player");
+    setUploadModalOpen(false);
     const chosen = matches.find((m) => m.id === targetMatchId) || activeMatch;
     if (!localFile) {
       setActiveMatchId(chosen.id);
@@ -1373,7 +1602,6 @@ export function App() {
       framesSent: 0,
       position: "Standing",
     });
-    setDrawerOpen(false);
 
     const wsProto = window.location.protocol === "https:" ? "wss:" : "ws:";
     const wsPath = withAuthUrl("/ws/live");
@@ -1495,17 +1723,18 @@ export function App() {
 
   const handleStartLiveCamera = async () => {
     stopLiveSession();
+    navigateViewMode("player");
+    setUploadModalOpen(false);
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720 } });
       liveStreamRef.current = stream;
       setLiveCameraActive(true);
-      setDrawerOpen(false);
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
-        await videoRef.current.play();
+        await Promise.resolve(videoRef.current.play()).catch(() => {});
       }
     } catch {
-      setDrawerOpen(false);
+      setUploadModalOpen(false);
     }
   };
 
@@ -1520,11 +1749,79 @@ export function App() {
     setStoredToken("");
     setUser(null);
     setSettingsOpen(false);
-    setDrawerOpen(false);
+    setUploadModalOpen(false);
     setMediaModal(null);
     setAuthError("");
     window.google?.accounts?.id?.disableAutoSelect?.();
   };
+
+  useEffect(() => {
+    if (viewMode !== "rulebook" || rulebookArticles.length > 0) return;
+    api
+      .getIbjjfRulebook()
+      .then((res) => setRulebookArticles(res.articles || []))
+      .catch(() => {});
+  }, [viewMode, rulebookArticles.length]);
+
+  const openRulebookArticle = (article: string) => {
+    const clean = (article || "").replace(/^IBJJF\s*/i, "").replace(/^Art\.?\s*/i, "").trim();
+    setRulebookArticle(clean);
+    setViewMode("rulebook");
+    if (typeof window !== "undefined") {
+      const url = clean ? `/rules/ibjjf-v6-1?article=${encodeURIComponent(clean)}` : "/rules/ibjjf-v6-1";
+      window.history.pushState({}, "", url);
+    }
+  };
+
+  if (viewMode === "rulebook") {
+    const targetNorm = rulebookArticle.toLowerCase();
+    return (
+      <div className="app-shell">
+        <main className="legal-page" data-testid="rulebook-page">
+          <div className="legal-header">
+            <div className="legal-brand">
+              <img src="/logo-mark.svg" alt="RollMetrics mark" style={{ width: 24, height: 24 }} />
+              <span>IBJJF Rulebook v6.1</span>
+            </div>
+            <button
+              type="button"
+              className="mini-btn"
+              data-testid="rulebook-back-btn"
+              onClick={() => navigateViewMode("player")}
+            >
+              &lt;- Back to Match
+            </button>
+          </div>
+          <article className="legal-body">
+            <h1>IBJJF Rulebook v6.1</h1>
+            <p className="legal-updated">
+              Versioned plaintext reference{rulebookArticle ? ` · Highlighting Art. ${rulebookArticle}` : ""}
+            </p>
+            {rulebookArticles.map((art) => {
+              const isMatch =
+                Boolean(targetNorm) &&
+                (art.article.toLowerCase().includes(targetNorm) ||
+                  art.title.toLowerCase().includes(targetNorm));
+              return (
+                <section
+                  key={art.id}
+                  className={`rulebook-article ${isMatch ? "highlighted" : ""}`}
+                  data-testid={isMatch ? "rulebook-article-highlighted" : "rulebook-article"}
+                >
+                  <div className="rulebook-article-code">{art.article}</div>
+                  <h2 style={{ fontSize: "1rem", margin: "0 0 0.35rem" }}>{art.title}</h2>
+                  <p style={{ margin: 0 }}>{art.text}</p>
+                </section>
+              );
+            })}
+            {rulebookArticles.length === 0 && (
+              <p>Loading IBJJF v6.1 plaintext rulebook articles...</p>
+            )}
+          </article>
+        </main>
+      </div>
+    );
+  }
 
   if (viewMode === "privacy" || viewMode === "terms") {
     const isPrivacy = viewMode === "privacy";
@@ -1824,15 +2121,18 @@ export function App() {
                 type="button"
                 className="analyze-trigger-btn"
                 aria-label="Analyze or Live Camera"
+                data-testid="topbar-add-match-btn"
                 onClick={() => {
                   setSimMatchId(activeMatch.id);
-                  setDrawerOpen(true);
+                  setUploadTab("file");
+                  setUploadError("");
+                  setUploadModalOpen(true);
                 }}
               >
                 <span className="analyze-plus" aria-hidden="true">
                   +
                 </span>
-                <span className="analyze-label">Analyze / Live</span>
+                <span className="analyze-label">Add Match</span>
               </button>
             </>
           )}
@@ -1893,6 +2193,45 @@ export function App() {
 
       {!shareToken && viewMode === "home" ? (
         <main className="overview-home" data-testid="overview-home">
+          <section className="athlete-profile-strip" data-testid="athlete-profile-strip">
+            <div className="athlete-profile-id">
+              {user?.picture ? (
+                <img src={user.picture} alt={user.name} className="user-avatar" />
+              ) : (
+                <span className="user-avatar" aria-hidden="true">
+                  {getInitials(user?.name || "Athlete")}
+                </span>
+              )}
+              <div>
+                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
+                  <strong style={{ fontSize: "1rem" }}>{user?.name || "Athlete"}</strong>
+                  <BeltSwatch belt={(user?.belt as BeltRank) || "white"} />
+                  <span style={{ fontSize: "0.82rem", color: "var(--text-secondary)", textTransform: "capitalize" }}>
+                    {(user?.belt || "white")} Belt
+                  </span>
+                </div>
+                <div className="athlete-profile-meta">
+                  <span>Academy: <strong>{user?.academy || user?.teams?.[0] || "Independent"}</strong></span>
+                  {user?.coach && <span>Coach: <strong>{user.coach}</strong></span>}
+                  <span>Curriculum: <strong>{academy?.academy_name || "Open Source Curriculum"}</strong></span>
+                </div>
+              </div>
+            </div>
+            <div className="athlete-profile-stats">
+              <span>Matches: <strong>{matches.filter((m) => m.bucket === "my_matches").length}</strong></span>
+              {personalSummary && <span>Record: <strong>{personalSummary.record.label}</strong></span>}
+              <span>Film Study: <strong>{filmStudyMatches.length}</strong></span>
+              <button
+                type="button"
+                className="mini-btn"
+                data-testid="edit-profile-from-home-btn"
+                onClick={() => void handleOpenSettings()}
+              >
+                Edit Profile
+              </button>
+            </div>
+          </section>
+
           {personalSummary && personalSummary.match_count > 0 && (
             <section className="gameplan-card" data-testid="my-game-plan">
               <div className="overview-library-head">
@@ -1900,23 +2239,11 @@ export function App() {
                 <div className="gameplan-stats">
                   <span className="win-pill">{personalSummary.record.label}</span>
                   <span className="gameplan-stat-muted">
-                    {personalSummary.points_allowed} pts allowed
+                    {personalSummary.points_allowed} points allowed
                   </span>
                 </div>
               </div>
               <p className="coach-overview-text">{personalSummary.summary_line}</p>
-              {personalSummary.recurring_positions.length > 0 && (
-                <div className="scouting-sub-block">
-                  <div className="coach-section-label">Recurring Positions</div>
-                  <div className="gameplan-positions">
-                    {personalSummary.recurring_positions.map((pos) => (
-                      <span key={pos} className="gameplan-pos-pill">
-                        {pos}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
               {personalSummary.top_cta_priorities.length > 0 && (
                 <div className="scouting-sub-block">
                   <div className="coach-section-label">
@@ -1948,6 +2275,60 @@ export function App() {
                   </div>
                 </div>
               )}
+              <div className="longitudinal-strip" data-testid="longitudinal-progress-strip">
+                <span>
+                  Matches: <strong>{personalSummary.match_count}</strong>
+                </span>
+                <span>
+                  Pts For / Against:{" "}
+                  <strong>
+                    {personalSummary.points_scored}-{personalSummary.points_allowed}
+                  </strong>
+                </span>
+                <span>
+                  Record: <strong>{personalSummary.record.label}</strong>
+                </span>
+              </div>
+            </section>
+          )}
+
+          {(user?.role === "coach" || user?.is_admin) && teamRoster.length > 0 && (
+            <section className="overview-library" data-testid="team-coach-roster">
+              <div className="overview-library-head">
+                <h2>Team Coach Roster</h2>
+                <span className="gameplan-stat-muted">{teamRoster.length} team uploads</span>
+              </div>
+              <div className="match-library-grid">
+                {teamRoster.map((item) => (
+                  <div key={item.match_id} className="match-library-card" data-testid={`roster-card-${item.match_id}`}>
+                    <div className="library-card-top">
+                      <span className="library-card-pill">{item.athlete_name}</span>
+                      <span className="win-pill">
+                        {item.review_status === "reviewed" ? "Reviewed" : "Needs Review"}
+                      </span>
+                    </div>
+                    <div className="library-card-sub">{item.title}</div>
+                    <div style={{ display: "flex", gap: "0.4rem", marginTop: "0.5rem", flexWrap: "wrap" }}>
+                      <button
+                        type="button"
+                        className="mini-btn"
+                        data-testid={`toggle-review-${item.match_id}`}
+                        onClick={() => void handleToggleRosterReview(item)}
+                      >
+                        {item.review_status === "reviewed" ? "Mark Needs Review" : "Mark Reviewed"}
+                      </button>
+                      <button
+                        type="button"
+                        className="mini-btn"
+                        data-testid={`pin-drill-${item.match_id}`}
+                        onClick={() => void handlePinRosterDrill(item)}
+                      >
+                        Pin Drill ({item.pinned_drills.length})
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </section>
           )}
 
@@ -1957,25 +2338,17 @@ export function App() {
               <div style={{ display: "flex", gap: "0.45rem", flexWrap: "wrap" }}>
                 <button
                   type="button"
-                  className="mini-btn"
+                  className="analyze-trigger-btn"
                   data-testid="open-upload-modal-btn"
                   onClick={() => {
                     setUploadBucket("my_matches");
+                    setUploadTab("file");
+                    setSimMatchId(activeMatch.id);
                     setUploadError("");
                     setUploadModalOpen(true);
                   }}
                 >
-                  Upload Match
-                </button>
-                <button
-                  type="button"
-                  className="analyze-trigger-btn"
-                  onClick={() => {
-                    setSimMatchId(activeMatch.id);
-                    setDrawerOpen(true);
-                  }}
-                >
-                  + Analyze / Live
+                  + Add Match
                 </button>
               </div>
             </div>
@@ -1999,6 +2372,28 @@ export function App() {
                       <span>{m.belt_label}</span>
                     </div>
                     <div className="library-card-sub">{m.title}</div>
+                    {m.id.startsWith("custom_") || m.id.startsWith("upload_") ? (
+                      <div style={{ marginTop: "0.4rem", display: "flex", justifyContent: "flex-end" }}>
+                        <span
+                          role="button"
+                          tabIndex={0}
+                          className="legal-link-btn"
+                          data-testid={`delete-match-${m.id}`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            void handleDeleteMatch(m.id);
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                              e.stopPropagation();
+                              void handleDeleteMatch(m.id);
+                            }
+                          }}
+                        >
+                          Delete
+                        </span>
+                      </div>
+                    ) : null}
                   </button>
                 ))}
             </div>
@@ -2006,7 +2401,23 @@ export function App() {
 
           <section className="overview-library" data-testid="home-film-study">
             <div className="overview-library-head">
-              <h2>Film Study</h2>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.65rem", flexWrap: "wrap" }}>
+                <h2>Film Study</h2>
+                <button
+                  type="button"
+                  className="mini-btn"
+                  data-testid="add-film-study-btn"
+                  onClick={() => {
+                    setUploadBucket("film_study");
+                    setUploadTab("file");
+                    setSimMatchId(activeMatch.id);
+                    setUploadError("");
+                    setUploadModalOpen(true);
+                  }}
+                >
+                  + Add to Film Study
+                </button>
+              </div>
               <div className="film-study-filters" role="group" aria-label="Filter Film Study by athlete">
                 <button
                   type="button"
@@ -2135,6 +2546,17 @@ export function App() {
               RollMetrics v{authConfig?.app_version || "0.1.0"} · {authConfig?.build_sha || "local"}
             </span>
             <span className="legal-links-row" data-testid="home-legal-links">
+              <a
+                href="https://github.com/rollmetrics/rollmetrics/issues"
+                target="_blank"
+                rel="noreferrer"
+                className="legal-link-btn"
+                data-testid="home-github-issues-link"
+                style={{ textDecoration: "none" }}
+              >
+                GitHub · Report an Issue
+              </a>
+              <span>·</span>
               <button
                 type="button"
                 className="legal-link-btn"
@@ -2154,419 +2576,29 @@ export function App() {
           </footer>
         </main>
       ) : !shareToken && viewMode === "admin" ? (
-        <main className="admin-dashboard" data-testid="admin-dashboard">
-          <div className="admin-header">
-            <div>
-              <h1 className="admin-title">App Admin</h1>
-              <p className="admin-subtitle">
-                Athletes, teams, curricula, and active scoring rulesets.
-              </p>
-            </div>
-            <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
-              <button
-                type="button"
-                className="mini-btn"
-                data-testid="switch-ml-admin-btn"
-                onClick={() => navigateViewMode("ml-admin")}
-              >
-                ML Admin -&gt;
-              </button>
-              <button
-                type="button"
-                className="mini-btn"
-                data-testid="admin-back-btn"
-                onClick={() => navigateViewMode("player")}
-              >
-                &lt;- Back to App
-              </button>
-            </div>
-          </div>
-
-          {adminLoading && !adminOverview ? (
-            <div className="admin-section">Loading workspace administration data...</div>
-          ) : (
-            <>
-              <section className="admin-section" aria-label="Athletes and Roles">
-                <div className="overview-library-head">
-                  <h2>Athletes &amp; Members</h2>
-                </div>
-                <div className="admin-table-wrap">
-                  <table className="admin-table" data-testid="admin-users-table">
-                    <thead>
-                      <tr>
-                        <th>Athlete</th>
-                        <th>Role</th>
-                        <th>Teams</th>
-                        <th>Curriculum</th>
-                        <th>My Matches</th>
-                        <th>Uploaded</th>
-                        <th>Analyses</th>
-                        <th>Last Seen</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {(adminOverview?.athletes || adminOverview?.users_and_usage || []).map((u) => (
-                        <tr key={u.email}>
-                          <td className="mono-cell">
-                            <div>{u.name || u.email}</div>
-                            <div style={{ fontSize: "0.68rem", color: "var(--text-muted)" }}>
-                              {u.email}
-                            </div>
-                          </td>
-                          <td>
-                            <span className="gameplan-pos-pill">{u.role || "member"}</span>
-                          </td>
-                          <td>{(u.teams || []).join(", ") || "-"}</td>
-                          <td>{u.academy_name || "-"}</td>
-                          <td className="num-col">{u.my_matches}</td>
-                          <td className="num-col">{u.uploaded_videos}</td>
-                          <td className="num-col">{u.analyses_run}</td>
-                          <td className="mono-cell">{u.last_seen || "-"}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </section>
-
-              <section className="admin-section" aria-label="Teams">
-                <div className="overview-library-head">
-                  <h2>Teams &amp; Affiliations</h2>
-                </div>
-                <div className="admin-table-wrap">
-                  <table className="admin-table" data-testid="admin-teams-table">
-                    <thead>
-                      <tr>
-                        <th>Team</th>
-                        <th>Members</th>
-                        <th>Default Curriculum</th>
-                        <th>Default Ruleset</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {(adminOverview?.teams || []).map((tm) => (
-                        <tr key={tm.id}>
-                          <td>{tm.name}</td>
-                          <td className="num-col">{tm.member_count}</td>
-                          <td>{tm.default_curriculum}</td>
-                          <td>{tm.default_ruleset}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </section>
-
-              <section className="admin-section" aria-label="Curricula">
-                <div className="overview-library-head">
-                  <h2>Curricula</h2>
-                </div>
-                <div className="admin-table-wrap">
-                  <table className="admin-table" data-testid="admin-curricula-table">
-                    <thead>
-                      <tr>
-                        <th>Curriculum</th>
-                        <th>Visibility</th>
-                        <th>Total Docs</th>
-                        <th>Video-Backed</th>
-                        <th>Text-Only</th>
-                        <th>Status</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {(adminOverview?.curricula || []).map((c) => (
-                        <tr key={c.id}>
-                          <td>{c.name}</td>
-                          <td>
-                            <span className="gameplan-pos-pill">{c.visibility}</span>
-                          </td>
-                          <td className="num-col">{c.doc_count}</td>
-                          <td className="num-col">{c.video_backed_count}</td>
-                          <td className="num-col">{c.text_only_count}</td>
-                          <td>{c.status}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </section>
-
-              <section className="admin-section" aria-label="Rulesets">
-                <div className="overview-library-head">
-                  <h2>Rulesets</h2>
-                </div>
-                <div className="admin-table-wrap">
-                  <table className="admin-table" data-testid="admin-rulesets-table">
-                    <thead>
-                      <tr>
-                        <th>Ruleset</th>
-                        <th>Status</th>
-                        <th>Legality Cases</th>
-                        <th>Rule Docs</th>
-                        <th>Official Videos</th>
-                        <th>Coverage</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {(adminOverview?.rulesets || []).map((rs) => (
-                        <tr key={rs.id}>
-                          <td>{rs.name}</td>
-                          <td>
-                            <span className="gameplan-pos-pill">{rs.status}</span>
-                          </td>
-                          <td className="num-col">{rs.legality_cases}</td>
-                          <td className="num-col">{rs.rule_docs}</td>
-                          <td className="num-col">{rs.official_videos}</td>
-                          <td>{rs.notes}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </section>
-            </>
-          )}
-
-          <footer
-            style={{
-              fontFamily: "var(--font-mono)",
-              fontSize: "0.7rem",
-              color: "var(--text-muted)",
-              paddingTop: "0.25rem",
-            }}
-          >
-            RollMetrics v{adminOverview?.app_version || authConfig?.app_version || "0.1.0"} ·{" "}
-            {adminOverview?.build_sha || authConfig?.build_sha || "local"} ·{" "}
-            {adminOverview?.environment || authConfig?.environment || "local"}
-          </footer>
-        </main>
+        <AppAdminView
+          adminOverview={adminOverview}
+          adminLoading={adminLoading}
+          authConfig={authConfig}
+          onSwitchToMlAdmin={() => navigateViewMode("ml-admin")}
+          onBackToApp={() => navigateViewMode("player")}
+        />
       ) : !shareToken && viewMode === "ml-admin" ? (
-        <main className="admin-dashboard" data-testid="ml-admin-dashboard">
-          <div className="admin-header">
-            <div>
-              <h1 className="admin-title">ML Admin &amp; Evaluation Lab</h1>
-              <p className="admin-subtitle">
-                Match Moments engine versions, blind-video benchmarks, dataset integrity, and experiments.
-              </p>
-            </div>
-            <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
-              <button
-                type="button"
-                className="mini-btn"
-                data-testid="switch-app-admin-btn"
-                onClick={() => navigateViewMode("admin")}
-              >
-                App Admin -&gt;
-              </button>
-              <button
-                type="button"
-                className="mini-btn"
-                data-testid="ml-admin-back-btn"
-                onClick={() => navigateViewMode("player")}
-              >
-                &lt;- Back to App
-              </button>
-            </div>
-          </div>
-
-          {adminLoading && !adminOverview ? (
-            <div className="admin-section">Loading benchmark and experiment telemetry...</div>
-          ) : (
-            <>
-              <section className="admin-section" aria-label="Scoreboard Benchmark">
-                <div className="overview-library-head">
-                  <div>
-                    <h2>Scoreboard-Grounded Blind-Video Benchmark</h2>
-                    <div className="admin-meta-line">
-                      {adminOverview?.scoreboard_eval.benchmark_id || "rollmetrics-scoreboard-v1"} ·{" "}
-                      {adminOverview?.scoreboard_eval.total_matches || 0} matches (
-                      {adminOverview?.scoreboard_eval.calibration || 0} cal /{" "}
-                      {adminOverview?.scoreboard_eval.heldout || 0} heldout) ·{" "}
-                      {adminOverview?.scoreboard_eval.leakage_gate || "verified"}
-                    </div>
-                  </div>
-                  <div className="rail-segmented" role="group" aria-label="Benchmark split">
-                    <button
-                      type="button"
-                      data-testid="admin-split-heldout"
-                      className={`rail-seg-btn ${adminSplit === "heldout" ? "active" : ""}`}
-                      onClick={() => setAdminSplit("heldout")}
-                    >
-                      Heldout
-                    </button>
-                    <button
-                      type="button"
-                      data-testid="admin-split-calibration"
-                      className={`rail-seg-btn ${adminSplit === "calibration" ? "active" : ""}`}
-                      onClick={() => setAdminSplit("calibration")}
-                    >
-                      Calibration
-                    </button>
-                  </div>
-                </div>
-
-                <div className="admin-table-wrap">
-                  <table className="admin-table" data-testid="admin-scoreboard-table">
-                    <thead>
-                      <tr>
-                        <th>Model &amp; Harness</th>
-                        <th>N</th>
-                        <th>Winner Acc</th>
-                        <th>Exact Score</th>
-                        <th>Pts MAE</th>
-                        <th>Event F1</th>
-                        <th>P50 Latency</th>
-                        <th>$/Match</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {(adminOverview?.scoreboard_eval.splits?.[adminSplit] || []).map((row) => (
-                        <tr key={row.model_id}>
-                          <td className="mono-cell">{row.model_id}</td>
-                          <td className="num-col">{row.match_count}</td>
-                          <td className="num-col">{formatPct(row.winner_accuracy)}</td>
-                          <td className="num-col">{formatPct(row.final_score_exact_match)}</td>
-                          <td className="num-col">{row.mae_pts.toFixed(2)}</td>
-                          <td className="num-col">{formatPct(row.score_event_f1)}</td>
-                          <td className="num-col">{formatLatencyMs(row.p50_ms)}</td>
-                          <td className="num-col">{formatCostUsd(row.cost_usd)}</td>
-                        </tr>
-                      ))}
-                      {(adminOverview?.scoreboard_eval.splits?.[adminSplit] || []).length === 0 && (
-                        <tr>
-                          <td colSpan={8} className="admin-empty-cell">
-                            No benchmark runs recorded for this split yet.
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </section>
-
-              <section className="admin-section" aria-label="Match Moments Engine Versions">
-                <div className="overview-library-head">
-                  <h2>RollMetrics Match Moments Engine Versions</h2>
-                </div>
-                <div className="admin-table-wrap">
-                  <table className="admin-table" data-testid="ml-engine-versions-table">
-                    <thead>
-                      <tr>
-                        <th>Version</th>
-                        <th>Engine</th>
-                        <th>Harness</th>
-                        <th>Heldout Winner</th>
-                        <th>Notes</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {(adminOverview?.engine_versions || []).map((ev) => (
-                        <tr key={ev.version}>
-                          <td className="mono-cell">{ev.version}</td>
-                          <td>{ev.name}</td>
-                          <td>{ev.harness}</td>
-                          <td className="mono-cell">{ev.heldout_winner}</td>
-                          <td>{ev.notes}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </section>
-
-              <section className="admin-section" aria-label="Evaluation Dataset and Experiments">
-                <div className="overview-library-head">
-                  <h2>Evaluation Dataset &amp; Experiments</h2>
-                </div>
-                {adminOverview?.dataset_details && (
-                  <div className="admin-meta-line" style={{ marginBottom: "0.6rem" }}>
-                    {adminOverview.dataset_details.leakage_control} ·{" "}
-                    {adminOverview.dataset_details.early_stoppage_audit} ·{" "}
-                    {adminOverview.dataset_details.vicos_adapter}
-                  </div>
-                )}
-                <div className="admin-table-wrap">
-                  <table className="admin-table" data-testid="ml-experiments-table">
-                    <thead>
-                      <tr>
-                        <th>Experiment</th>
-                        <th>Delta</th>
-                        <th>Status</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {(adminOverview?.experiments || []).map((ex) => (
-                        <tr key={ex.id}>
-                          <td>{ex.title}</td>
-                          <td className="mono-cell">{ex.delta}</td>
-                          <td>
-                            <span className="gameplan-pos-pill">{ex.status}</span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </section>
-
-              <section className="admin-section" aria-label="Knowledge Base and Rules Scorecard">
-                <div className="overview-library-head">
-                  <h2>Deterministic Rules &amp; Knowledge Base Evals</h2>
-                </div>
-                <div className="admin-kpi-grid" data-testid="admin-kb-strip">
-                  <div className="admin-kpi-card">
-                    <span className="admin-kpi-label">Knowledge Index</span>
-                    <strong className="admin-kpi-value">
-                      {adminOverview?.knowledge_eval.version || "v0.1.0"} ·{" "}
-                      {adminOverview?.knowledge_eval.total_docs || 0} docs
-                    </strong>
-                    <span className="admin-kpi-sub">
-                      {adminOverview?.knowledge_eval.ibjjf_docs || 0} IBJJF ·{" "}
-                      {adminOverview?.knowledge_eval.cta_docs || 0} CTA
-                    </span>
-                  </div>
-                  <div className="admin-kpi-card">
-                    <span className="admin-kpi-label">IBJJF Rule Cases</span>
-                    <strong className="admin-kpi-value">
-                      {adminOverview?.knowledge_eval.suites.ibjjf_rules || "38/38"}
-                    </strong>
-                    <span className="admin-kpi-sub">Scoring, penalties, legality</span>
-                  </div>
-                  <div className="admin-kpi-card">
-                    <span className="admin-kpi-label">Match Timelines</span>
-                    <strong className="admin-kpi-value">
-                      {adminOverview?.knowledge_eval.suites.match_timelines || "8/8"}
-                    </strong>
-                    <span className="admin-kpi-sub">Curated ground-truth parity</span>
-                  </div>
-                  <div className="admin-kpi-card">
-                    <span className="admin-kpi-label">CTA Recall@3</span>
-                    <strong className="admin-kpi-value">
-                      {adminOverview?.knowledge_eval.suites.cta_recall_at_3 || "24/24"}
-                    </strong>
-                    <span className="admin-kpi-sub">Curriculum retrieval accuracy</span>
-                  </div>
-                </div>
-              </section>
-            </>
-          )}
-
-          <footer
-            style={{
-              fontFamily: "var(--font-mono)",
-              fontSize: "0.7rem",
-              color: "var(--text-muted)",
-              paddingTop: "0.25rem",
-            }}
-          >
-            RollMetrics v{adminOverview?.app_version || authConfig?.app_version || "0.1.0"} ·{" "}
-            {adminOverview?.build_sha || authConfig?.build_sha || "local"} ·{" "}
-            {adminOverview?.environment || authConfig?.environment || "local"}
-          </footer>
-        </main>
+        <MlAdminView
+          adminOverview={adminOverview}
+          adminLoading={adminLoading}
+          adminSplit={adminSplit}
+          onChangeSplit={setAdminSplit}
+          authConfig={authConfig}
+          onSwitchToAppAdmin={() => navigateViewMode("admin")}
+          onBackToApp={() => navigateViewMode("player")}
+        />
       ) : (
-        /* Single-Screen Stage: 100dvh Zero-Scroll Desktop Fit */
-        <main className="arena-stage">
+        /* Single-Screen Stage: 100dvh Zero-Scroll Desktop Fit with Resizable Moments Panel */
+        <main
+          className="arena-stage resizable-stage"
+          style={{ ["--rail-width" as string]: `${railWidth}px` }}
+        >
         <section className="video-column" aria-label="Match Video and Scoreboard">
           <div className="video-frame" ref={videoFrameRef}>
             <video
@@ -2885,6 +2917,33 @@ export function App() {
           </div>
         </section>
 
+        <div
+          className="rail-resize-handle"
+          role="separator"
+          aria-orientation="vertical"
+          aria-label="Resize Moments panel"
+          data-testid="rail-resize-handle"
+          onPointerDown={(e) => {
+            const startX = e.clientX;
+            const startW = railWidth;
+            const onMove = (mv: PointerEvent) => {
+              const nextW = Math.min(680, Math.max(320, Math.round(startW + (startX - mv.clientX))));
+              setRailWidth(nextW);
+              try {
+                localStorage.setItem("rollmetrics_rail_width", String(nextW));
+              } catch {
+                // Ignore storage errors
+              }
+            };
+            const onUp = () => {
+              window.removeEventListener("pointermove", onMove);
+              window.removeEventListener("pointerup", onUp);
+            };
+            window.addEventListener("pointermove", onMove);
+            window.addEventListener("pointerup", onUp);
+          }}
+        />
+
         {/* Right Column: Unified Match Moments & Coaching Rail */}
         <aside className="event-rail" aria-label="Match Moments">
           <div className="rail-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "0.5rem" }}>
@@ -2892,15 +2951,36 @@ export function App() {
               Moments ({displayedEvents.length})
             </strong>
             {!shareToken && (
-              <button
-                type="button"
-                className="mini-btn"
-                data-testid="share-match-btn"
-                aria-label="Share Breakdown Link"
-                onClick={() => void handleShareMatch()}
-              >
-                {shareCopiedMsg || "Share"}
-              </button>
+              <div style={{ display: "flex", gap: "0.35rem", alignItems: "center" }}>
+                <button
+                  type="button"
+                  className="mini-btn"
+                  data-testid="add-moment-btn"
+                  disabled={momentEditBusy}
+                  onClick={() => void handleAddMoment()}
+                >
+                  + Moment
+                </button>
+                <button
+                  type="button"
+                  className="mini-btn"
+                  data-testid="share-match-btn"
+                  aria-label="Share Breakdown Link"
+                  onClick={() => void handleShareMatch()}
+                >
+                  {shareCopiedMsg || "Share"}
+                </button>
+                {lastShareToken && (
+                  <button
+                    type="button"
+                    className="mini-btn"
+                    data-testid="revoke-share-btn"
+                    onClick={() => void handleRevokeShare()}
+                  >
+                    Revoke
+                  </button>
+                )}
+              </div>
             )}
           </div>
           <div className="rail-list">
@@ -3036,7 +3116,7 @@ export function App() {
                           </button>
                           <button
                             type="button"
-                            className="rule-cite-btn"
+                            className="rule-cite-btn gif-desktop-only"
                             data-testid="highlight-btn"
                             aria-expanded={isGifOpen}
                             disabled={mediaBusy}
@@ -3103,15 +3183,14 @@ export function App() {
                               `Official IBJJF Rulebook v6.1 reference for ${ev.rule} (${ev.detail}).`}
                           </p>
                           <div className="rule-peek-links">
-                            <a
-                              href={ev.rule_info?.rulebook_url || "https://ibjjf.com/books-videos"}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="cta-jump"
+                            <button
+                              type="button"
+                              className="rule-cite-btn cta-jump cta-inline-btn"
                               data-testid="rulebook-link"
+                              onClick={() => openRulebookArticle(ev.rule_info?.article || ev.rule)}
                             >
-                              IBJJF Rulebook -&gt;
-                            </a>
+                              IBJJF Rulebook v6.1 -&gt;
+                            </button>
                             {ev.rule_info?.ibjjf_video_url && (
                               <button
                                 type="button"
@@ -3195,6 +3274,101 @@ export function App() {
                           </div>
                         )}
 
+                      {!shareToken && (
+                        <div className="moment-edit-row" style={{ marginTop: "0.45rem" }}>
+                          {editingEventId === ev.id ? (
+                            <div className="moment-editor-form" data-testid="moment-editor-form">
+                              <div style={{ display: "flex", gap: "0.35rem", flexWrap: "wrap" }}>
+                                <select
+                                  aria-label="Edit Moment Actor"
+                                  className="input-clean"
+                                  style={{ width: 92 }}
+                                  value={editActor}
+                                  onChange={(e) => setEditActor(e.target.value as "A" | "B")}
+                                >
+                                  <option value="A">{labelA}</option>
+                                  <option value="B">{labelB}</option>
+                                </select>
+                                <select
+                                  aria-label="Edit Moment Call"
+                                  className="input-clean"
+                                  style={{ width: 120 }}
+                                  value={editCall}
+                                  onChange={(e) => setEditCall(e.target.value)}
+                                >
+                                  <option value="+2 PTS">+2 PTS</option>
+                                  <option value="+3 PTS">+3 PTS</option>
+                                  <option value="+4 PTS">+4 PTS</option>
+                                  <option value="+1 ADV">+1 ADV</option>
+                                  <option value="+1 PEN">+1 PEN</option>
+                                  <option value="SUBMISSION">SUBMISSION</option>
+                                  <option value="COACH NOTE">COACH NOTE</option>
+                                </select>
+                                <input
+                                  aria-label="Edit Moment Detail"
+                                  className="input-clean"
+                                  style={{ flex: 1, minWidth: 120 }}
+                                  value={editDetail}
+                                  onChange={(e) => setEditDetail(e.target.value)}
+                                />
+                              </div>
+                              <input
+                                aria-label="Edit Coach Note"
+                                className="input-clean"
+                                placeholder="Coach note for athlete (optional)"
+                                value={editCoachNote}
+                                onChange={(e) => setEditCoachNote(e.target.value)}
+                              />
+                              <div style={{ display: "flex", gap: "0.35rem", flexWrap: "wrap" }}>
+                                <button
+                                  type="button"
+                                  className="mini-btn"
+                                  data-testid="save-moment-btn"
+                                  disabled={momentEditBusy}
+                                  onClick={() => void handleSaveMomentEdit(ev.id)}
+                                >
+                                  Save Moment
+                                </button>
+                                <button
+                                  type="button"
+                                  className="mini-btn"
+                                  data-testid="delete-moment-btn"
+                                  disabled={momentEditBusy}
+                                  onClick={() => void handleDeleteMoment(ev.id)}
+                                >
+                                  Delete
+                                </button>
+                                <button
+                                  type="button"
+                                  className="mini-btn"
+                                  onClick={() => setEditingEventId(null)}
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "0.4rem" }}>
+                              {ev.coach_note ? (
+                                <span style={{ fontSize: "0.73rem", color: "#a7f3d0" }} data-testid="moment-coach-note">
+                                  Note: {ev.coach_note}
+                                </span>
+                              ) : (
+                                <span />
+                              )}
+                              <button
+                                type="button"
+                                className="legal-link-btn"
+                                data-testid="edit-moment-btn"
+                                onClick={() => handleStartEditMoment(ev)}
+                              >
+                                Edit Moment
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
                     </div>
                   )}
                 </div>
@@ -3205,111 +3379,7 @@ export function App() {
         </main>
       )}
 
-      {/* Quiet On-Demand Analyze / Live Camera Drawer */}
-      {drawerOpen && (
-        <div className="overlay-backdrop" onClick={() => setDrawerOpen(false)}>
-          <div className="drawer-sheet" onClick={(e) => e.stopPropagation()}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <strong style={{ fontFamily: "var(--font-display)", fontSize: "1rem" }}>
-                Analyze Video or Live Mat
-              </strong>
-              <button type="button" className="mini-btn" onClick={() => setDrawerOpen(false)}>
-                Close
-              </button>
-            </div>
-
-            <div className="rail-segmented" role="group" aria-label="Save match bucket">
-              <button
-                type="button"
-                className={`rail-seg-btn ${uploadBucket === "my_matches" ? "active" : ""}`}
-                onClick={() => setUploadBucket("my_matches")}
-              >
-                My Match
-              </button>
-              <button
-                type="button"
-                className={`rail-seg-btn ${uploadBucket === "film_study" ? "active" : ""}`}
-                onClick={() => setUploadBucket("film_study")}
-              >
-                Film Study
-              </button>
-            </div>
-
-            <label className="mini-btn" style={{ textAlign: "center", padding: "0.6rem" }}>
-              {ingestBusy ? "Analyzing..." : "Upload Match MP4 / MOV"}
-              <input
-                type="file"
-                accept="video/mp4,video/quicktime,video/webm"
-                style={{ display: "none" }}
-                onChange={(e) => void handleUploadVideo(e.target.files?.[0] || null)}
-              />
-            </label>
-
-            <div style={{ display: "flex", gap: "0.45rem" }}>
-              <input
-                className="input-clean"
-                placeholder="Paste YouTube or video URL"
-                value={urlInput}
-                onChange={(e) => setUrlInput(e.target.value)}
-              />
-              <button
-                type="button"
-                className="mini-btn"
-                disabled={ingestBusy}
-                onClick={() => void handleAnalyzeUrl()}
-              >
-                Run
-              </button>
-            </div>
-
-            <div className="config-section">
-              <strong style={{ fontSize: "0.8rem", color: "var(--text-secondary)" }}>Live Mat</strong>
-              <button
-                type="button"
-                className="mini-btn"
-                style={{ padding: "0.6rem" }}
-                onClick={() => void handleStartLiveCamera()}
-              >
-                Use Physical Camera
-              </button>
-              <select
-                aria-label="Live Sim Match Selector"
-                className="input-clean"
-                value={simMatchId}
-                onChange={(e) => setSimMatchId(e.target.value)}
-              >
-                {matches.map((m) => (
-                  <option key={m.id} value={m.id}>
-                    {m.pill}
-                  </option>
-                ))}
-              </select>
-              <button
-                type="button"
-                className="mini-btn"
-                style={{ padding: "0.6rem" }}
-                onClick={() => startLiveSim(simMatchId)}
-              >
-                Simulate Live from Match Video
-              </button>
-              <label className="mini-btn" style={{ textAlign: "center", padding: "0.52rem" }}>
-                Simulate Live from Local MP4
-                <input
-                  type="file"
-                  accept="video/mp4,video/quicktime,video/webm"
-                  style={{ display: "none" }}
-                  onChange={(e) => {
-                    const f = e.target.files?.[0];
-                    if (f) startLiveSim(simMatchId, f);
-                  }}
-                />
-              </label>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Connection & Model Config Modal (opened from top-right User Profile / Settings gear) */}
+      {/* Athlete Profile & Settings Modal (opened from top-right User Profile / Settings gear) */}
       {settingsOpen && (
         <div className="overlay-backdrop" onClick={() => setSettingsOpen(false)}>
           <div
@@ -3320,13 +3390,88 @@ export function App() {
           >
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <strong style={{ fontFamily: "var(--font-display)", fontSize: "1.05rem" }}>
-                Connection &amp; Model Config
+                {authConfig?.environment === "cloud" && (user?.is_admin === false || previewAsUser)
+                  ? "Athlete Profile & Settings"
+                  : "Profile, Connection & Model Config"}
               </strong>
               <button type="button" className="mini-btn" onClick={() => setSettingsOpen(false)}>
                 Close
               </button>
             </div>
 
+            <div className="config-section" data-testid="athlete-profile-section">
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <strong style={{ fontSize: "0.86rem" }}>Athlete Profile</strong>
+                <button
+                  type="button"
+                  className="mini-btn"
+                  data-testid="save-athlete-profile-btn"
+                  onClick={() => void handleSaveAthleteProfile()}
+                >
+                  Save Profile
+                </button>
+              </div>
+              <div className="academy-ref-grid">
+                <input
+                  className="input-clean"
+                  aria-label="Athlete Display Name"
+                  placeholder="Your name"
+                  value={profileNameInput}
+                  onChange={(e) => setProfileNameInput(e.target.value)}
+                />
+                <input
+                  className="input-clean"
+                  aria-label="Profile Picture URL"
+                  placeholder="Profile picture URL (optional)"
+                  value={profilePictureInput}
+                  onChange={(e) => setProfilePictureInput(e.target.value)}
+                />
+                <select
+                  className="input-clean"
+                  aria-label="Athlete Belt Rank"
+                  value={profileBeltInput}
+                  onChange={(e) => setProfileBeltInput(e.target.value as BeltRank)}
+                >
+                  <option value="white">White Belt</option>
+                  <option value="blue">Blue Belt</option>
+                  <option value="purple">Purple Belt</option>
+                  <option value="brown">Brown Belt</option>
+                  <option value="black">Black Belt</option>
+                </select>
+                <input
+                  className="input-clean"
+                  aria-label="Athlete Academy"
+                  placeholder="Academy (e.g. Plateau BJJ)"
+                  value={profileAcademyInput}
+                  onChange={(e) => setProfileAcademyInput(e.target.value)}
+                />
+                <input
+                  className="input-clean"
+                  aria-label="Athlete Coach"
+                  placeholder="Coach (e.g. Chris B)"
+                  value={profileCoachInput}
+                  onChange={(e) => setProfileCoachInput(e.target.value)}
+                />
+                <select
+                  className="input-clean"
+                  aria-label="Preferred Curriculum"
+                  data-testid="profile-curriculum-select"
+                  value={profileCurriculumInput}
+                  onChange={(e) => setProfileCurriculumInput(e.target.value)}
+                >
+                  <option value="cta">Caio Terra Association</option>
+                  <option value="osjj-roadmap">Open Source Curriculum</option>
+                </select>
+              </div>
+              {profileSaveMsg && (
+                <div style={{ fontSize: "0.8rem", color: "#a7f3d0" }} data-testid="profile-save-msg">
+                  {profileSaveMsg}
+                </div>
+              )}
+            </div>
+
+            {(authConfig?.environment !== "cloud" || (user?.is_admin !== false && !previewAsUser)) && (
+              <>
             <div className="engine-cards">
               <button
                 type="button"
@@ -3596,6 +3741,15 @@ export function App() {
                 <button
                   type="button"
                   className="mini-btn"
+                  data-testid="auto-tag-ref-btn"
+                  disabled={autoTagBusy}
+                  onClick={() => void handleAutoTagAcademyRef()}
+                >
+                  {autoTagBusy ? "Tagging..." : "Auto-Tag"}
+                </button>
+                <button
+                  type="button"
+                  className="mini-btn"
                   data-testid="add-reference-btn"
                   onClick={() => void handleAddAcademyRef()}
                 >
@@ -3625,6 +3779,8 @@ export function App() {
                 </div>
               )}
             </div>
+              </>
+            )}
 
             {/* Account & Save Footer */}
             <div
@@ -3693,6 +3849,15 @@ export function App() {
                     Sign Out
                   </button>
                 )}
+                <a
+                  href={api.getExportDataUrl()}
+                  download
+                  className="mini-btn"
+                  data-testid="export-data-zip-link"
+                  style={{ textDecoration: "none" }}
+                >
+                  Export Data (.zip)
+                </a>
                 <button
                   type="button"
                   className="mini-btn"
@@ -3706,19 +3871,19 @@ export function App() {
         </div>
       )}
 
-      {/* Mobile-First Direct Upload & Google Drive Modal (#170 Workstream 2.2) */}
+      {/* Unified + Add Match Modal: Upload (immediate background), Link (Drive/YouTube), & Live Camera/Sim (#232) */}
       {uploadModalOpen && (
         <div className="overlay-backdrop" onClick={() => setUploadModalOpen(false)}>
           <div
             className="config-modal"
             role="dialog"
-            aria-label="Upload Match Video"
+            aria-label="Add Match"
             data-testid="upload-match-modal"
             onClick={(e) => e.stopPropagation()}
           >
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <strong style={{ fontFamily: "var(--font-display)", fontSize: "1.02rem" }}>
-                Upload Match
+              <strong style={{ fontFamily: "var(--font-display)", fontSize: "1.05rem" }}>
+                + Add Match
               </strong>
               <button
                 type="button"
@@ -3726,6 +3891,23 @@ export function App() {
                 onClick={() => setUploadModalOpen(false)}
               >
                 Close
+              </button>
+            </div>
+
+            <div className="rail-segmented" role="group" aria-label="Save match bucket">
+              <button
+                type="button"
+                className={`rail-seg-btn ${uploadBucket === "my_matches" ? "active" : ""}`}
+                onClick={() => setUploadBucket("my_matches")}
+              >
+                My Matches
+              </button>
+              <button
+                type="button"
+                className={`rail-seg-btn ${uploadBucket === "film_study" ? "active" : ""}`}
+                onClick={() => setUploadBucket("film_study")}
+              >
+                Film Study
               </button>
             </div>
 
@@ -3737,125 +3919,300 @@ export function App() {
                 className={`rail-seg-btn ${uploadTab === "file" ? "active" : ""}`}
                 onClick={() => setUploadTab("file")}
               >
-                Camera Roll / File
+                Upload
               </button>
               <button
                 type="button"
                 role="tab"
-                aria-selected={uploadTab === "drive"}
-                className={`rail-seg-btn ${uploadTab === "drive" ? "active" : ""}`}
-                onClick={() => setUploadTab("drive")}
+                aria-selected={uploadTab === "link"}
+                className={`rail-seg-btn ${uploadTab === "link" ? "active" : ""}`}
+                onClick={() => setUploadTab("link")}
               >
-                Google Drive
+                Link (Drive / URL)
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={uploadTab === "live"}
+                className={`rail-seg-btn ${uploadTab === "live" ? "active" : ""}`}
+                onClick={() => setUploadTab("live")}
+              >
+                Live Camera
               </button>
             </div>
 
-            <div className="academy-ref-grid">
-              <input
-                className="input-clean"
-                aria-label="Match Title"
-                placeholder="Match title (optional)"
-                value={uploadTitle}
-                onChange={(e) => setUploadTitle(e.target.value)}
-              />
-              <div style={{ display: "flex", gap: "0.4rem" }}>
-                <select
-                  aria-label="Uniform"
-                  className="input-clean"
-                  value={uploadUniform}
-                  onChange={(e) => setUploadUniform(e.target.value as "gi" | "nogi")}
+            {uploadTab === "file" && (
+              <>
+                <label
+                  className="analyze-trigger-btn"
+                  data-testid="camera-roll-upload-label"
+                  style={{ textAlign: "center", padding: "0.75rem", cursor: "pointer", justifyContent: "center" }}
                 >
-                  <option value="gi">Gi</option>
-                  <option value="nogi">No-Gi</option>
-                </select>
-                <select
-                  aria-label="Belt Rank"
-                  className="input-clean"
-                  value={uploadBelt}
-                  onChange={(e) => setUploadBelt(e.target.value as BeltRank)}
-                >
-                  <option value="white">White</option>
-                  <option value="blue">Blue</option>
-                  <option value="purple">Purple</option>
-                  <option value="brown">Brown</option>
-                  <option value="black">Black</option>
-                </select>
-              </div>
-              <div style={{ display: "flex", gap: "0.4rem" }}>
-                <input
-                  className="input-clean"
-                  aria-label="Athlete A Name"
-                  placeholder="Athlete A (you)"
-                  value={uploadAthleteA}
-                  onChange={(e) => setUploadAthleteA(e.target.value)}
-                />
-                <select
-                  aria-label="Athlete A Gi"
-                  className="input-clean"
-                  style={{ width: 88 }}
-                  value={uploadGiA}
-                  onChange={(e) => setUploadGiA(e.target.value as "white" | "blue" | "black")}
-                >
-                  <option value="white">White</option>
-                  <option value="blue">Blue</option>
-                  <option value="black">Black</option>
-                </select>
-              </div>
-              <div style={{ display: "flex", gap: "0.4rem" }}>
-                <input
-                  className="input-clean"
-                  aria-label="Athlete B Name"
-                  placeholder="Opponent name"
-                  value={uploadAthleteB}
-                  onChange={(e) => setUploadAthleteB(e.target.value)}
-                />
-                <select
-                  aria-label="Athlete B Gi"
-                  className="input-clean"
-                  style={{ width: 88 }}
-                  value={uploadGiB}
-                  onChange={(e) => setUploadGiB(e.target.value as "white" | "blue" | "black")}
-                >
-                  <option value="blue">Blue</option>
-                  <option value="white">White</option>
-                  <option value="black">Black</option>
-                </select>
-              </div>
-            </div>
+                  {ingestBusy ? `Uploading in background (${uploadProgress}%)...` : "Choose Video"}
+                  <input
+                    type="file"
+                    accept="video/*"
+                    data-testid="camera-roll-file-input"
+                    style={{ display: "none" }}
+                    onChange={(e) => void handleDirectUploadFile(e.target.files?.[0] || null)}
+                  />
+                </label>
+                {ingestBusy && (
+                  <div className="upload-bg-banner" data-testid="upload-bg-banner">
+                    Uploading in background. Edit match details below while it finishes.
+                  </div>
+                )}
+              </>
+            )}
 
-            {uploadTab === "file" ? (
-              <label
-                className="mini-btn"
-                data-testid="camera-roll-upload-label"
-                style={{ textAlign: "center", padding: "0.75rem", cursor: "pointer" }}
-              >
-                {ingestBusy ? `Uploading (${uploadProgress}%)...` : "Choose Video from Camera Roll or Files"}
-                <input
-                  type="file"
-                  accept="video/*"
-                  data-testid="camera-roll-file-input"
-                  style={{ display: "none" }}
-                  onChange={(e) => void handleDirectUploadFile(e.target.files?.[0] || null)}
-                />
-              </label>
+            {uploadTab !== "live" ? (
+              <>
+                <div className="academy-ref-grid">
+                  <input
+                    className="input-clean"
+                    aria-label="Match Title"
+                    placeholder="Match title (optional)"
+                    value={uploadTitle}
+                    onChange={(e) => setUploadTitle(e.target.value)}
+                  />
+                  <div style={{ display: "flex", gap: "0.4rem" }}>
+                    <select
+                      aria-label="Uniform"
+                      className="input-clean"
+                      value={uploadUniform}
+                      onChange={(e) => setUploadUniform(e.target.value as "gi" | "nogi")}
+                    >
+                      <option value="gi">Gi</option>
+                      <option value="nogi">No-Gi</option>
+                    </select>
+                    <select
+                      aria-label="Belt Rank"
+                      className="input-clean"
+                      value={uploadBelt}
+                      onChange={(e) => setUploadBelt(e.target.value as BeltRank)}
+                    >
+                      <option value="white">White</option>
+                      <option value="blue">Blue</option>
+                      <option value="purple">Purple</option>
+                      <option value="brown">Brown</option>
+                      <option value="black">Black</option>
+                    </select>
+                    <select
+                      aria-label="Ruleset"
+                      data-testid="upload-ruleset-select"
+                      className="input-clean"
+                      value={uploadRuleset}
+                      onChange={(e) => setUploadRuleset(e.target.value as RulesetId)}
+                    >
+                      <option value="ibjjf_v6">IBJJF v6.1</option>
+                      <option value="adcc">ADCC</option>
+                      <option value="sparring">Sparring</option>
+                    </select>
+                  </div>
+                  <div style={{ display: "flex", gap: "0.4rem" }}>
+                    <input
+                      type="number"
+                      min={0}
+                      className="input-clean"
+                      aria-label="Trim Start Seconds"
+                      placeholder="Start trim (s)"
+                      value={uploadTrimStart}
+                      onChange={(e) => setUploadTrimStart(e.target.value)}
+                    />
+                    <input
+                      type="number"
+                      min={0}
+                      className="input-clean"
+                      aria-label="Trim End Seconds"
+                      placeholder="End trim (s)"
+                      value={uploadTrimEnd}
+                      onChange={(e) => setUploadTrimEnd(e.target.value)}
+                    />
+                  </div>
+                  <div className="tap-identify-box">
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "0.78rem", color: "var(--text-secondary)" }}>
+                      <span>
+                        Tap-to-Identify (t=2s):{" "}
+                        {!uploadAnchorA
+                          ? "Tap Athlete A"
+                          : !uploadAnchorB
+                            ? "Tap Athlete B"
+                            : "A & B locked"}
+                      </span>
+                      {(uploadAnchorA || uploadAnchorB) && (
+                        <button
+                          type="button"
+                          className="legal-link-btn"
+                          onClick={() => {
+                            setUploadAnchorA(null);
+                            setUploadAnchorB(null);
+                          }}
+                        >
+                          Reset Pins
+                        </button>
+                      )}
+                    </div>
+                    <div
+                      role="button"
+                      tabIndex={0}
+                      aria-label="Tap to identify athletes on t=2s thumbnail"
+                      data-testid="tap-to-identify-canvas"
+                      className="tap-identify-canvas"
+                      onClick={(e) => {
+                        const rect = e.currentTarget.getBoundingClientRect();
+                        const x = rect.width > 0 ? Number(((e.clientX - rect.left) / rect.width).toFixed(3)) : 0.35;
+                        const y = rect.height > 0 ? Number(((e.clientY - rect.top) / rect.height).toFixed(3)) : 0.5;
+                        if (!uploadAnchorA) {
+                          setUploadAnchorA({ x, y });
+                        } else if (!uploadAnchorB) {
+                          setUploadAnchorB({ x, y });
+                        } else {
+                          setUploadAnchorA({ x, y });
+                          setUploadAnchorB(null);
+                        }
+                      }}
+                    >
+                      {uploadAnchorA && (
+                        <span
+                          className="tap-pin tap-pin-a"
+                          data-testid="tap-pin-a"
+                          style={{ left: `${uploadAnchorA.x * 100}%`, top: `${uploadAnchorA.y * 100}%` }}
+                        >
+                          A
+                        </span>
+                      )}
+                      {uploadAnchorB && (
+                        <span
+                          className="tap-pin tap-pin-b"
+                          data-testid="tap-pin-b"
+                          style={{ left: `${uploadAnchorB.x * 100}%`, top: `${uploadAnchorB.y * 100}%` }}
+                        >
+                          B
+                        </span>
+                      )}
+                      {!uploadAnchorA && !uploadAnchorB && (
+                        <span className="tap-identify-hint">Click frame to lock Athlete A, then Athlete B</span>
+                      )}
+                    </div>
+                  </div>
+                  <div style={{ display: "flex", gap: "0.4rem" }}>
+                    <input
+                      className="input-clean"
+                      aria-label="Athlete A Name"
+                      placeholder="Athlete A (you)"
+                      value={uploadAthleteA}
+                      onChange={(e) => setUploadAthleteA(e.target.value)}
+                    />
+                    <select
+                      aria-label="Athlete A Gi"
+                      className="input-clean"
+                      style={{ width: 88 }}
+                      value={uploadGiA}
+                      onChange={(e) => setUploadGiA(e.target.value as "white" | "blue" | "black")}
+                    >
+                      <option value="white">White</option>
+                      <option value="blue">Blue</option>
+                      <option value="black">Black</option>
+                    </select>
+                  </div>
+                  <div style={{ display: "flex", gap: "0.4rem" }}>
+                    <input
+                      className="input-clean"
+                      aria-label="Athlete B Name"
+                      placeholder="Opponent name"
+                      value={uploadAthleteB}
+                      onChange={(e) => setUploadAthleteB(e.target.value)}
+                    />
+                    <select
+                      aria-label="Athlete B Gi"
+                      className="input-clean"
+                      style={{ width: 88 }}
+                      value={uploadGiB}
+                      onChange={(e) => setUploadGiB(e.target.value as "white" | "blue" | "black")}
+                    >
+                      <option value="blue">Blue</option>
+                      <option value="white">White</option>
+                      <option value="black">Black</option>
+                    </select>
+                  </div>
+                </div>
+
+                {uploadTab === "link" && (
+                  <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                    <div className="academy-row">
+                      <input
+                        className="input-clean"
+                        aria-label="Google Drive Video URL"
+                        placeholder="Paste Google Drive link or YouTube URL"
+                        value={driveUrlInput || urlInput}
+                        onChange={(e) => {
+                          setDriveUrlInput(e.target.value);
+                          setUrlInput(e.target.value);
+                        }}
+                      />
+                      <button
+                        type="button"
+                        className="mini-btn"
+                        data-testid="import-drive-btn"
+                        disabled={ingestBusy || !(driveUrlInput.trim() || urlInput.trim())}
+                        onClick={() => {
+                          const raw = (driveUrlInput || urlInput).trim();
+                          if (raw.includes("drive.google.com") || /^[a-zA-Z0-9_-]{20,}$/.test(raw)) {
+                            void handleGoogleDriveImport();
+                          } else {
+                            void handleAnalyzeUrl();
+                          }
+                        }}
+                      >
+                        {ingestBusy ? "Importing..." : "Import"}
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </>
             ) : (
-              <div className="academy-row">
-                <input
+              <div className="config-section" data-testid="live-camera-tab-panel">
+                <strong style={{ fontSize: "0.84rem", color: "var(--text-secondary)" }}>Live Mat Referee &amp; Camera</strong>
+                <button
+                  type="button"
+                  className="analyze-trigger-btn"
+                  style={{ padding: "0.65rem", justifyContent: "center" }}
+                  onClick={() => void handleStartLiveCamera()}
+                >
+                  Use Live Camera
+                </button>
+                <select
+                  aria-label="Live Sim Match Selector"
                   className="input-clean"
-                  aria-label="Google Drive Video URL"
-                  placeholder="Paste shared Google Drive link or file ID"
-                  value={driveUrlInput}
-                  onChange={(e) => setDriveUrlInput(e.target.value)}
-                />
+                  value={simMatchId}
+                  onChange={(e) => setSimMatchId(e.target.value)}
+                >
+                  {matches.map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.pill}
+                    </option>
+                  ))}
+                </select>
                 <button
                   type="button"
                   className="mini-btn"
-                  data-testid="import-drive-btn"
-                  disabled={ingestBusy || !driveUrlInput.trim()}
-                  onClick={() => void handleGoogleDriveImport()}
+                  style={{ padding: "0.6rem" }}
+                  onClick={() => startLiveSim(simMatchId)}
                 >
-                  {ingestBusy ? "Importing..." : "Import"}
+                  Simulate Live from Match Video
                 </button>
+                <label className="mini-btn" style={{ textAlign: "center", padding: "0.55rem", cursor: "pointer" }}>
+                  Simulate Live from Local MP4
+                  <input
+                    type="file"
+                    accept="video/mp4,video/quicktime,video/webm"
+                    style={{ display: "none" }}
+                    onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      if (f) startLiveSim(simMatchId, f);
+                    }}
+                  />
+                </label>
               </div>
             )}
 

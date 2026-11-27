@@ -118,8 +118,8 @@ async function main() {
     await desk.selectOption('select[aria-label="Match Selector"]', "mc9_semifinal");
     await desk.waitForTimeout(200);
 
-    // Calls | Coach toggle + CTA links
-    await desk.getByRole("tab", { name: "Coach" }).click();
+    // Match Coaching Summary toggle + CTA links
+    await desk.locator('[data-testid="moments-coach-toggle"]').click();
     const coachText = await desk.locator('[data-testid="coach-summary-panel"]').textContent();
     assert((coachText || "").includes("Overview"), "Coach tab missing Overview");
     assert((coachText || "").includes("Kory Mathewson"), "Coach tab missing Athlete A");
@@ -131,9 +131,9 @@ async function main() {
         fullPage: false,
       });
     }
-    await desk.getByRole("tab", { name: /Calls \(/i }).click();
+    await desk.locator('[data-testid="moments-coach-toggle"]').click();
 
-    // 0.4x Highlight lightbox open & close + clickable IBJJF Rule Peek (#145, #146)
+    // 0.4x Highlight inline loop + clickable IBJJF Rule Peek (#145, #146)
     await desk.locator('[data-testid="call-row-2"] button.event-line').click();
     assert(
       (await desk.locator('[data-testid="call-row-2"] button', { hasText: "3-Panel" }).count()) === 0,
@@ -149,7 +149,7 @@ async function main() {
     await desk.locator('[data-testid="call-row-2"] [data-testid="highlight-btn"]').click();
     await desk.waitForSelector('[data-testid="highlight-video"]', { timeout: 25000 });
     await desk.waitForSelector('[data-testid="highlight-download-link"]');
-    await desk.locator(".lightbox-card button", { hasText: "Close" }).click();
+    await desk.locator('[data-testid="call-row-2"] [data-testid="highlight-btn"]').click();
 
     // Connection & Model Config modal + Test Local Connection
     await desk.locator('[data-testid="user-profile"]').click();
@@ -183,15 +183,20 @@ async function main() {
     await desk.locator('[data-testid="home-match-mc9_semifinal"]').click();
     await desk.waitForSelector('[data-testid="row-athlete-a"]');
 
-    // Dedicated Admin & ML Experimentation Dashboard (/admin) via Connection modal footer (#144)
+    // Dedicated App Admin (/admin) + ML Admin (/ml) Dashboards via Settings modal footer
     await desk.locator('[data-testid="user-profile"]').click();
     await desk.waitForSelector('[data-testid="open-admin-btn"]');
     await desk.locator('[data-testid="open-admin-btn"]').click();
     await desk.waitForSelector('[data-testid="admin-dashboard"]');
-    await desk.waitForSelector('[data-testid="admin-scoreboard-table"] tbody tr td.mono-cell');
+    await desk.waitForSelector('[data-testid="admin-users-table"]');
+    await desk.waitForSelector('[data-testid="admin-jobs-table"]');
     const adminText = await desk.locator('[data-testid="admin-dashboard"]').textContent();
-    assert((adminText || "").includes("122 matches"), "Admin dashboard missing 122 matches");
     assert((adminText || "").includes("@"), "Admin dashboard missing user email");
+    await desk.locator('[data-testid="switch-ml-admin-btn"]').click();
+    await desk.waitForSelector('[data-testid="ml-admin-dashboard"]');
+    await desk.waitForSelector('[data-testid="admin-scoreboard-table"] tbody tr td.mono-cell');
+    const mlText = await desk.locator('[data-testid="ml-admin-dashboard"]').textContent();
+    assert((mlText || "").includes("122 matches"), "ML Admin dashboard missing 122 matches");
     if (SHOT_DIR) {
       await desk.screenshot({
         path: path.join(SHOT_DIR, "29_admin_ml_dashboard.png"),
@@ -199,7 +204,7 @@ async function main() {
       });
     }
     await desk.locator('[data-testid="admin-split-calibration"]').click();
-    await desk.locator('[data-testid="admin-back-btn"]').click();
+    await desk.locator('[data-testid="ml-admin-back-btn"]').click();
     await desk.waitForSelector('[data-testid="row-athlete-a"]');
 
     // Public /privacy, /terms, and /share/{token} routes (#147, #170)
@@ -216,8 +221,9 @@ async function main() {
     await desk.goto(BASE_URL, { waitUntil: "networkidle" });
     await desk.waitForSelector('[data-testid="row-athlete-a"]');
 
-    // + Analyze / Live drawer + Simulate Live from Match Video -> Stop Live
+    // Unified + Add Match modal -> Live Camera tab -> Simulate Live from Match Video -> Stop Live
     await desk.locator('[aria-label="Analyze or Live Camera"]').click();
+    await desk.getByRole("tab", { name: "Live Camera" }).click();
     await desk.getByRole("button", { name: "Simulate Live from Match Video" }).click();
     await desk.waitForSelector('[data-testid="live-sim-badge"]');
     await desk.waitForSelector('[data-testid="live-telemetry-strip"]');
@@ -272,7 +278,7 @@ async function main() {
       });
     }
 
-    await mob.getByRole("tab", { name: "Coach" }).click();
+    await mob.locator('[data-testid="moments-coach-toggle"]').click();
     await mob.waitForSelector('[data-testid="coach-summary-panel"]');
     await assertNoMobOverflow("coach-tab");
     if (SHOT_DIR) {
@@ -281,22 +287,23 @@ async function main() {
         fullPage: false,
       });
     }
-    await mob.getByRole("tab", { name: /Calls \(/i }).click();
+    await mob.locator('[data-testid="moments-coach-toggle"]').click();
 
-    // Mobile Analyze / Live drawer + Settings modal + 3-Panel stacked lightbox
+    // Mobile + Add Match modal + Settings modal + inline highlight
     await mob.locator('[aria-label="Analyze or Live Camera"]').click();
-    await assertNoMobOverflow("analyze-drawer");
-    await mob.locator(".drawer-sheet button", { hasText: "Close" }).click();
+    await assertNoMobOverflow("add-match-modal");
+    await mob.locator('[data-testid="upload-match-modal"] button', { hasText: "Close" }).click();
 
     await mob.locator('[data-testid="user-profile"]').click();
     await assertNoMobOverflow("settings-modal");
     await mob.locator(".config-modal button", { hasText: "Close" }).click();
 
     await mob.locator('[data-testid="call-row-2"] button.event-line').click();
-    await mob.locator('[data-testid="call-row-2"] [data-testid="highlight-btn"]').click();
-    await mob.waitForSelector('[data-testid="highlight-video"]', { state: "visible", timeout: 25000 });
-    await assertNoMobOverflow("highlight-lightbox");
-    await mob.locator(".lightbox-card button", { hasText: "Close" }).click();
+    const gifHiddenOnMob = await mob.evaluate(() => {
+      const btn = document.querySelector('[data-testid="call-row-2"] [data-testid="highlight-btn"]');
+      return !btn || getComputedStyle(btn).display === "none";
+    });
+    assert(gifHiddenOnMob, "GIF button must be hidden on mobile (<= 760px)");
 
     // Mobile Overview Home via top-left logo (#117)
     await mob.locator('[data-testid="brand-home-btn"]').click();

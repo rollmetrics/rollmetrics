@@ -130,10 +130,9 @@ export function EmbeddedReferenceVideo({
             allowFullScreen
           />
         </div>
-        <div className="embed-video-caption">
-          <span className="embed-video-title">{title}</span>
+        <div className="embed-video-caption" style={{ justifyContent: "flex-end" }}>
           <a href={media.originalUrl} target="_blank" rel="noreferrer" className="embed-source-link">
-            Open source -&gt;
+            Watch on YouTube -&gt;
           </a>
         </div>
       </div>
@@ -154,10 +153,9 @@ export function EmbeddedReferenceVideo({
             preload="metadata"
           />
         </div>
-        <div className="embed-video-caption">
-          <span className="embed-video-title">{title}</span>
+        <div className="embed-video-caption" style={{ justifyContent: "flex-end" }}>
           <a href={src} target="_blank" rel="noreferrer" className="embed-source-link">
-            Open clip -&gt;
+            Open Video -&gt;
           </a>
         </div>
       </div>

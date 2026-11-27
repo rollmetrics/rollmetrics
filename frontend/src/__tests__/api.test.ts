@@ -202,6 +202,16 @@ describe("RollMetrics API client & snapshot mapper", () => {
     await api.scanLocalFolder("~/Videos/BJJ");
     await api.analyzeLocalVideo({ video_path: "/tmp/roll.mp4", title: "Local Roll" });
     await api.importLocalAcademyFolder({ folder_path: "/tmp/notes", academy_id: "cta" });
+    await api.demoLogin();
+    await api.getIbjjfRulebook();
+    await api.updateMyProfile({ name: "Alex", belt: "blue", academy: "Plateau BJJ", coach: "Chris B" });
+    await api.deleteMatch("custom_1");
+    await api.revokeShareLink("tok123");
+    await api.updateMatchMoments("mc9_semifinal", { events: [], ruleset: "adcc" });
+    await api.getTeamRoster();
+    await api.updateMatchReview("mc9_semifinal", { review_status: "reviewed" });
+    await api.autoTagAcademyReference({ url: "https://youtu.be/dQw4w9WgXcQ", title: "Knee Cut" });
+    expect(api.getExportDataUrl()).toContain("/api/me/export.zip");
 
     expect(fetchMock).toHaveBeenCalled();
     const firstCallHeaders = new Headers(fetchMock.mock.calls[0][1]?.headers || {});

@@ -15,14 +15,14 @@
     "index.sqlite": {
       "filename": "index.sqlite",
       "record_count": 255,
-      "sha256": "f1c4e576627fc48266a2689394b2d9f453701c61b39cdddf0001792d4f49df0d",
+      "sha256": "d4171bb6aebcf45e45bf3fd06ed41da33ee781dcc69b44df57ee3eb284d94528",
       "size_bytes": 2482176
     },
     "osjj_roadmap_curriculum.jsonl": {
       "filename": "osjj_roadmap_curriculum.jsonl",
       "record_count": 24,
-      "sha256": "1a1e084bb0f814f986980faa968be037cf7ee1346dc242f2db45a40b1adfd692",
-      "size_bytes": 27506
+      "sha256": "d952e37fb8c8280c7cbeab803dfacfc8445ed89903b5ea60b1db021cd8fcdfd4",
+      "size_bytes": 30019
     }
   },
   "build_metadata": {
@@ -38,7 +38,8 @@
       "osjj_roadmap": {
         "academy_id": "osjj-roadmap",
         "academy_name": "Open Source Jiu-Jitsu & Roadmap",
-        "total_osjj_roadmap_docs": 24
+        "total_osjj_roadmap_docs": 24,
+        "video_backed_docs": 24
       }
     }
   },
@@ -49,7 +50,7 @@
     "osjj_roadmap": 24,
     "total": 255
   },
-  "created_at": "2026-11-27T11:47:07+00:00",
+  "created_at": "2026-11-27T17:27:04+00:00",
   "embedding_backend": "gemini-embedding-2",
   "embedding_dim": 768,
   "embedding_model": "gemini-embedding-2",

@@ -1,5 +1,47 @@
 export type BeltRank = "white" | "blue" | "purple" | "brown" | "black";
 export type ModelProfile = "cloud" | "local";
+export type RulesetId = "ibjjf_v6" | "adcc" | "sparring";
+
+export interface AthleteAnchorPoint {
+  x: number;
+  y: number;
+}
+
+export interface PinnedDrill {
+  title: string;
+  url: string;
+  note?: string;
+}
+
+export interface UploadJobRecord {
+  job_id: string;
+  filename: string;
+  owner_email: string;
+  status: string;
+  ruleset: RulesetId;
+  created_at: string;
+  match_id?: string;
+  detail?: string;
+}
+
+export interface IdLockSummary {
+  id_lock_pct: number;
+  evaluated_bouts: number;
+  swap_count: number;
+  matching_gi_bouts?: number;
+}
+
+export interface TeamRosterItem {
+  match_id: string;
+  title: string;
+  owner_email: string;
+  athlete_name: string;
+  belt_label: string;
+  ruleset: RulesetId;
+  review_status: "needs_review" | "reviewed";
+  pinned_drills: PinnedDrill[];
+  created_at: string;
+}
 
 export interface RuleInfo {
   article: string;
@@ -39,6 +81,8 @@ export interface ShowcaseEvent {
   control_3s?: boolean;
   hold_sec?: number;
   is_finish?: boolean;
+  coach_note?: string;
+  edited_by?: string;
 }
 
 export interface ShowcaseAthlete {
@@ -145,7 +189,7 @@ export interface AdminOverviewResponse {
   users_and_usage: Array<{
     email: string;
     name?: string;
-    role?: "admin" | "member" | "demo";
+    role?: "admin" | "coach" | "member" | "demo";
     teams?: string[];
     academy_name?: string;
     my_matches: number;
@@ -158,7 +202,7 @@ export interface AdminOverviewResponse {
   athletes?: Array<{
     email: string;
     name?: string;
-    role?: "admin" | "member" | "demo";
+    role?: "admin" | "coach" | "member" | "demo";
     teams?: string[];
     academy_name?: string;
     my_matches: number;
@@ -216,6 +260,10 @@ export interface AdminOverviewResponse {
     early_stoppage_audit: string;
     vicos_adapter: string;
   };
+  upload_jobs?: UploadJobRecord[];
+  id_lock_eval?: IdLockSummary;
+  daily_cloud_spend_usd?: number;
+  max_daily_cloud_usd?: number;
 }
 
 export interface ShowcaseMatch {
@@ -224,8 +272,15 @@ export interface ShowcaseMatch {
   title: string;
   belt: BeltRank;
   belt_label: string;
+  ruleset?: RulesetId;
   bucket?: MatchBucket;
   owner_email?: string;
+  review_status?: "needs_review" | "reviewed";
+  pinned_drills?: PinnedDrill[];
+  athlete_a_anchor?: AthleteAnchorPoint;
+  athlete_b_anchor?: AthleteAnchorPoint;
+  trim_start_sec?: number;
+  trim_end_sec?: number;
   regulation_sec: number;
   video_duration_sec: number;
   video_start_sec: number;
@@ -258,8 +313,11 @@ export interface AuthUser {
   email: string;
   name: string;
   picture: string;
+  belt?: BeltRank;
+  academy?: string;
+  coach?: string;
   auth_mode: string;
-  role?: "admin" | "member" | "demo";
+  role?: "admin" | "coach" | "member" | "demo";
   teams?: string[];
   is_admin?: boolean;
   academy_id?: string;

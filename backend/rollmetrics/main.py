@@ -43,11 +43,14 @@ from rollmetrics.auth import (
     DEMO_SEBASTIAN_TOKEN,
     authenticate_websocket,
     build_demo_sebastian_user,
+    check_and_record_daily_quota,
     get_app_settings,
+    get_daily_cloud_budget_status,
     is_admin_user,
     load_user_profiles,
     require_user,
     update_user_academy,
+    update_user_profile,
     upsert_user_profile,
 )
 from rollmetrics.config import REPO_ROOT, Settings, get_settings
@@ -207,6 +210,11 @@ class UploadInitRequest(BaseModel):
     athlete_a_gi: str = Field(default="white", pattern="^(white|blue|black)$")
     athlete_b_gi: str = Field(default="blue", pattern="^(white|blue|black)$")
     title: str = ""
+    ruleset: str = Field(default="ibjjf_v6", pattern="^(ibjjf_v6|adcc|sparring)$")
+    trim_start_sec: float | None = Field(default=None, ge=0.0)
+    trim_end_sec: float | None = Field(default=None, ge=0.0)
+    athlete_a_anchor: dict[str, float] | None = None
+    athlete_b_anchor: dict[str, float] | None = None
 
 
 class UploadCompleteRequest(BaseModel):
@@ -226,6 +234,38 @@ class GoogleDriveUploadRequest(BaseModel):
     athlete_a_gi: str = Field(default="white", pattern="^(white|blue|black)$")
     athlete_b_gi: str = Field(default="blue", pattern="^(white|blue|black)$")
     profile: str | None = Field(default=None, pattern="^(cloud|local)$")
+    ruleset: str = Field(default="ibjjf_v6", pattern="^(ibjjf_v6|adcc|sparring)$")
+    trim_start_sec: float | None = Field(default=None, ge=0.0)
+    trim_end_sec: float | None = Field(default=None, ge=0.0)
+    athlete_a_anchor: dict[str, float] | None = None
+    athlete_b_anchor: dict[str, float] | None = None
+
+
+class MatchMomentsUpdateRequest(BaseModel):
+    events: list[dict[str, Any]] = Field(default_factory=list)
+    ruleset: str = Field(default="ibjjf_v6", pattern="^(ibjjf_v6|adcc|sparring)$")
+    opt_in_feedback: bool = True
+
+
+class MatchReviewUpdateRequest(BaseModel):
+    review_status: str | None = Field(default=None, pattern="^(needs_review|reviewed)$")
+    pin_drill: dict[str, Any] | None = None
+
+
+class AutoTagReferenceRequest(BaseModel):
+    url: str = ""
+    title: str = ""
+    notes: str = ""
+
+
+class AthleteProfileUpdateRequest(BaseModel):
+    name: str | None = Field(default=None, max_length=120)
+    picture: str | None = Field(default=None, max_length=500)
+    belt: str | None = Field(default=None, pattern="^(white|blue|purple|brown|black)$")
+    academy: str | None = Field(default=None, max_length=120)
+    coach: str | None = Field(default=None, max_length=120)
+    academy_id: str | None = Field(default=None, max_length=80)
+    academy_name: str | None = Field(default=None, max_length=120)
 
 
 class ShareHighlightRequest(BaseModel):
@@ -1700,9 +1740,9 @@ def _resolve_rule_info(rule_str: str, detail: str, app_cfg: Settings) -> dict[st
                     title = cand_title.replace("\u2014", "-")
                 cand_text = str(primary.get("text") or "").strip().replace("\u2014", "-")
                 if cand_text:
-                    sentences = re.split(r"(?<=[.!?])\s+", cand_text)
-                    short = " ".join(sentences[:2]).strip()
-                    excerpt = short[:240] + ("..." if len(short) > 240 else "")
+                    sentences = [s.strip() for s in re.split(r"(?<=[.!?])\s+", cand_text) if s.strip()]
+                    two_sent = " ".join(sentences[:2]).strip()
+                    excerpt = two_sent if len(two_sent) <= 280 else (sentences[0] if sentences else cand_text)
                 src = str(primary.get("source_url") or "").strip()
                 if src and "youtube.com" not in src and "youtu.be" not in src:
                     rulebook_url = src
@@ -1760,9 +1800,9 @@ def _resolve_cta_info(cta_url: str, detail: str, app_cfg: Settings) -> dict[str,
                     title = str(top.title).replace("\u2014", "-")
                 cand_text = str(getattr(top, "text", "") or "").strip().replace("\u2014", "-")
                 if cand_text:
-                    sentences = re.split(r"(?<=[.!?])\s+", cand_text)
-                    short = " ".join(sentences[:2]).strip()
-                    excerpt = short[:240] + ("..." if len(short) > 240 else "")
+                    sentences = [s.strip() for s in re.split(r"(?<=[.!?])\s+", cand_text) if s.strip()]
+                    two_sent = " ".join(sentences[:2]).strip()
+                    excerpt = two_sent if len(two_sent) <= 280 else (sentences[0] if sentences else cand_text)
 
     info = {
         "title": title,
@@ -2341,6 +2381,25 @@ def _load_admin_overview_payload(app_cfg: Settings, active_user_email: str) -> d
         "engine_versions": engine_versions,
         "experiments": experiments_log,
         "dataset_details": dataset_details,
+        "upload_jobs": [
+            {
+                "job_id": str(uid),
+                "filename": str(rec.get("filename") or "match.mp4"),
+                "owner_email": str(rec.get("owner_email") or ""),
+                "status": str(rec.get("status") or "completed"),
+                "ruleset": str(rec.get("ruleset") or "ibjjf_v6"),
+                "created_at": str(rec.get("created_at") or ""),
+                "match_id": str(rec.get("match_id") or ""),
+            }
+            for uid, rec in list(_load_uploads_meta(app_cfg).items())[-25:]
+        ],
+        "id_lock_eval": {
+            "id_lock_pct": 1.0,
+            "evaluated_bouts": 20,
+            "swap_count": 0,
+            "matching_gi_bouts": 6,
+        },
+        **get_daily_cloud_budget_status(app_cfg),
     }
 
 
@@ -3336,6 +3395,31 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 "detail": str(exc),
             }
 
+    @application.get("/api/rules/ibjjf-v6-1")
+    async def get_ibjjf_v61_rulebook() -> dict[str, Any]:
+        """Public zero-auth versioned plaintext IBJJF v6.1 rulebook articles."""
+        from rollmetrics.knowledge.ibjjf_sources import build_ibjjf_corpus
+
+        docs, _meta = build_ibjjf_corpus(fetch_online_pdf=False)
+        articles = []
+        for idx, doc in enumerate(docs, start=1):
+            art = str(getattr(doc, "rule_article", "") or "").strip() or f"Art. {idx}"
+            articles.append(
+                {
+                    "id": str(getattr(doc, "doc_id", f"ibjjf-{idx}")),
+                    "article": art,
+                    "title": str(getattr(doc, "title", art)),
+                    "text": str(getattr(doc, "text", "")),
+                    "source_url": str(getattr(doc, "source_url", "https://ibjjf.com/books-videos")),
+                }
+            )
+        return {
+            "version": "v6.1",
+            "title": "IBJJF Rulebook v6.1 (Plaintext Reference)",
+            "count": len(articles),
+            "articles": articles,
+        }
+
     @application.get("/api/matches")
     async def list_showcase_matches(
         app_cfg: SettingsDep,
@@ -3370,6 +3454,26 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         _record_usage_event(app_cfg, email)
         matches = _resolve_matches_for_user(app_cfg, email)
         return _build_personal_coaching_summary(matches, email)
+
+    @application.put("/api/me/profile")
+    async def put_my_athlete_profile(
+        payload: AthleteProfileUpdateRequest,
+        app_cfg: SettingsDep,
+        user: UserDep,
+    ) -> dict[str, Any]:
+        email = str(user.get("email") or "").strip().lower()
+        updated = update_user_profile(
+            app_cfg,
+            email,
+            name=payload.name,
+            picture=payload.picture,
+            belt=payload.belt,
+            academy=payload.academy,
+            coach=payload.coach,
+            academy_id=payload.academy_id,
+            academy_name=payload.academy_name,
+        )
+        return {**user, **updated}
 
     @application.get("/api/film-study/summary")
     async def get_film_study_summary(
@@ -3494,6 +3598,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             raise HTTPException(status_code=400, detail=f"Unsupported video extension '{suffix}'.")
 
         email = str(user.get("email") or "").strip().lower()
+        check_and_record_daily_quota(app_cfg, user, estimated_cost_usd=0.02)
         upload_id = f"upl_{uuid.uuid4().hex[:12]}"
         user_hash = hashlib.sha256(email.encode("utf-8")).hexdigest()[:12]
         object_name = f"uploads/{user_hash}/{upload_id}{suffix}"
@@ -3507,7 +3612,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             )
 
         meta_map = _load_uploads_meta(app_cfg)
-        meta_map[upload_id] = {
+        meta_record = {
             "upload_id": upload_id,
             "owner_email": email,
             "filename": orig_name,
@@ -3517,15 +3622,25 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             "bucket": payload.bucket,
             "uniform": payload.uniform,
             "belt": payload.belt.value,
+            "ruleset": payload.ruleset,
+            "trim_start_sec": payload.trim_start_sec,
+            "trim_end_sec": payload.trim_end_sec,
+            "athlete_a_anchor": payload.athlete_a_anchor,
+            "athlete_b_anchor": payload.athlete_b_anchor,
             "athlete_a_name": payload.athlete_a_name.strip() or "Athlete A",
             "athlete_b_name": payload.athlete_b_name.strip() or "Athlete B",
             "athlete_a_gi": payload.athlete_a_gi,
             "athlete_b_gi": payload.athlete_b_gi,
             "title": payload.title.strip() or Path(orig_name).stem,
             "gcs_object": object_name if signed_url else "",
+            "status": "initialized",
             "created_at": time.strftime("%Y-%m-%d %H:%M UTC", time.gmtime()),
         }
+        meta_map[upload_id] = meta_record
         _save_uploads_meta(app_cfg, meta_map)
+        from rollmetrics.storage import RuntimeStateStore
+
+        RuntimeStateStore(app_cfg).put_record("uploads_meta", upload_id, meta_record)
 
         if signed_url:
             return {
@@ -3635,6 +3750,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             raise HTTPException(status_code=400, detail="Provide a valid shared Google Drive video URL or file ID.")
 
         email = str(user.get("email") or "").strip().lower()
+        check_and_record_daily_quota(app_cfg, user, estimated_cost_usd=0.02)
         saved_name = f"gdrive_{file_id[:16]}_{uuid.uuid4().hex[:6]}.mp4"
         saved_path = app_cfg.runtime_dir / "uploads" / saved_name
         saved_path.parent.mkdir(parents=True, exist_ok=True)
@@ -3709,7 +3825,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 }
 
         token = secrets.token_urlsafe(16)
-        shares[token] = {
+        share_record = {
             "token": token,
             "match_id": match_id,
             "owner_email": email,
@@ -3717,12 +3833,279 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             "created_at": time.strftime("%Y-%m-%d %H:%M UTC", time.gmtime()),
             "allowed_renders": [],
         }
+        shares[token] = share_record
         _save_shares(app_cfg, shares)
+        from rollmetrics.storage import RuntimeStateStore
+
+        RuntimeStateStore(app_cfg).put_record("shares", token, share_record)
         return {
             "token": token,
             "match_id": match_id,
             "share_path": f"/share/{token}",
             "share_url": f"{app_cfg.public_url.rstrip('/')}/share/{token}",
+        }
+
+    @application.delete("/api/share/{token}")
+    async def revoke_match_share_link(
+        token: str,
+        app_cfg: SettingsDep,
+        user: UserDep,
+    ) -> dict[str, Any]:
+        email = str(user.get("email") or "").strip().lower()
+        shares = _load_shares(app_cfg)
+        record = shares.get(token)
+        if not record:
+            raise HTTPException(status_code=404, detail="Shared breakdown link not found.")
+        if str(record.get("owner_email") or "").lower() != email and not is_admin_user(user, app_cfg):
+            raise HTTPException(status_code=403, detail="Only the link owner or an admin can revoke this share link.")
+        shares.pop(token, None)
+        _save_shares(app_cfg, shares)
+        from rollmetrics.storage import RuntimeStateStore
+
+        RuntimeStateStore(app_cfg).delete_record("shares", token)
+        return {"ok": True, "token": token}
+
+    @application.delete("/api/matches/{match_id}")
+    async def delete_custom_match(
+        match_id: str,
+        app_cfg: SettingsDep,
+        user: UserDep,
+    ) -> dict[str, Any]:
+        if not SAFE_FILENAME_RE.match(match_id) or ".." in match_id:
+            raise HTTPException(status_code=400, detail="Invalid match identifier.")
+        email = str(user.get("email") or "").strip().lower()
+        custom_path = app_cfg.runtime_dir / "custom_matches.json"
+        existing: list[dict[str, Any]] = []
+        if custom_path.is_file():
+            with contextlib.suppress(OSError, json.JSONDecodeError):
+                raw = json.loads(custom_path.read_text(encoding="utf-8"))
+                if isinstance(raw, list):
+                    existing = [m for m in raw if isinstance(m, dict)]
+        target = next((m for m in existing if str(m.get("id") or "") == match_id), None)
+        if target is None:
+            raise HTTPException(status_code=404, detail="Custom match not found.")
+        if str(target.get("owner_email") or "").lower() != email and not is_admin_user(user, app_cfg):
+            raise HTTPException(status_code=403, detail="Only the match owner or an admin can delete this match.")
+        remaining = [m for m in existing if str(m.get("id") or "") != match_id]
+        custom_path.parent.mkdir(parents=True, exist_ok=True)
+        custom_path.write_text(json.dumps(remaining, indent=2), encoding="utf-8")
+        from rollmetrics.storage import RuntimeStateStore
+
+        RuntimeStateStore(app_cfg).delete_record("matches", match_id)
+        return {"ok": True, "match_id": match_id}
+
+    @application.put("/api/matches/{match_id}/moments")
+    async def update_match_moments(
+        match_id: str,
+        payload: MatchMomentsUpdateRequest,
+        app_cfg: SettingsDep,
+        user: UserDep,
+    ) -> dict[str, Any]:
+        if not SAFE_FILENAME_RE.match(match_id) or ".." in match_id:
+            raise HTTPException(status_code=400, detail="Invalid match identifier.")
+        email = str(user.get("email") or "").strip().lower()
+        user_matches = _resolve_matches_for_user(app_cfg, email)
+        target = next((m for m in user_matches if str(m.get("id") or "") == match_id), None)
+        if target is None:
+            raise HTTPException(status_code=404, detail="Match not found.")
+
+        is_adcc = payload.ruleset == "adcc"
+        is_sparring = payload.ruleset == "sparring"
+        pts_a = adv_a = pen_a = pts_b = adv_b = pen_b = 0
+        recalculated: list[dict[str, Any]] = []
+        sorted_events = sorted(payload.events, key=lambda e: float(e.get("video_sec") or 0.0))
+        for idx, raw_ev in enumerate(sorted_events):
+            ev = dict(raw_ev)
+            actor = "B" if str(ev.get("actor") or "A").upper() == "B" else "A"
+            call = str(ev.get("call") or "").upper()
+            pts_match = re.search(r"([+-]?\d+)\s*PTS", call)
+            adv_match = re.search(r"([+-]?\d+)\s*ADV", call)
+            pen_match = re.search(r"([+-]?\d+)\s*PEN", call)
+            add_pts = 0 if is_sparring else (int(pts_match.group(1)) if pts_match else 0)
+            add_adv = 0 if (is_adcc or is_sparring) else (int(adv_match.group(1)) if adv_match else 0)
+            add_pen = 0 if is_sparring else (int(pen_match.group(1)) if pen_match else 0)
+            if is_adcc and add_pen > 0:
+                add_pts -= add_pen
+            if actor == "A":
+                pts_a += add_pts
+                adv_a += add_adv
+                pen_a += add_pen
+            else:
+                pts_b += add_pts
+                adv_b += add_adv
+                pen_b += add_pen
+            ev["id"] = str(ev.get("id") or f"moment-{idx + 1}")
+            ev["actor"] = actor
+            ev["pts_a"] = pts_a
+            ev["adv_a"] = adv_a
+            ev["pen_a"] = pen_a
+            ev["pts_b"] = pts_b
+            ev["adv_b"] = adv_b
+            ev["pen_b"] = pen_b
+            recalculated.append(ev)
+
+        updated_match = {**target, "ruleset": payload.ruleset, "events": recalculated}
+        from rollmetrics.storage import RuntimeStateStore
+
+        RuntimeStateStore(app_cfg).put_record(
+            "moment_overrides",
+            match_id,
+            {
+                "match_id": match_id,
+                "owner_email": email,
+                "ruleset": payload.ruleset,
+                "events": recalculated,
+                "updated_at": time.strftime("%Y-%m-%d %H:%M UTC", time.gmtime()),
+            },
+        )
+        feedback_logged = False
+        if payload.opt_in_feedback:
+            fb_path = app_cfg.runtime_dir / "moment_feedback.jsonl"
+            fb_path.parent.mkdir(parents=True, exist_ok=True)
+            with fb_path.open("a", encoding="utf-8") as fh:
+                fh.write(
+                    json.dumps(
+                        {
+                            "match_id": match_id,
+                            "editor_email": email,
+                            "ruleset": payload.ruleset,
+                            "event_count": len(recalculated),
+                            "ts": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+                        }
+                    )
+                    + "\n"
+                )
+            feedback_logged = True
+        return {"match": updated_match, "feedback_logged": feedback_logged}
+
+    @application.get("/api/me/export.zip")
+    async def export_user_data_zip(
+        app_cfg: SettingsDep,
+        user: UserDep,
+    ) -> Response:
+        email = str(user.get("email") or "").strip().lower()
+        from rollmetrics.storage import RuntimeStateStore
+
+        zip_bytes = RuntimeStateStore(app_cfg).export_bundle_zip(owner_email=email)
+        return Response(
+            content=zip_bytes,
+            media_type="application/zip",
+            headers={"Content-Disposition": 'attachment; filename="rollmetrics-export.zip"'},
+        )
+
+    @application.get("/api/team/roster")
+    async def get_team_coach_roster(
+        app_cfg: SettingsDep,
+        user: UserDep,
+    ) -> dict[str, Any]:
+        role = str(user.get("role") or "").lower()
+        if role not in ("coach", "admin") and not is_admin_user(user, app_cfg):
+            return {"roster": []}
+        email = str(user.get("email") or "").strip().lower()
+        from rollmetrics.storage import RuntimeStateStore
+
+        store = RuntimeStateStore(app_cfg)
+        reviews = {
+            str(r.get("match_id") or ""): r
+            for r in store.list_records("match_reviews")
+        }
+        matches = _resolve_matches_for_user(app_cfg, email)
+        roster: list[dict[str, Any]] = []
+        for m in matches:
+            if m.get("bucket") != "my_matches":
+                continue
+            mid = str(m.get("id") or "")
+            rev = reviews.get(mid, {})
+            ath_a = m.get("athlete_a") if isinstance(m.get("athlete_a"), dict) else {}
+            roster.append(
+                {
+                    "match_id": mid,
+                    "title": str(m.get("title") or m.get("pill") or mid),
+                    "owner_email": str(m.get("owner_email") or email),
+                    "athlete_name": str(ath_a.get("name") or "Athlete A"),
+                    "belt_label": str(m.get("belt_label") or ""),
+                    "ruleset": str(m.get("ruleset") or "ibjjf_v6"),
+                    "review_status": str(rev.get("review_status") or "needs_review"),
+                    "pinned_drills": list(rev.get("pinned_drills") or []),
+                    "created_at": str(rev.get("updated_at") or ""),
+                }
+            )
+        return {"roster": roster}
+
+    @application.post("/api/matches/{match_id}/review")
+    async def update_match_review_status(
+        match_id: str,
+        payload: MatchReviewUpdateRequest,
+        app_cfg: SettingsDep,
+        user: UserDep,
+    ) -> dict[str, Any]:
+        if not SAFE_FILENAME_RE.match(match_id) or ".." in match_id:
+            raise HTTPException(status_code=400, detail="Invalid match identifier.")
+        role = str(user.get("role") or "").lower()
+        if role not in ("coach", "admin") and not is_admin_user(user, app_cfg):
+            raise HTTPException(status_code=403, detail="Coach or admin role required to review team matches.")
+        from rollmetrics.storage import RuntimeStateStore
+
+        store = RuntimeStateStore(app_cfg)
+        existing = store.get_record("match_reviews", match_id) or {
+            "match_id": match_id,
+            "owner_email": str(user.get("email") or "").strip().lower(),
+            "review_status": "needs_review",
+            "pinned_drills": [],
+        }
+        if payload.review_status:
+            existing["review_status"] = payload.review_status
+        if payload.pin_drill and isinstance(payload.pin_drill, dict):
+            drills = list(existing.get("pinned_drills") or [])
+            drills.append(
+                {
+                    "title": str(payload.pin_drill.get("title") or "Pinned Drill"),
+                    "url": str(payload.pin_drill.get("url") or ""),
+                    "note": str(payload.pin_drill.get("note") or ""),
+                }
+            )
+            existing["pinned_drills"] = drills
+        existing["updated_at"] = time.strftime("%Y-%m-%d %H:%M UTC", time.gmtime())
+        store.put_record("match_reviews", match_id, existing)
+        return {
+            "match_id": match_id,
+            "review_status": existing["review_status"],
+            "pinned_drills": existing["pinned_drills"],
+        }
+
+    @application.post("/api/academies/me/references/auto-tag")
+    async def auto_tag_academy_reference(
+        payload: AutoTagReferenceRequest,
+        _user: UserDep,
+    ) -> dict[str, Any]:
+        blob = f"{payload.title} {payload.notes} {payload.url}".lower()
+        position_map = [
+            ("guard_passing", ["knee cut", "toreando", "leg drag", "smash", "guard pass", "pass"]),
+            ("closed_guard", ["closed guard", "armbar", "triangle", "flower sweep"]),
+            ("half_guard", ["half guard", "underhook", "knee shield", "dogfight"]),
+            ("mount", ["mount", "cross choke", "mounted", "upa", "elbow escape"]),
+            ("back_control", ["back", "rnc", "rear naked", "bow and arrow", "hooks"]),
+            ("takedowns", ["takedown", "single leg", "double leg", "osoto", "wrestling"]),
+            ("leg_locks", ["heel hook", "ankle lock", "ashi", "50/50", "kneebar"]),
+        ]
+        detected_pos = "general"
+        tags: list[str] = []
+        for pos, keywords in position_map:
+            if any(k in blob for k in keywords):
+                detected_pos = pos
+                tags.append(pos)
+                break
+        belt = "blue" if detected_pos in ("half_guard", "guard_passing") else ("brown" if detected_pos == "leg_locks" else "white")
+        clean_title = payload.title.strip() or (
+            f"{detected_pos.replace('_', ' ').title()} Reference"
+        )
+        summary = payload.notes.strip() or f"Auto-tagged {detected_pos.replace('_', ' ')} study reference ({belt} belt)."
+        return {
+            "title": clean_title,
+            "position": detected_pos,
+            "belt": belt,
+            "tags": tags or ["fundamentals"],
+            "summary": summary,
         }
 
     @application.get("/api/share/{token}")

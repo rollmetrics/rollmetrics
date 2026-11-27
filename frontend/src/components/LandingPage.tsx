@@ -102,6 +102,15 @@ export function LandingPage({
               <span>IBJJF v6.1 · Gi</span>
             </div>
 
+            <div className="landing-video-preview" data-testid="landing-video-preview">
+              <img
+                src="/og-card.png"
+                alt="Sample Brazilian Jiu-Jitsu match video frame"
+                className="landing-video-thumb"
+              />
+              <span className="landing-play-badge">▶ Match Video · 0.4x Replay</span>
+            </div>
+
             <div className="landing-scoreboard">
               <div className="landing-score-side">
                 <span className="landing-score-name">Athlete A</span>

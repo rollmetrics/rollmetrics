@@ -1090,3 +1090,154 @@ def test_cli_subcommands_including_eval_and_model_comparison(
     assert cli_mod.main(["serve", "--host", "127.0.0.1", "--port", "8199"]) == 0
     assert called["app"] == "rollmetrics.main:app"
     assert called["port"] == 8199
+
+
+def test_v03_pilot_features_quota_moments_roster_export_and_autotag(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import zipfile
+    from io import BytesIO
+
+    from fastapi import HTTPException
+    from rollmetrics.auth import check_and_record_daily_quota, has_unlimited_quota
+
+    settings = Settings(
+        environment="test",
+        allow_local_dev_bypass=True,
+        runtime_dir=tmp_path / "rt_v03",
+    )
+    client = TestClient(create_app(settings))
+
+    # 1. Quota & Cloud Spend Circuit Breaker
+    open_member = {"email": "newbie@example.com", "role": "member", "teams": [], "auth_mode": "google_id_token"}
+    coach_user = {"email": "coach@example.com", "role": "coach", "teams": [], "auth_mode": "google_id_token"}
+    assert has_unlimited_quota(open_member, settings) is False
+    assert has_unlimited_quota(coach_user, settings) is True
+
+    for i in range(5):
+        q = check_and_record_daily_quota(settings, open_member, estimated_cost_usd=0.01, max_daily_uploads=5)
+        assert q["user_count"] == i + 1
+    with pytest.raises(HTTPException) as exc_quota:
+        check_and_record_daily_quota(settings, open_member, estimated_cost_usd=0.01, max_daily_uploads=5)
+    assert exc_quota.value.status_code == 429
+
+    monkeypatch.setenv("ROLLMETRICS_MAX_DAILY_CLOUD_USD", "0.06")
+    with pytest.raises(HTTPException) as exc_budget:
+        check_and_record_daily_quota(settings, coach_user, estimated_cost_usd=0.05)
+    assert exc_budget.value.status_code == 429
+    monkeypatch.setenv("ROLLMETRICS_MAX_DAILY_CLOUD_USD", "25.0")
+
+    # 2. Upload init with ruleset, trim, tap-to-identify anchors -> reflected in /api/admin/overview upload_jobs
+    r_init = client.post(
+        "/api/uploads/init",
+        json={
+            "filename": "adcc_trial.mov",
+            "content_type": "video/quicktime",
+            "size_bytes": 1024,
+            "bucket": "my_matches",
+            "uniform": "nogi",
+            "belt": "brown",
+            "ruleset": "adcc",
+            "trim_start_sec": 5.0,
+            "trim_end_sec": 180.0,
+            "athlete_a_anchor": {"x": 0.3, "y": 0.5},
+            "athlete_b_anchor": {"x": 0.7, "y": 0.5},
+        },
+    )
+    assert r_init.status_code == 200
+    r_adm = client.get("/api/admin/overview")
+    assert r_adm.status_code == 200
+    adm_json = r_adm.json()
+    assert any(j["filename"] == "adcc_trial.mov" and j["ruleset"] == "adcc" for j in adm_json["upload_jobs"])
+    assert adm_json["id_lock_eval"]["id_lock_pct"] == 1.0
+
+    # 3. Share create + revoke
+    r_share = client.post("/api/matches/mc9_semifinal/share")
+    assert r_share.status_code == 200
+    tok = r_share.json()["token"]
+    r_rev = client.delete(f"/api/share/{tok}")
+    assert r_rev.status_code == 200 and r_rev.json()["ok"] is True
+    assert client.get(f"/api/share/{tok}").status_code == 404
+
+    # 4. Inline Moment Editing (IBJJF + ADCC + Sparring deterministic recalculation + feedback log)
+    r_mom = client.put(
+        "/api/matches/mc9_semifinal/moments",
+        json={
+            "ruleset": "adcc",
+            "opt_in_feedback": True,
+            "events": [
+                {"id": "e1", "video_sec": 10, "actor": "A", "call": "+2 PTS", "detail": "Takedown", "coach_note": "Clean level change"},
+                {"id": "e2", "video_sec": 25, "actor": "B", "call": "+1 PEN", "detail": "Guard pull"},
+            ],
+        },
+    )
+    assert r_mom.status_code == 200
+    mom_json = r_mom.json()
+    assert mom_json["feedback_logged"] is True
+    assert mom_json["match"]["events"][0]["pts_a"] == 2
+    assert mom_json["match"]["events"][1]["pts_b"] == -1
+    assert (settings.runtime_dir / "moment_feedback.jsonl").is_file()
+
+    # 5. Delete custom match
+    custom_path = settings.runtime_dir / "custom_matches.json"
+    custom_path.write_text(
+        json.dumps([{"id": "custom_del_1", "title": "Temp", "owner_email": "coach@example.com"}]),
+        encoding="utf-8",
+    )
+    r_del = client.delete("/api/matches/custom_del_1")
+    assert r_del.status_code == 200 and r_del.json()["ok"] is True
+    assert client.delete("/api/matches/custom_del_1").status_code == 404
+
+    # 6. Team Coach Roster + Review status + Pin Drill
+    r_roster = client.get("/api/team/roster")
+    assert r_roster.status_code == 200 and isinstance(r_roster.json()["roster"], list)
+    r_review = client.post(
+        "/api/matches/mc9_semifinal/review",
+        json={
+            "review_status": "reviewed",
+            "pin_drill": {"title": "Knee Cut Drill", "url": "https://youtu.be/dQw4w9WgXcQ", "note": "Keep underhook"},
+        },
+    )
+    assert r_review.status_code == 200
+    assert r_review.json()["review_status"] == "reviewed"
+    assert len(r_review.json()["pinned_drills"]) == 1
+
+    # 7. Auto-Tag Academy Reference
+    r_tag = client.post(
+        "/api/academies/me/references/auto-tag",
+        json={"url": "https://youtu.be/dQw4w9WgXcQ", "title": "Knee Cut Pass Details", "notes": "Underhook pressure"},
+    )
+    assert r_tag.status_code == 200
+    assert r_tag.json()["position"] == "guard_passing"
+    assert r_tag.json()["belt"] == "blue"
+
+    # 8. 1-Click Export Data .zip
+    r_zip = client.get("/api/me/export.zip")
+    assert r_zip.status_code == 200
+    assert r_zip.headers["content-type"] == "application/zip"
+    with zipfile.ZipFile(BytesIO(r_zip.content), "r") as zf:
+        assert "manifest.json" in zf.namelist()
+
+    # 9. Editable Athlete Profile (PUT /api/me/profile)
+    r_prof = client.put(
+        "/api/me/profile",
+        json={
+            "name": "Alex Rivera",
+            "belt": "blue",
+            "academy": "Plateau BJJ",
+            "coach": "Chris B",
+            "academy_id": "osjj-roadmap",
+            "academy_name": "Open Source Curriculum",
+        },
+    )
+    assert r_prof.status_code == 200
+    assert r_prof.json()["belt"] == "blue"
+    assert r_prof.json()["academy"] == "Plateau BJJ"
+    assert r_prof.json()["coach"] == "Chris B"
+
+    # 10. Public On-Site Plaintext IBJJF Rulebook v6.1 (GET /api/rules/ibjjf-v6-1)
+    r_rb = client.get("/api/rules/ibjjf-v6-1")
+    assert r_rb.status_code == 200
+    assert r_rb.json()["version"] == "v6.1"
+    assert r_rb.json()["count"] > 10
