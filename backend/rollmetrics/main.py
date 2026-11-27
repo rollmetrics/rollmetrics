@@ -5318,7 +5318,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     if assets_dir.is_dir():
         application.mount("/assets", StaticFiles(directory=str(assets_dir)), name="frontend-assets")
 
-    @application.get("/", response_model=None)
+    @application.api_route("/", methods=["GET", "HEAD"], response_model=None)
     async def serve_root() -> FileResponse | HTMLResponse:
         index_html = dist_dir / "index.html"
         if index_html.is_file():
@@ -5335,7 +5335,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     async def redirect_legacy_pitch() -> RedirectResponse:
         return RedirectResponse(url="/", status_code=302)
 
-    @application.get("/{full_path:path}", response_model=None)
+    @application.api_route("/{full_path:path}", methods=["GET", "HEAD"], response_model=None)
     async def serve_spa_fallback(full_path: str) -> FileResponse | HTMLResponse:
         if full_path.startswith(("api/", "ws/", "healthz")):
             raise HTTPException(status_code=404, detail="Route not found.")
