@@ -61,7 +61,7 @@ def get_ruleset_engine(
 ) -> RulesetEngine:
     """Instantiate a deterministic ruleset engine by identifier ('ibjjf', 'adcc', or 'sparring')."""
     key = (ruleset or "ibjjf").strip().lower()
-    if key in ("ibjjf", "ibjjf_v61", "ibjjf-v6.1"):
+    if key in ("ibjjf", "ibjjf_v6", "ibjjf_v6_1", "ibjjf_v61", "ibjjf-v6.1"):
         from rollmetrics.rules.state_machine import IBJJFRefereeEngine
 
         engine = IBJJFRefereeEngine(division=division, index_version=index_version)

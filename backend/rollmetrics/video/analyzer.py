@@ -9,6 +9,7 @@ from typing import Any
 
 from rollmetrics.config import Settings, get_settings
 from rollmetrics.providers.factory import get_vision_provider
+from rollmetrics.rules.base import get_ruleset_engine
 from rollmetrics.rules.schema import (
     AdjudicatedEvent,
     AthleteId,
@@ -17,7 +18,6 @@ from rollmetrics.rules.schema import (
     RawObservedEvent,
     ScoreboardSnapshot,
 )
-from rollmetrics.rules.state_machine import IBJJFRefereeEngine
 from rollmetrics.video.ingest import ingest_video_source
 
 FALLBACK_CTA_BY_POSITION: dict[str, list[dict[str, Any]]] = {
@@ -375,7 +375,8 @@ class MatchAnalyzer:
         ]
         ordered_events = sorted(parsed_events, key=lambda item: item.timestamp_sec)
 
-        engine = IBJJFRefereeEngine(
+        engine = get_ruleset_engine(
+            div.ruleset,
             division=div,
             index_version=self.settings.active_index_version,
         )
@@ -422,6 +423,7 @@ class MatchAnalyzer:
         dumped = snap.model_dump(mode="json")
         return {
             **dumped,
+            "ruleset": engine.ruleset_id,
             "scoreboard": dumped,
             "rule_citations": rule_citations_by_event,
             "locked_athlete": locked.value,

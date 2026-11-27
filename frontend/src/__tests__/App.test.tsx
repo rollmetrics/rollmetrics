@@ -279,10 +279,14 @@ describe("RollMetrics Single-Screen Video Telemetry MVP", () => {
           );
         }
         if (url.includes("/moments") && init?.method === "PUT") {
-          const body = JSON.parse(String(init.body || "{}")) as { events?: unknown[] };
+          const body = JSON.parse(String(init.body || "{}")) as { events?: unknown[]; ruleset?: string };
           return new Response(
             JSON.stringify({
-              match: { ...MOCK_MATCHES[0], events: body.events || MOCK_MATCHES[0].events },
+              match: {
+                ...MOCK_MATCHES[0],
+                ruleset: body.ruleset || MOCK_MATCHES[0].ruleset,
+                events: body.events || MOCK_MATCHES[0].events,
+              },
               feedback_logged: true,
             }),
             { status: 200 },
@@ -1771,12 +1775,23 @@ describe("RollMetrics Single-Screen Video Telemetry MVP", () => {
     expect(screen.queryByTestId("tap-pin-b")).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Reset Pins" }));
     expect(screen.queryByTestId("tap-pin-a")).not.toBeInTheDocument();
+    // Switch to Live Camera tab and verify ADCC live ruleset selector
+    fireEvent.click(screen.getByRole("tab", { name: "Live Camera" }));
+    const liveRulesetSelect = screen.getByTestId("live-ruleset-select") as HTMLSelectElement;
+    fireEvent.change(liveRulesetSelect, { target: { value: "adcc" } });
+    expect(liveRulesetSelect.value).toBe("adcc");
     fireEvent.click(screen.getByRole("button", { name: "Close" }));
 
-    // Resizable right-hand Moments panel handle on desktop (#233)
+    // Resizable right-hand Moments panel handle on desktop (#233) + Film Review ruleset switcher
     fireEvent.click(screen.getByTestId("home-match-mc9_semifinal"));
     await waitFor(() => {
       expect(screen.getByTestId("rail-resize-handle")).toBeInTheDocument();
+      expect(screen.getByTestId("film-ruleset-select")).toBeInTheDocument();
+    });
+    const filmRulesetSelect = screen.getByTestId("film-ruleset-select") as HTMLSelectElement;
+    fireEvent.change(filmRulesetSelect, { target: { value: "adcc" } });
+    await waitFor(() => {
+      expect(filmRulesetSelect.value).toBe("adcc");
     });
     const resizeHandle = screen.getByTestId("rail-resize-handle");
     fireEvent.pointerDown(resizeHandle, { clientX: 800 });

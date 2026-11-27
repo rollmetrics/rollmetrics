@@ -401,6 +401,7 @@ export function App() {
   const [uploadGiB, setUploadGiB] = useState<"white" | "blue" | "black">("blue");
   const [uploadTitle, setUploadTitle] = useState<string>("");
   const [uploadRuleset, setUploadRuleset] = useState<RulesetId>("ibjjf_v6");
+  const [liveRuleset, setLiveRuleset] = useState<RulesetId>("ibjjf_v6");
   const [uploadTrimStart, setUploadTrimStart] = useState<string>("");
   const [uploadTrimEnd, setUploadTrimEnd] = useState<string>("");
   const [uploadAnchorA, setUploadAnchorA] = useState<AthleteAnchorPoint | null>(null);
@@ -1281,29 +1282,34 @@ export function App() {
     setEditCoachNote(ev.coach_note || "");
   };
 
-  const persistMatchMoments = async (nextEvents: ShowcaseEvent[]) => {
+  const persistMatchMoments = async (nextEvents: ShowcaseEvent[], overrideRuleset?: RulesetId) => {
+    const targetRuleset = overrideRuleset || activeMatch.ruleset || "ibjjf_v6";
     setMomentEditBusy(true);
     try {
       const res = await api.updateMatchMoments(activeMatch.id, {
         events: nextEvents,
-        ruleset: activeMatch.ruleset || "ibjjf_v6",
-        opt_in_feedback: true,
+        ruleset: targetRuleset,
+        opt_in_feedback: !overrideRuleset,
       });
       if (res?.match) {
         setMatches((prev) => prev.map((m) => (m.id === activeMatch.id ? res.match : m)));
       } else {
         setMatches((prev) =>
-          prev.map((m) => (m.id === activeMatch.id ? { ...m, events: nextEvents } : m)),
+          prev.map((m) => (m.id === activeMatch.id ? { ...m, ruleset: targetRuleset, events: nextEvents } : m)),
         );
       }
     } catch {
       setMatches((prev) =>
-        prev.map((m) => (m.id === activeMatch.id ? { ...m, events: nextEvents } : m)),
+        prev.map((m) => (m.id === activeMatch.id ? { ...m, ruleset: targetRuleset, events: nextEvents } : m)),
       );
     } finally {
       setMomentEditBusy(false);
       setEditingEventId(null);
     }
+  };
+
+  const handleSwitchMatchRuleset = async (nextRuleset: RulesetId) => {
+    await persistMatchMoments(activeMatch.events, nextRuleset);
   };
 
   const handleSaveMomentEdit = async (eventId: string) => {
@@ -1618,7 +1624,8 @@ export function App() {
           type: "init",
           profile,
           division: {
-            uniform: isNogi ? "nogi" : "gi",
+            ruleset: liveRuleset,
+            uniform: liveRuleset === "adcc" || isNogi ? "nogi" : "gi",
             belt: chosen.belt,
             age_division: isMaster ? "master" : "adult",
             duration_sec: chosen.regulation_sec,
@@ -2952,6 +2959,18 @@ export function App() {
             </strong>
             {!shareToken && (
               <div style={{ display: "flex", gap: "0.35rem", alignItems: "center" }}>
+                <select
+                  aria-label="Match Ruleset"
+                  data-testid="film-ruleset-select"
+                  className="mini-btn"
+                  disabled={momentEditBusy}
+                  value={activeMatch.ruleset || "ibjjf_v6"}
+                  onChange={(e) => void handleSwitchMatchRuleset(e.target.value as RulesetId)}
+                >
+                  <option value="ibjjf_v6">IBJJF v6.1</option>
+                  <option value="adcc">ADCC</option>
+                  <option value="sparring">Sparring</option>
+                </select>
                 <button
                   type="button"
                   className="mini-btn"
@@ -4173,6 +4192,17 @@ export function App() {
             ) : (
               <div className="config-section" data-testid="live-camera-tab-panel">
                 <strong style={{ fontSize: "0.84rem", color: "var(--text-secondary)" }}>Live Mat Referee &amp; Camera</strong>
+                <select
+                  aria-label="Live Ruleset"
+                  data-testid="live-ruleset-select"
+                  className="input-clean"
+                  value={liveRuleset}
+                  onChange={(e) => setLiveRuleset(e.target.value as RulesetId)}
+                >
+                  <option value="ibjjf_v6">IBJJF v6.1</option>
+                  <option value="adcc">ADCC</option>
+                  <option value="sparring">Sparring</option>
+                </select>
                 <button
                   type="button"
                   className="analyze-trigger-btn"
