@@ -1410,11 +1410,11 @@ describe("RollMetrics Single-Screen Video Telemetry MVP", () => {
     // 1) Public Cloud Landing Page + Google Sign-In
     await waitFor(() => {
       expect(screen.getByTestId("cloud-signin-gate")).toBeInTheDocument();
+      expect(screen.getByText("Sign in with Google")).toBeInTheDocument();
+      expect(initializeSpy).toHaveBeenCalledTimes(1);
     });
     expect(screen.getByAltText("RollMetrics mark")).toHaveAttribute("src", "/logo-mark.svg");
     expect(screen.getAllByText("RollMetrics").length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText("Sign in with Google")).toBeInTheDocument();
-    expect(initializeSpy).toHaveBeenCalledTimes(1);
     expect(screen.queryByPlaceholderText("Google ID token")).not.toBeInTheDocument();
     expect(screen.queryByText(/authorized Google account/i)).not.toBeInTheDocument();
     expect(screen.queryByText("Match Calls")).not.toBeInTheDocument();
