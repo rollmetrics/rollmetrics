@@ -1,0 +1,12 @@
+{
+  "version": "1.0",
+  "type": "link",
+  "title": "RollMetrics",
+  "author_name": "RollMetrics",
+  "author_url": "https://rollmetrics.ca/",
+  "provider_name": "RollMetrics",
+  "provider_url": "https://rollmetrics.ca/",
+  "thumbnail_url": "https://rollmetrics.ca/og-card.png?v=2",
+  "thumbnail_width": 1200,
+  "thumbnail_height": 630
+}
