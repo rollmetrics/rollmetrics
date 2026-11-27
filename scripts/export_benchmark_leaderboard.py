@@ -12,14 +12,16 @@ from typing import Any
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_SCOREBOARD_DIR = REPO_ROOT / "knowledge_base" / "evals" / "scoreboard_v1"
 DEFAULT_OUTPUT_PATH = REPO_ROOT / "benchmarks" / "scoreboard_v1" / "LEADERBOARD.md"
+DEFAULT_CATALOG_PATH = REPO_ROOT / "benchmarks" / "scoreboard_v1" / "DATASET_CATALOG.md"
 
 
 def load_scoreboard_artifacts(scoreboard_dir: Path) -> dict[str, Any]:
-    """Load latest_results.json, splits.json, and labels.jsonl from scoreboard_dir."""
+    """Load latest_results.json, splits.json, labels.jsonl, and matches.jsonl from scoreboard_dir."""
     base = Path(scoreboard_dir).expanduser().resolve()
     results_path = base / "latest_results.json"
     splits_path = base / "splits.json"
     labels_path = base / "labels.jsonl"
+    matches_path = base / "matches.jsonl"
 
     if not results_path.is_file():
         raise FileNotFoundError(f"Missing scoreboard results file: {results_path}")
@@ -36,7 +38,14 @@ def load_scoreboard_artifacts(scoreboard_dir: Path) -> dict[str, Any]:
             if line:
                 labels.append(json.loads(line))
 
-    return {"results": results, "splits": splits, "labels": labels}
+    matches: list[dict[str, Any]] = []
+    if matches_path.is_file():
+        for raw_line in matches_path.read_text(encoding="utf-8").splitlines():
+            line = raw_line.strip()
+            if line:
+                matches.append(json.loads(line))
+
+    return {"results": results, "splits": splits, "labels": labels, "matches": matches}
 
 
 def summarize_corpus(labels: list[dict[str, Any]], splits: dict[str, Any]) -> dict[str, Any]:
@@ -130,6 +139,7 @@ def render_leaderboard_markdown(
         "",
         "> Auto-generated from `knowledge_base/evals/scoreboard_v1/{latest_results.json,splits.json,labels.jsonl}`.",
         "> Refresh after any new evaluation run with `python3 scripts/export_benchmark_leaderboard.py`.",
+        "> See also: [122-Bout Dataset Catalog](DATASET_CATALOG.md) | [Metrics & Harness Specifications](METRICS_AND_HARNESSES.md).",
         "",
         "## Run Metadata",
         "",
@@ -237,20 +247,82 @@ def render_leaderboard_markdown(
     return "\n".join(lines)
 
 
-def export_leaderboard(scoreboard_dir: Path, output_path: Path | None = None) -> str:
-    """Load scoreboard artifacts, render Markdown, and optionally write to output_path."""
+def render_dataset_catalog_markdown(
+    matches: list[dict[str, Any]],
+    labels: list[dict[str, Any]],
+    splits: dict[str, Any],
+) -> str:
+    """Render the complete 122-bout rollmetrics-scoreboard-v1 catalog with public YouTube URLs."""
+    cal_ids = set(splits.get("calibration_match_ids", []))
+    held_ids = set(splits.get("heldout_match_ids", []))
+    labels_by_id = {str(r.get("match_id", "")): r for r in labels}
+
+    lines: list[str] = [
+        "# rollmetrics-scoreboard-v1 Dataset Catalog (122 Bouts)",
+        "",
+        "> Auto-generated from `knowledge_base/evals/scoreboard_v1/{matches.jsonl,labels.jsonl,splits.json}`.",
+        "> Zero raw video files are committed to Git. Every bout links directly to its public YouTube broadcast URL and clip window.",
+        "> See also: [Leaderboard](LEADERBOARD.md) | [Metrics & Harness Specifications](METRICS_AND_HARNESSES.md).",
+        "",
+        "| # | Match ID | Split | Event | Matchup | Uniform | Window (s) | GT Final Score (A-B) | Winner / Method | Audited | Source |",
+        "| ---: | :--- | :--- | :--- | :--- | :--- | ---: | :--- | :--- | :---: | :--- |",
+    ]
+
+    for idx, m in enumerate(matches, start=1):
+        mid = str(m.get("match_id", ""))
+        split_label = "calibration" if mid in cal_ids else ("heldout" if mid in held_ids else "unassigned")
+        lbl = labels_by_id.get(mid, {})
+        sa = lbl.get("final_score_a") or {}
+        sb = lbl.get("final_score_b") or {}
+        pts_a, pts_b = int(sa.get("points", 0)), int(sb.get("points", 0))
+        adv_a, adv_b = int(sa.get("advantages", 0)), int(sb.get("advantages", 0))
+        pen_a, pen_b = int(sa.get("penalties", 0)), int(sb.get("penalties", 0))
+        score_str = f"{pts_a}-{pts_b} ({adv_a}-{adv_b} adv, {pen_a}-{pen_b} pen)"
+        winner = str(lbl.get("winner", "?"))
+        method = str(lbl.get("method", "unknown"))
+        audited = "yes" if lbl.get("human_spot_checked") else "no"
+        start_s = int(float(lbl.get("active_bout_start_sec", m.get("start_sec", 0))))
+        end_s = int(float(lbl.get("active_bout_end_sec", m.get("end_sec", 0))))
+        dur_s = max(0, end_s - start_s)
+        ath_a = str(m.get("athlete_a", "A")).replace("|", "/")
+        ath_b = str(m.get("athlete_b", "B")).replace("|", "/")
+        event_name = str(m.get("event_name", "")).replace("|", "/")
+        uniform = str(m.get("uniform", "gi"))
+        url = str(m.get("url", ""))
+        src_link = f"[YouTube]({url})" if url else "-"
+
+        lines.append(
+            f"| {idx} | `{mid}` | `{split_label}` | {event_name} | {ath_a} vs. {ath_b} | "
+            f"{uniform} | {start_s}-{end_s} ({dur_s}s) | {score_str} | `{winner}` ({method}) | {audited} | {src_link} |"
+        )
+
+    lines.append("")
+    return "\n".join(lines)
+
+
+def export_leaderboard(
+    scoreboard_dir: Path,
+    output_path: Path | None = None,
+    catalog_output_path: Path | None = None,
+) -> str:
+    """Load scoreboard artifacts, render Markdown, and optionally write leaderboard & dataset catalog."""
     bundle = load_scoreboard_artifacts(scoreboard_dir)
     markdown = render_leaderboard_markdown(bundle["results"], bundle["splits"], bundle["labels"])
     if output_path is not None:
         out = Path(output_path).expanduser().resolve()
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text(markdown, encoding="utf-8")
+    if catalog_output_path is not None and bundle.get("matches"):
+        cat_md = render_dataset_catalog_markdown(bundle["matches"], bundle["labels"], bundle["splits"])
+        cat_out = Path(catalog_output_path).expanduser().resolve()
+        cat_out.parent.mkdir(parents=True, exist_ok=True)
+        cat_out.write_text(cat_md, encoding="utf-8")
     return markdown
 
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Export benchmarks/scoreboard_v1/LEADERBOARD.md from scoreboard_v1 artifacts."
+        description="Export benchmarks/scoreboard_v1/LEADERBOARD.md and DATASET_CATALOG.md from scoreboard_v1 artifacts."
     )
     parser.add_argument(
         "--scoreboard-dir",
@@ -265,6 +337,12 @@ def build_parser() -> argparse.ArgumentParser:
         help="Destination Markdown path (default: benchmarks/scoreboard_v1/LEADERBOARD.md).",
     )
     parser.add_argument(
+        "--catalog-output",
+        type=Path,
+        default=DEFAULT_CATALOG_PATH,
+        help="Destination 122-bout catalog Markdown path (default: benchmarks/scoreboard_v1/DATASET_CATALOG.md).",
+    )
+    parser.add_argument(
         "--stdout",
         action="store_true",
         help="Also print rendered Markdown to stdout.",
@@ -274,7 +352,11 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
-    markdown = export_leaderboard(args.scoreboard_dir, output_path=args.output)
+    markdown = export_leaderboard(
+        args.scoreboard_dir,
+        output_path=args.output,
+        catalog_output_path=args.catalog_output,
+    )
     if args.stdout:
         print(markdown)
     return 0
