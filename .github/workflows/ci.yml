@@ -74,7 +74,67 @@ jobs:
         env:
           ROLLMETRICS_ENVIRONMENT: test
           ROLLMETRICS_ALLOW_LOCAL_DEV_BYPASS: "true"
-        run: .venv/bin/pytest -v --cov=rollmetrics --cov-report=term-missing --cov-fail-under=99
+        run: .venv/bin/pytest -v --junitxml=junit-backend.xml --cov=rollmetrics --cov-report=term-missing --cov-report=json:coverage-backend.json --cov-fail-under=99
+
+      - name: Publish backend coverage summary
+        if: always() && hashFiles('coverage-backend.json') != ''
+        run: |
+          python3 - <<'PY'
+          import json, os, xml.etree.ElementTree as ET
+          cov = json.load(open("coverage-backend.json", encoding="utf-8"))
+          totals = cov.get("totals", {})
+          stmts = int(totals.get("num_statements", 0))
+          missed = int(totals.get("missing_lines", 0))
+          pct = float(totals.get("percent_covered", 0.0))
+          tests_label = "n/a"
+          if os.path.exists("junit-backend.xml"):
+              root = ET.parse("junit-backend.xml").getroot()
+              suite = root.find("testsuite") if root.tag == "testsuites" else root
+              if suite is not None:
+                  total = int(suite.attrib.get("tests", 0))
+                  failed = int(suite.attrib.get("failures", 0)) + int(suite.attrib.get("errors", 0))
+                  tests_label = f"{total - failed}/{total} passed"
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as fh:
+              fh.write("### Backend Coverage Summary\n\n")
+              fh.write("| Statements | Missed | Coverage % | Tests |\n")
+              fh.write("| ---: | ---: | ---: | :--- |\n")
+              fh.write(f"| {stmts} | {missed} | {pct:.2f}% | {tests_label} |\n\n")
+          PY
+
+      - name: Audit bundled landing media contract
+        run: .venv/bin/python scripts/audit_media_contracts.py --file frontend/public/landing-preview.mp4
+
+      - name: Run critical-module branch coverage check
+        env:
+          ROLLMETRICS_ENVIRONMENT: test
+          ROLLMETRICS_ALLOW_LOCAL_DEV_BYPASS: "true"
+        run: |
+          .venv/bin/pytest -q \
+            --cov=rollmetrics.auth \
+            --cov=rollmetrics.storage \
+            --cov=rollmetrics.video.live_session \
+            --cov=rollmetrics.rules.state_machine \
+            --cov=rollmetrics.rules.adcc \
+            --cov-branch \
+            --cov-report=json:coverage-critical-branch.json \
+            backend/tests/test_critical_branches.py \
+            backend/tests/test_rules_and_video.py \
+            backend/tests/test_v03_storage_and_adcc.py \
+            backend/tests/test_backend_100_core.py
+          python3 - <<'PY'
+          import json, os
+          cov = json.load(open("coverage-critical-branch.json", encoding="utf-8"))
+          totals = cov.get("totals", {})
+          total_b = int(totals.get("num_branches", 0))
+          cov_b = int(totals.get("covered_branches", 0))
+          pct = (100.0 * cov_b / total_b) if total_b else 100.0
+          print(f"Critical-module branch coverage: {cov_b}/{total_b} ({pct:.2f}%)")
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as fh:
+              fh.write("### Critical-Module Branch Coverage\n\n")
+              fh.write("| Scope | Branches | Covered | Branch % |\n")
+              fh.write("| :--- | ---: | ---: | ---: |\n")
+              fh.write(f"| `auth`, `storage`, `live_session`, `state_machine`, `adcc` | {total_b} | {cov_b} | {pct:.2f}% |\n\n")
+          PY
 
       - name: Run Knowledge Base v0.1.0 benchmark suite
         env:
@@ -109,7 +169,7 @@ jobs:
       - name: Build multi-stage Docker image
         run: docker build -t rollmetrics:ci .
 
-      - name: Container health and production auth-gate smoke test
+      - name: Container health, auth-gate, and Playwright E2E smoke test
         run: |
           docker run -d --name rollmetrics-ci \
             -p 8080:8080 \
@@ -117,6 +177,7 @@ jobs:
             -e ROLLMETRICS_ALLOW_LOCAL_DEV_BYPASS=false \
             -e ROLLMETRICS_ALLOWLIST_EMAILS=admin@example.com \
             rollmetrics:ci
+          trap 'docker rm -f rollmetrics-ci >/dev/null 2>&1 || true' EXIT
           for i in $(seq 1 25); do
             if curl -fsS http://127.0.0.1:8080/healthz >/dev/null 2>&1; then
               curl -fsS http://127.0.0.1:8080/healthz
@@ -132,4 +193,33 @@ jobs:
             docker logs rollmetrics-ci
             exit 1
           fi
-          docker rm -f rollmetrics-ci
+          npm --prefix frontend install --no-save playwright
+          npx --prefix frontend playwright install chromium --with-deps
+          ROLLMETRICS_E2E_URL=http://127.0.0.1:8080 npm --prefix frontend run test:e2e
+
+      - name: Upload Playwright E2E failure screenshots
+        if: failure() && hashFiles('frontend/test-results/**') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-e2e-failures
+          path: frontend/test-results/
+          retention-days: 7
+
+      - name: Publish frontend coverage and Docker smoke summary
+        if: always() && hashFiles('frontend/coverage/coverage-summary.json') != ''
+        run: |
+          python3 - <<'PY'
+          import json, os
+          summary = json.load(open("frontend/coverage/coverage-summary.json", encoding="utf-8")).get("total", {})
+          def fmt(key):
+              item = summary.get(key, {})
+              return f"{float(item.get('pct', 0.0)):.2f}% ({item.get('covered', 0)}/{item.get('total', 0)})"
+          smoke_status = "PASSED" if os.environ.get("JOB_STATUS", "success") == "success" else "FAILED"
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as fh:
+              fh.write("### Frontend Coverage & Docker Smoke Summary\n\n")
+              fh.write("| Statements | Branches | Functions | Lines | Docker Smoke |\n")
+              fh.write("| :--- | :--- | :--- | :--- | :--- |\n")
+              fh.write(f"| {fmt('statements')} | {fmt('branches')} | {fmt('functions')} | {fmt('lines')} | {smoke_status} |\n\n")
+          PY
+        env:
+          JOB_STATUS: ${{ job.status }}

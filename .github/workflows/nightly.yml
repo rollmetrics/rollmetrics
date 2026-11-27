@@ -1,0 +1,81 @@
+name: Nightly Canary & Media Audit
+
+on:
+  schedule:
+    - cron: "0 7 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nightly-canary
+  cancel-in-progress: true
+
+jobs:
+  nightly-canary:
+    name: Nightly Media Audit, Live-Sim Canary & Branch Coverage
+    if: github.repository == 'rollmetrics/rollmetrics'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install ffmpeg
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends ffmpeg
+
+      - name: Install uv and Python 3.12
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.12"
+          enable-cache: false
+
+      - name: Install RollMetrics and dev dependencies
+        run: |
+          uv venv .venv --python 3.12 --clear
+          uv pip install --python .venv/bin/python -e ".[dev]"
+
+      - name: Audit production media and Range streaming contracts
+        run: |
+          .venv/bin/python scripts/audit_media_contracts.py \
+            --file frontend/public/landing-preview.mp4 \
+            --base-url https://rollmetrics.ca \
+            --probe-demo-matches
+
+      - name: Run nightly Live-Sim and Knowledge Base canary
+        env:
+          ROLLMETRICS_ENVIRONMENT: test
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: .venv/bin/python scripts/run_nightly_canary.py
+
+      - name: Run full backend branch coverage report
+        env:
+          ROLLMETRICS_ENVIRONMENT: test
+          ROLLMETRICS_ALLOW_LOCAL_DEV_BYPASS: "true"
+        run: |
+          .venv/bin/pytest -q --cov=rollmetrics --cov-branch --cov-report=json:coverage-branch-full.json backend/tests
+          python3 - <<'PY'
+          import json, os
+          cov = json.load(open("coverage-branch-full.json", encoding="utf-8"))
+          critical = [
+              "backend/rollmetrics/auth.py",
+              "backend/rollmetrics/storage.py",
+              "backend/rollmetrics/video/live_session.py",
+              "backend/rollmetrics/rules/state_machine.py",
+              "backend/rollmetrics/rules/adcc.py",
+          ]
+          files = cov.get("files", {})
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as fh:
+              fh.write("### Nightly Critical-Module Branch Coverage\n\n")
+              fh.write("| Module | Branches | Covered | Branch % |\n")
+              fh.write("| :--- | ---: | ---: | ---: |\n")
+              for rel in critical:
+                  s = files.get(rel, {}).get("summary", {})
+                  total_b = int(s.get("num_branches", 0))
+                  cov_b = int(s.get("covered_branches", 0))
+                  pct = (100.0 * cov_b / total_b) if total_b else 100.0
+                  fh.write(f"| `{rel}` | {total_b} | {cov_b} | {pct:.2f}% |\n")
+              fh.write("\n")
+          PY

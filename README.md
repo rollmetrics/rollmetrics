@@ -5,6 +5,12 @@
 <h1 align="center">RollMetrics</h1>
 
 <p align="center">
+  <a href="https://github.com/rollmetrics/rollmetrics/actions/workflows/ci.yml"><img src="https://github.com/rollmetrics/rollmetrics/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
+  <a href="https://github.com/rollmetrics/rollmetrics/actions/workflows/deploy.yml"><img src="https://github.com/rollmetrics/rollmetrics/actions/workflows/deploy.yml/badge.svg" alt="Deploy Cloud Run" /></a>
+  <img src="https://img.shields.io/badge/Coverage-99%25%2B%20CI%20enforced-16a34a" alt="Coverage: 99%+ CI enforced" />
+</p>
+
+<p align="center">
   <strong>Open-source Jiu-Jitsu match scoring, film study, and private academy coaching.</strong>
 </p>
 
@@ -56,15 +62,25 @@ Evaluated on `122` real tournament bouts (`41` calibration / `81` heldout, `0` c
 | `gemini-4-neon-agentic` (`480p` mat crop + anchor) | **90.0%** | 1.20 | 10.0% | $0.2078 |
 | `ollama/gemma4:e2b` (3-stage offline local agentic) | **55.6%** | 1.94 | 22.2% | **$0.0000** |
 
-## Tests & Coverage
+## Automated Testing Pyramid
+
+Every push to `main` runs a 5-layer CI gate before `Deploy Cloud Run` is permitted to ship:
+
+1. **Playwright E2E (`npm --prefix frontend run test:e2e`):** Headless Chromium against the production Docker container across Desktop (`1440x820`) and Mobile (`390x844`), verifying landing video & diamond sync, demo sign-in, routing (`/me`, `/m/<id>`, `/curricula`, `/rules/ibjjf-v6-1`), and zero horizontal overflow.
+2. **Media & Range Streaming Audit (`scripts/audit_media_contracts.py`):** Verifies H.264 `yuv420p`, constant frame rate, `moov`-before-`mdat` (`+faststart`), and HTTP `206` Range streaming.
+3. **Nightly Live-Sim & ML Canary (`.github/workflows/nightly.yml`):** Daily cloud vision + Knowledge Base `v0.1.0` + production media probe.
+4. **Property-Based Rules Fuzzing (`backend/tests/test_rules_properties.py`):** Hypothesis fuzzing enforcing IBJJF and ADCC scoring invariants.
+5. **Line & Critical-Module Branch Coverage:** `99%+` backend line coverage (`100%` local), `100%` frontend line coverage, and `>= 95%` branch coverage on critical auth, storage, live-session, and rules-engine modules.
 
 ```bash
-# Backend (pytest + coverage)
-.venv/bin/ruff check backend
-.venv/bin/pytest --cov=rollmetrics --cov-fail-under=92
+# Backend lint, 100% local coverage, and media contract audit
+.venv/bin/ruff check backend scripts/
+.venv/bin/pytest --cov=rollmetrics --cov-fail-under=99
+.venv/bin/python scripts/audit_media_contracts.py --file frontend/public/landing-preview.mp4
 
-# Frontend (Vitest + coverage)
+# Frontend 100% unit coverage + Playwright E2E
 npm --prefix frontend run test:coverage
+npm --prefix frontend run test:e2e
 ```
 
 ## License
